@@ -756,6 +756,9 @@ function detailTex(kind){
   } else if(kind==='plaster'){
     blots(x,s,40,16,70,g(105,.12)); blots(x,s,40,16,70,g(160,.12)); specks(x,s,3000,1.6,[g(100,.25),g(165,.2)]);
     x.strokeStyle=g(70,.45); x.lineWidth=1.2; for(let i=0;i<5;i++){ let px=Math.random()*s,py=Math.random()*s; x.beginPath(); x.moveTo(px,py); for(let k=0;k<6;k++){ px+=(Math.random()-.5)*26; py+=8+Math.random()*16; x.lineTo(px,py);} x.stroke(); }
+    for(let i=0;i<4;i++){ const px=Math.random()*(s-70),py=Math.random()*(s-60),w=34+Math.random()*34,h=28+Math.random()*28;   // chunks of plaster knocked off, showing brick underneath
+      x.fillStyle=g(88,.9); x.beginPath(); x.moveTo(px,py+h*0.2); x.lineTo(px+w*0.3,py); x.lineTo(px+w,py+h*0.15); x.lineTo(px+w*0.9,py+h*0.8); x.lineTo(px+w*0.4,py+h); x.lineTo(px,py+h*0.7); x.closePath(); x.fill();
+      x.strokeStyle=g(50,.8); x.lineWidth=1.5; for(let r=1;r<4;r++){ x.beginPath(); x.moveTo(px+2,py+r*h/4); x.lineTo(px+w-2,py+r*h/4); x.stroke(); } }
   } else if(kind==='concrete'){
     blots(x,s,40,10,50,g(110,.12)); blots(x,s,40,10,50,g(150,.12)); specks(x,s,5000,1.6,[g(95,.3),g(160,.28),g(70,.3)]);
     x.fillStyle=g(95,.35); for(let y=0;y<s;y+=s/4) x.fillRect(0,y,s,1.4);                               // formwork seams
@@ -763,8 +766,10 @@ function detailTex(kind){
     const pw=s/8; for(let p=0;p<8;p++){ x.fillStyle=g(108+Math.random()*40); x.fillRect(p*pw,0,pw,s); x.fillStyle=g(50); x.fillRect(p*pw,0,2,s); }
     for(let i=0;i<260;i++){ const px=Math.random()*s,py=Math.random()*s,l=30+Math.random()*120; x.strokeStyle=g(90+Math.random()*60,.35); x.lineWidth=1; x.beginPath(); x.moveTo(px,py); x.lineTo(px+(Math.random()-.5)*4,py+l); x.stroke(); }
     for(let i=0;i<8;i++){ const px=Math.random()*s,py=Math.random()*s; x.strokeStyle=g(70,.5); x.lineWidth=2; x.beginPath(); x.ellipse(px,py,5,9,0,0,7); x.stroke(); }
-  } else if(kind==='dirt'){
-    blots(x,s,40,12,60,g(100,.15)); blots(x,s,40,12,60,g(160,.15)); specks(x,s,4200,2,[g(90,.3),g(170,.3)]);
+  } else if(kind==='dirt'){                             // clods, pebbles, cracks, scuffs
+    blots(x,s,50,10,60,g(96,.2)); blots(x,s,50,10,60,g(166,.2)); blots(x,s,70,4,14,g(88,.32)); blots(x,s,70,4,14,g(178,.3));
+    specks(x,s,3500,3,[g(84,.4),g(176,.35),g(120,.3)]); specks(x,s,500,6,[g(185,.55),g(70,.5)]);       // pebbles and clumps
+    x.lineWidth=1.1; for(let i=0;i<22;i++){ let px=Math.random()*s,py=Math.random()*s; x.strokeStyle=g(60,.5); x.beginPath(); x.moveTo(px,py); for(let k=0;k<7;k++){ px+=(Math.random()-.5)*22; py+=(Math.random()-.5)*22; x.lineTo(px,py);} x.stroke(); }
   } else if(kind==='metal'){
     specks(x,s,3200,1.4,[g(100,.25),g(160,.22)]); blots(x,s,30,10,50,g(100,.1)); strokes(x,s,120,18,0.8,[g(190,.25),g(70,.3)],6.28);
   } else if(kind==='fabric'){                           // woven cloth: 4 px weave
@@ -777,13 +782,16 @@ function detailTex(kind){
   return detailTexCache[kind]=t;
 }
 const detailClones=new Map(), detailMats=new Set(), lookFail={detail:false,sky:false,grass:false};
-function withDetail(m,kind,scale=0.5,strength=0.8,local=false){
-  const tex=detailTex(kind);
+// opt: {extra:{kind,scale,str}  second, larger-scale layer (breaks up tiling) · bump: relief strength · ao: darken toward the ground}
+function withDetail(m,kind,scale=0.5,strength=0.8,local=false,opt={}){
+  const tex=detailTex(kind), ex=opt.extra||null, tex2=ex?detailTex(ex.kind):null, bump=opt.bump||0, ao=opt.ao||0;
   m.userData.detailed=true; detailMats.add(m);
-  m.customProgramCacheKey=()=>'dt'+kind+(local?'L':'W')+(lookFail.detail?'x':'');
+  m.customProgramCacheKey=()=>'dt'+kind+(local?'L':'W')+(ex?'E':'')+(bump?'B':'')+(ao?'A':'')+(lookFail.detail?'x':'');
   m.onBeforeCompile=sh=>{
     if(lookFail.detail) return;
     sh.uniforms.dTex={value:tex}; sh.uniforms.dScale={value:scale}; sh.uniforms.dStr={value:strength};
+    sh.uniforms.dBump={value:bump}; sh.uniforms.dAO={value:ao};
+    if(ex){ sh.uniforms.dTex2={value:tex2}; sh.uniforms.dScale2={value:ex.scale}; sh.uniforms.dStr2={value:ex.str}; }
     sh.vertexShader=sh.vertexShader
       .replace('#include <common>','#include <common>\nvarying vec3 vDP; varying vec3 vDN;')
       .replace('#include <begin_vertex>',`#include <begin_vertex>
@@ -794,11 +802,20 @@ function withDetail(m,kind,scale=0.5,strength=0.8,local=false){
         dp4=modelMatrix*dp4; dn3=mat3(modelMatrix)*dn3;`}
         vDP=dp4.xyz; vDN=normalize(dn3);`);
     sh.fragmentShader=sh.fragmentShader
-      .replace('#include <common>','#include <common>\nvarying vec3 vDP; varying vec3 vDN; uniform sampler2D dTex; uniform float dScale; uniform float dStr;')
+      .replace('#include <common>',`#include <common>
+        varying vec3 vDP; varying vec3 vDN; uniform sampler2D dTex; uniform float dScale; uniform float dStr; uniform float dBump; uniform float dAO;
+        ${ex?'uniform sampler2D dTex2; uniform float dScale2; uniform float dStr2;':''}
+        float dH=0.5;
+        vec3 dTri(sampler2D t,vec3 p,vec3 w,float sc){ return texture2D(t,p.zy*sc).rgb*w.x+texture2D(t,p.xz*sc).rgb*w.y+texture2D(t,p.xy*sc).rgb*w.z; }`)
       .replace('#include <color_fragment>',`#include <color_fragment>
         { vec3 an=pow(abs(normalize(vDN)),vec3(4.0)); an/=(an.x+an.y+an.z+1e-4);
-          vec3 dt=texture2D(dTex,vDP.zy*dScale).rgb*an.x+texture2D(dTex,vDP.xz*dScale).rgb*an.y+texture2D(dTex,vDP.xy*dScale).rgb*an.z;
-          diffuseColor.rgb*=mix(vec3(1.0),dt*2.0,dStr); }`);
+          vec3 dt=dTri(dTex,vDP,an,dScale); diffuseColor.rgb*=mix(vec3(1.0),dt*2.0,dStr); dH=dt.r;
+          ${ex?'vec3 dt2=dTri(dTex2,vDP,an,dScale2); diffuseColor.rgb*=mix(vec3(1.0),dt2*2.0,dStr2);':''}
+          diffuseColor.rgb*=mix(1.0,mix(0.62,1.0,smoothstep(0.0,1.8,vDP.y)),dAO); }`)
+      .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
+        if(dBump>0.0){ vec2 dHxy=vec2(dFdx(dH),dFdy(dH))*dBump; vec3 sx=normalize(dFdx(-vViewPosition)), sy=normalize(dFdy(-vViewPosition));
+          vec3 R1=cross(sy,normal), R2=cross(normal,sx); float fDet=dot(sx,R1)*faceDirection; vec3 vGrad=sign(fDet)*(dHxy.x*R1+dHxy.y*R2);
+          normal=normalize(abs(fDet)*normal-vGrad); }`);
   };
   m.needsUpdate=true; return m;
 }
@@ -808,23 +825,23 @@ function detailFor(m){
   if(m.userData.detailed) return m;
   let c=detailClones.get(m); if(c) return c;
   const hsl={}; m.color.getHSL(hsl);
-  let kind, sc=0.5, st=0.8;
-  if(m.vertexColors){ kind='dirt'; sc=0.6; st=0.45; }
-  else if(hsl.l<0.16) kind='metal', sc=0.8, st=0.5;
-  else if(hsl.s>0.22 && (hsl.h<0.045||hsl.h>0.95) && hsl.l<0.55) kind='brick', sc=0.5, st=0.9;
-  else if(hsl.h>0.04 && hsl.h<0.12 && hsl.s>0.27 && hsl.l<0.46) kind='wood', sc=0.5, st=0.9;
-  else if(hsl.h>0.04 && hsl.h<0.14 && hsl.s>0.12 && hsl.l<0.5) kind='dirt', sc=0.5, st=0.75;
-  else if(hsl.h>0.17 && hsl.h<0.45 && hsl.s>0.12) kind='dirt', sc=0.5, st=0.7;
-  else if(hsl.s<0.1) kind='concrete', sc=0.4, st=0.85;
-  else kind='plaster', sc=0.35, st=0.8;
-  c=m.clone(); withDetail(c,kind,sc,st); detailClones.set(m,c); return c;
+  let kind, sc=0.5, st=0.8, o={bump:2.5,ao:0.8};
+  if(m.vertexColors){ kind='dirt'; sc=0.6; st=0.5; o={bump:3}; }
+  else if(hsl.l<0.16) kind='metal', sc=0.8, st=0.5, o={bump:1.5};
+  else if(hsl.s>0.22 && (hsl.h<0.045||hsl.h>0.95) && hsl.l<0.55) kind='brick', sc=0.5, st=0.95, o={bump:4,ao:0.9};
+  else if(hsl.h>0.04 && hsl.h<0.12 && hsl.s>0.27 && hsl.l<0.46) kind='wood', sc=0.5, st=0.9, o={bump:3.5,ao:0.7};
+  else if(hsl.h>0.04 && hsl.h<0.14 && hsl.s>0.12 && hsl.l<0.5) kind='dirt', sc=0.5, st=0.9, o={bump:4,extra:{kind:'macro',scale:1/40,str:0.6}};
+  else if(hsl.h>0.17 && hsl.h<0.45 && hsl.s>0.12) kind='dirt', sc=0.5, st=0.8, o={bump:3.5};
+  else if(hsl.s<0.1) kind='concrete', sc=0.4, st=0.9, o={bump:3,ao:0.9};
+  else kind='plaster', sc=0.35, st=0.9, o={bump:2.5,ao:1};
+  c=m.clone(); withDetail(c,kind,sc,st,false,o); detailClones.set(m,c); return c;
 }
 function detailMap(){
   const seen=new Set();
   const visit=o=>{ if(!o.isMesh||o===ground||o.isInstancedMesh&&o.userData.grass) return; const m=o.material; if(!m||Array.isArray(m)||m.isMeshBasicMaterial||m===propMat) return; o.material=detailFor(m); };
   mapRoot.traverse(visit); for(const m of shootables) visit(m);
 }
-withDetail(propMat,'dirt',0.55,0.5);
+withDetail(propMat,'dirt',0.55,0.5,false,{bump:3});
 
 /* ---- grass: dense tapered blades, dark roots to bright tips, swaying, receives the sun's shadows ---- */
 const grassGroup=new THREE.Group(); scene.add(grassGroup);
@@ -833,7 +850,7 @@ let _bladeGeo=null;
 function bladeGeo(){
   if(_bladeGeo) return _bladeGeo;
   const segs=4, pos=[], nor=[], col=[], idx=[];
-  for(let i=0;i<=segs;i++){ const t=i/segs, hw=i===segs?0:0.5*(1-t*0.85), y=t, z=t*t*0.35, sh=0.32+0.68*t;
+  for(let i=0;i<=segs;i++){ const t=i/segs, hw=i===segs?0:0.5*(1-t*0.85), y=t, z=t*t*0.5, sh=0.3+0.7*t;
     const nz=-0.25, nl=Math.hypot(nz,1);
     if(i===segs){ pos.push(0,y,z); nor.push(0,1/nl,nz/nl); col.push(sh,sh,sh); }
     else { pos.push(-hw,y,z,hw,y,z); nor.push(0,1/nl,nz/nl,0,1/nl,nz/nl); col.push(sh,sh,sh,sh,sh,sh); } }
@@ -861,9 +878,9 @@ function grassMat(){
   return _grassMat=m;
 }
 const GRASS_STYLE={
-  kursk:{dens:0.62,h:[0.32,0.7],w:[0.07,0.12],pal:['#5d7f2c','#6f9433','#86a93e','#4a6a26','#9bb548','#7d9a36']},
-  seelow:{dens:0.34,h:[0.22,0.5],w:[0.06,0.1],pal:['#6b6a3a','#7d7a42','#8d8650','#5a5a32','#73703c']},
-  berlin:{dens:0.16,h:[0.2,0.42],w:[0.05,0.09],pal:['#6c7048','#7f8350','#5b5f3e','#767a4a']}
+  kursk:{dens:0.8,h:[0.5,1.0],w:[0.1,0.2],pal:['#5d7f2c','#6f9433','#86a93e','#4a6a26','#9bb548','#7d9a36','#5a8a34','#a7b455']},
+  seelow:{dens:0.5,h:[0.35,0.75],w:[0.08,0.16],pal:['#6b6a3a','#7d7a42','#8d8650','#5a5a32','#73703c','#8a8a4a']},
+  berlin:{dens:0.26,h:[0.3,0.6],w:[0.07,0.13],pal:['#6c7048','#7f8350','#5b5f3e','#767a4a','#6a7a40']}
 };
 function clearGrass(){ for(const c of [...grassGroup.children]){ grassGroup.remove(c); if(c.dispose) c.dispose(); } }
 function grassMask(){
@@ -893,9 +910,9 @@ function buildGrass(id){
     const gy=groundY(x,z);
     if(gy<-0.02 || groundY(x+0.7,z)<-0.08 || groundY(x-0.7,z)<-0.08 || groundY(x,z+0.7)<-0.08 || groundY(x,z-0.7)<-0.08) continue;
     const key=Math.floor((x+R)/CH)+','+Math.floor((z+R)/CH); let ch=chunks.get(key); if(!ch){ ch=[]; chunks.set(key,ch); }
-    const nb=3+((Math.random()*3)|0), tall=0.7+0.6*Math.max(0,dens);
+    const nb=5+((Math.random()*4)|0), tall=0.7+0.6*Math.max(0,dens);
     for(let b=0;b<nb;b++){
-      ch.push(x+(Math.random()-.5)*0.34, gy, z+(Math.random()-.5)*0.34, Math.random()*6.283, (Math.random()-.3)*0.55, (Math.random()-.5)*0.4,
+      ch.push(x+(Math.random()-.5)*0.6, gy, z+(Math.random()-.5)*0.6, Math.random()*6.283, (Math.random()-.2)*0.9, (Math.random()-.5)*0.5,
         st.w[0]+Math.random()*(st.w[1]-st.w[0]), (st.h[0]+Math.random()*(st.h[1]-st.h[0]))*tall, (Math.random()*st.pal.length)|0, Math.random());
     }
   }
@@ -903,7 +920,7 @@ function buildGrass(id){
   for(const arr of chunks.values()){
     const cnt=arr.length/10, im=new THREE.InstancedMesh(geo,mat,cnt);
     for(let q=0;q<cnt;q++){ const o=q*10;
-      _grp.set(arr[o],arr[o+1],arr[o+2]); _gre.set(arr[o+4],arr[o+3],arr[o+5]); _grq.setFromEuler(_gre); _grs.set(arr[o+6],arr[o+7],1);
+      _grp.set(arr[o],arr[o+1],arr[o+2]); _gre.set(arr[o+4],arr[o+3],arr[o+5]); _grq.setFromEuler(_gre); _grs.set(arr[o+6],arr[o+7],arr[o+7]);
       _grm.compose(_grp,_grq,_grs); im.setMatrixAt(q,_grm);
       _grc.set(st.pal[arr[o+8]]); _grc.offsetHSL((arr[o+9]-.5)*0.03,(arr[o+9]-.5)*0.12,(arr[o+9]-.5)*0.14); im.setColorAt(q,_grc);
     }
@@ -950,7 +967,7 @@ function makeHills(){
   const m=new THREE.Mesh(g,hillMat); m.renderOrder=-90; m.frustumCulled=false; m.visible=false; scene.add(m); return m;
 }
 const hills=makeHills();
-withDetail(ground.material,'macro',1/56,0.7);
+withDetail(ground.material,'dirt',0.5,0.85,false,{extra:{kind:'macro',scale:1/56,str:0.7},bump:3.5});
 // safety net: if a graphics card rejects one of the new shaders, switch just that feature off instead of breaking the picture
 renderer.debug.onShaderError=(gl,prog,vs,fs)=>{
   let src=''; try{ src=gl.getShaderSource(fs)+gl.getShaderSource(vs); }catch(e){}
@@ -1020,6 +1037,13 @@ function resetProps(){
 }
 
 // ---------- ruined apartment block ----------
+function winFrame(cx,cz,w,d,y0,y1,alongX){       // sill, lintel, a mullion and a crossbar around a window hole
+  const fw=alongX?w:0.12, fd=alongX?0.12:d, mid=(y0+y1)/2;
+  sBox(cx,y0-0.07,cz,alongX?w+0.1:d+0.16,0.1,alongX?d+0.16:w+0.1,M.wood,false);
+  sBox(cx,y1-0.02,cz,alongX?w+0.1:0.2,0.1,alongX?0.2:w+0.1,M.wood,false);
+  sBox(cx,y0,cz,alongX?0.07:0.12,y1-y0,alongX?0.12:0.07,M.wood,false);
+  sBox(cx,mid-0.035,cz,alongX?w:0.12,0.07,alongX?0.12:w,M.wood,false);
+}
 function ruinedBuilding(x0,z0,x1,z1,floors,style,doors={}){
   const H=floors*3, T=0.5, mats=style==='brick'?M.brick:M.plaster;
   roofZones.push([x0,z0,x1,z1]);
@@ -1043,6 +1067,7 @@ function ruinedBuilding(x0,z0,x1,z1,floors,style,doors={}){
       const cx = alongX ? sx+(i+0.5)*cw : sx+T/2, cz = alongX ? sz+T/2 : sz+(i+0.5)*cw;
       const w = alongX ? cw : T, d = alongX ? T : cw;
       for(const [a,b] of spans){ if(b-a<0.05) continue; sBox(cx,a,cz,w,b-a,d,m,a<3.5); }
+      if(!breach && !corner && i%3===1) for(let f=0;f<floors;f++){ const y0=f*3+(f?0.8:1.0), y1=f*3+2.2; if(h>y1+0.15) winFrame(cx,cz,w,d,y0,y1,alongX); }
       const top=spans.length?spans[spans.length-1][1]:0;
       if(top>0.2) sBox(cx,top,cz,w+0.04,0.07,d+0.08,capMat(),false);
       if(breach && rnd()<0.7) rubble(cx+(alongX?0:(id==='w'?-1:1)*1.2),cz+(alongX?(id==='n'?-1:1)*1.2:0),1.6,10,mats);
@@ -1435,14 +1460,21 @@ function buildKursk(){
       for(let i=0;i<pa.count;i++){ const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i), k=1+0.2*(hash(x+seed,y,z)-0.5)*2; pa.setXYZ(i,x*k,y*k*0.92,z*k); }
       g.computeVertexNormals(); return g; };          // flat-shaded faceted canopy, like the reference
     const a=[[new THREE.CylinderGeometry(0.2,0.32,3,7),0x5a4330,0,1.5,0]];
-    const defs=[[1.55,0,3.6,0,0x3f7a2c],[1.15,0.95,3.15,0.35,0x4f8a30],[1.1,-0.85,3.3,-0.5,0x468430],[1.0,0.1,4.6,0.05,0x6fae3a],[0.8,-0.2,2.8,0.9,0x3a7228]];
+    const defs=[[1.55,0,3.6,0,0x3f7a2c],[1.15,0.95,3.15,0.35,0x4f8a30],[1.1,-0.85,3.3,-0.5,0x468430],[1.0,0.1,4.6,0.05,0x6fae3a],[0.8,-0.2,2.8,0.9,0x3a7228],[0.9,1.1,4.1,-0.4,0x55982f],[0.85,-1.0,4.0,0.5,0x4a8c30]];
     defs.forEach(([r,x,y,z,hex],i)=>a.push([blob(r,i*3.7),hex,x,y,z,0,i*1.1,0]));
     return a; };
   function tree(x,z,s=1){ addProp('ktree',buildTree,x,z,rnd()*6,s,0.5*s,3*s); }
+  const buildBush=()=>{ const hash=(x,y,z)=>{ const h=Math.sin(x*91.3+y*47.7+z*131.1)*43758.5453; return h-Math.floor(h); };
+    const blob=(r,seed)=>{ const g=new THREE.IcosahedronGeometry(r,1), pa=g.attributes.position; for(let i=0;i<pa.count;i++){ const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i),k=1+0.22*(hash(x+seed,y,z)-0.5)*2; pa.setXYZ(i,x*k,y*k*0.8,z*k); } g.computeVertexNormals(); return g; };
+    return [[blob(0.7,1),0x4a7d2c,0,0.45,0,0,0,0],[blob(0.55,2),0x5d9433,0.55,0.35,0.2,0,1,0],[blob(0.5,3),0x3f7228,-0.5,0.32,-0.15,0,2,0],[blob(0.4,4),0x6fa83a,0.1,0.8,0.05,0,3,0]]; };
   for(let z=-64;z<=64;z+=4.5) tree(-62+rnd()*3,z+rnd()*2,0.9+rnd()*0.4);
   for(let x=-58;x<=62;x+=5) tree(x+rnd()*2,-64+rnd()*3,0.9+rnd()*0.4);
   for(const [cx,cz] of [[55,-42],[52,44],[-10,46],[22,48],[-58,40],[60,0]])
     for(let i=0;i<6;i++) tree(cx+(rnd()-.5)*10,cz+(rnd()-.5)*10,0.8+rnd()*0.5);
+  // bushes scattered over the fields (soft cover to the eye, no collision)
+  for(let i=0,placed=0;i<400 && placed<46;i++){ const x=(rnd()-.5)*190, z=(rnd()-.5)*190;
+    if(Math.abs(x)<7 || (z>14&&z<40) || (z<-17&&z>-41) || roofZones.some(r=>x>r[0]-2&&x<r[2]+2&&z>r[1]-2&&z<r[3]+2)) continue;
+    addProp('kbush',buildBush,x,z,rnd()*6,0.8+rnd()*0.7,0,0); placed++; }
 
   // ---- haystacks ----
   for(const [hx,hz] of [[14,32],[22,36],[-12,40],[-48,30],[40,-34],[30,30],[-40,-30]]){
@@ -2281,6 +2313,7 @@ function drawShirt(x,s,sideKey,weaponKey,back){
       if(german){ x.strokeStyle=belt; x.lineWidth=14; x.beginPath(); x.moveTo(64,0); x.lineTo(128,110); x.lineTo(192,0); x.moveTo(128,110); x.lineTo(128,206); x.stroke(); }
       x.fillStyle=belt; x.fillRect(0,200,s,26);
     }
+    blots(x,s,7,10,30,'rgba(40,32,22,.09)'); blots(x,s,4,6,16,'rgba(30,24,16,.12)');      // grime and creases
   }
 }
 
@@ -2301,7 +2334,7 @@ function shirtAtlasMat(sideKey,weaponKey){
   x.fillStyle='#fff'; x.fillRect(0,0,512,512);                     // bottom half stays white: plain-colour parts sample here
   for(const back of [false,true]){ x.save(); x.beginPath(); x.rect(back?256:0,0,256,256); x.clip(); x.translate(back?256:0,0); drawShirt(x,256,sideKey,weaponKey,back); x.restore(); }
   const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
-  const am=new THREE.MeshStandardMaterial({map:t,vertexColors:true,roughness:.9}); withDetail(am,'fabric',3,0.3,true); return atlasCache[k]=am;
+  const am=new THREE.MeshStandardMaterial({map:t,vertexColors:true,roughness:.9}); withDetail(am,'fabric',3,0.3,true,{bump:1.5}); return atlasCache[k]=am;
 }
 function torsoAtlasGeo(L2,ST,uniColor){
   const g=new THREE.BoxGeometry(L2,L2,ST), uv=g.attributes.uv, n=uv.count, col=new Float32Array(n*3);
@@ -2317,7 +2350,7 @@ function torsoAtlasGeo(L2,ST,uniColor){
 const vcMatCache={};
 function vcMat(rough,metal,side){ const k=rough+'|'+metal+'|'+side; if(vcMatCache[k]) return vcMatCache[k];
   const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:rough,metalness:metal,side:side});
-  if(metal<0.2){ if(rough===0.85) withDetail(m,'fabric',3,0.4,true); else if(rough>=0.65&&rough<=0.75) withDetail(m,'wood',3.5,0.7,true); }   // cloth weave on uniforms, grain on gun stocks
+  if(metal<0.2){ if(rough===0.85) withDetail(m,'fabric',3,0.4,true,{bump:2}); else if(rough>=0.65&&rough<=0.75) withDetail(m,'wood',3.5,0.7,true,{bump:3}); }   // cloth weave on uniforms, grain on gun stocks
   return vcMatCache[k]=m; }
 function flipWinding(g){ const p=g.attributes.position, n=g.attributes.normal, u=g.attributes.uv, c=g.attributes.color;
   for(let i=0;i<p.count;i+=3){ for(const a of [p,n,u,c]){ if(!a) continue; const sz=a.itemSize; for(let j=0;j<sz;j++){ const t=a.array[(i+1)*sz+j]; a.array[(i+1)*sz+j]=a.array[(i+2)*sz+j]; a.array[(i+2)*sz+j]=t; } } }
@@ -2338,6 +2371,8 @@ function bakeNode(node,opt){
       const c=new Float32Array(n*3); for(let i=0;i<n;i++){ c[i*3]=m.color.r; c[i*3+1]=m.color.g; c[i*3+2]=m.color.b; } g.setAttribute('color',new THREE.BufferAttribute(c,3));
     }
     ch.updateMatrix(); g.applyMatrix4(ch.matrix);
+    if(opt.grime && g.attributes.color){ const pa=g.attributes.position, ca=g.attributes.color.array;       // mud on boots and trouser legs
+      for(let i=0;i<pa.count;i++){ const t=Math.min(1,Math.max(0,(pa.getY(i)+0.692)/0.5)), k=0.66+0.34*t; ca[i*3]*=k; ca[i*3+1]*=k; ca[i*3+2]*=k; } }
     const matte = isTorso || (!opt.exact && m.metalness<0.2);
     const dbl = !isTorso && m.side===THREE.DoubleSide;
     let key, rough, metal, side=THREE.FrontSide;
@@ -2357,7 +2392,7 @@ function bakeNode(node,opt){
     const mm=new THREE.Mesh(mg,material); mm.castShadow=b.cast; mm.receiveShadow=true; node.add(mm);
   }
   for(const ch of [...node.children]) if(!ch.isMesh && ch.children.length)
-    bakeNode(ch,{exact:opt.exact||ch.name==='weapon', atlas:ch.name==='upper'?opt.upperAtlas:null, upperAtlas:opt.upperAtlas});
+    bakeNode(ch,{exact:opt.exact||ch.name==='weapon', atlas:ch.name==='upper'?opt.upperAtlas:null, upperAtlas:opt.upperAtlas, grime:opt.grime||ch.name==='leg0'||ch.name==='leg1'});
 }
 function makeBoxSoldier(sideKey,weaponKey,label){
   const german=sideKey==='german';
@@ -2426,6 +2461,10 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   // relief details (all merged into the torso/arm meshes, so no extra draw calls): ammo pouches on the belt
   const leather=mat(german?0x1b1612:0x4d3220,{roughness:.8});
   for(const px of (german?[-0.2,-0.07,0.07,0.2]:[-0.19,0.19])){ const pch=rbox(0.1,0.11,0.07,leather,0.018); pch.position.set(px,0.13,-ST/2-0.03); upper.add(pch); }
+  // crossed chest webbing, and a rolled greatcoat over the shoulder for Soviet troops
+  const webM=mat(german?0x2a241c:0x6a6046,{roughness:.9});
+  for(const sg of [-1,1]){ const st=rbox(0.055,0.74,0.02,webM,0.008); st.position.set(sg*0.02,0.36,-ST/2-0.012); st.rotation.z=sg*0.5; upper.add(st); }
+  if(!german){ const roll=scyl(0.055,0.055,0.8,mat(0x7a755c,{roughness:1}),10); roll.rotation.z=0.95; roll.position.set(0.02,0.38,-ST/2-0.065); upper.add(roll); }
 
   // head + face
   const head=new THREE.Group(); head.name='head'; head.position.y=L2+0.215; upper.add(head);

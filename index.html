@@ -64,7 +64,7 @@
   *{touch-action:manipulation}
   html,body,canvas,#touchUI,#touchUI *{touch-action:none}
   html,body{-webkit-user-select:none;-webkit-touch-callout:none}
-  #touchUI{position:fixed;inset:0;z-index:6;display:none;--u:min(1vh,0.55vw)}
+  #touchUI{position:fixed;inset:0;z-index:6;display:none;--u:var(--ux,min(1vh,0.55vw))}
   #lookZone{position:absolute;top:0;bottom:0;right:0;width:58%}
   #leftZone{position:absolute;top:32%;bottom:0;left:0;width:42%}
   #joy{position:absolute;left:calc(6vw + env(safe-area-inset-left));bottom:8vh;width:calc(36*var(--u));height:calc(36*var(--u));
@@ -95,8 +95,8 @@
   #tNade{display:none;right:calc(4vw + 31*var(--u) + env(safe-area-inset-right));bottom:calc(50*var(--u));width:calc(14*var(--u));height:calc(14*var(--u))}
   body.tankmode #tNade,body.airmode #tNade{display:flex}
   /* inventory bar: primary / pistol / grenades */
-  #inv{position:fixed;z-index:6;--u:min(1vh,0.55vw);left:50%;bottom:calc(2.5*var(--u));transform:translateX(-50%);display:none;gap:calc(1.6*var(--u));pointer-events:auto}
-  body:not(.touch) #inv{--u:min(.62vh,.34vw);opacity:.92}
+  #inv{position:fixed;z-index:6;--u:var(--ux,min(1vh,0.55vw));left:50%;bottom:calc(2.5*var(--u));transform:translateX(-50%);display:none;gap:calc(1.6*var(--u));pointer-events:auto}
+  body:not(.touch) #inv{opacity:.92}
   body.invshow:not(.tankmode):not(.airmode) #inv{display:flex}
   #inv .slot{width:calc(19*var(--u));height:calc(13*var(--u));border-radius:calc(2*var(--u));background:rgba(22,24,26,.58);border:calc(.45*var(--u)) solid rgba(255,255,255,.35);
              display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f1ecde;font:bold calc(2.4*var(--u)) 'Courier New',monospace;line-height:1.15;touch-action:none;user-select:none;-webkit-user-select:none;position:relative}
@@ -150,7 +150,7 @@
   body.touch #ammo .n{font-size:17px} body.touch #ammo .w{font-size:10px}
   body.touch #waveInfo{font-size:11px;top:8px;right:auto;left:50%;transform:translateX(-50%);white-space:nowrap}
   /* ---- Entrenched-style layout (round dark buttons, same positions) ---- */
-  body.touch{--u:min(1vh,0.55vw)}
+  body.touch{--u:var(--ux,min(1vh,0.55vw))}
   body.touch .tbtn{background:rgba(18,20,16,.5);border:calc(.5*var(--u)) solid rgba(205,205,195,.42);box-shadow:inset 0 0 calc(1.5*var(--u)) rgba(0,0,0,.35);text-shadow:none}
   body.touch .tbtn.on{background:rgba(255,196,80,.34);border-color:#ffd27a}
   body.touch .tbtn.down{background:rgba(255,255,255,.28)}
@@ -173,8 +173,18 @@
   body.touch #tSpec{right:calc(1.4*var(--u) + env(safe-area-inset-right));bottom:calc(76.5*var(--u));width:calc(9*var(--u));height:calc(9*var(--u));font-size:calc(2*var(--u))}
   body.touch #tArty{right:calc(12*var(--u) + env(safe-area-inset-right));bottom:calc(74*var(--u));width:calc(9*var(--u));height:calc(9*var(--u));font-size:calc(1.9*var(--u))}
   body.touch #tNade{right:calc(48*var(--u) + env(safe-area-inset-right));bottom:calc(24*var(--u));width:calc(12*var(--u));height:calc(12*var(--u))}
+  /* ---- top bar: pause top-left, enemies left of centre, map/side centred, squad count moved to the health box ---- */
+  body.touch #tScore{display:none!important}
+  body.touch #tPause{left:calc(1.5*var(--u) + env(safe-area-inset-left));right:auto;top:calc(1.5*var(--u));width:calc(8.5*var(--u));height:calc(8.5*var(--u));border-radius:50%;font-size:calc(2.6*var(--u))}
+  body.touch #tSquad{left:calc(1.5*var(--u) + env(safe-area-inset-left));right:auto;top:calc(11.5*var(--u));width:calc(13*var(--u));height:calc(7*var(--u));border-radius:calc(3.5*var(--u));font-size:calc(1.9*var(--u))}
+  body.touch #side{left:50%;top:calc(1.4*var(--u));transform:translateX(-50%);text-align:center;font-size:calc(2.2*var(--u));letter-spacing:calc(.12*var(--u));white-space:nowrap;max-width:44vw;overflow:hidden;text-overflow:ellipsis}
+  body.touch #waveInfo{left:calc(12*var(--u) + env(safe-area-inset-left));right:auto;top:calc(2*var(--u));transform:none;text-align:left;font-size:calc(1.9*var(--u));letter-spacing:calc(.08*var(--u));white-space:nowrap;max-width:calc(50vw - 36*var(--u));overflow:hidden;text-overflow:ellipsis}
+  body.touch #killfeed{right:auto;left:calc(1.5*var(--u) + env(safe-area-inset-left));top:calc(20*var(--u));text-align:left;font-size:calc(1.7*var(--u))}
+  #sqCount{font-size:12px;opacity:.85;letter-spacing:1px;margin-top:2px}
+  body:not(.touch) #sqCount{display:none}
+  body.touch #sqCount{font-size:calc(1.7*var(--u))} body.touch #sqMode{font-size:calc(1.7*var(--u));margin-top:calc(.4*var(--u))}
   #inv{gap:calc(.8*var(--u));align-items:flex-end;bottom:calc(1.5*var(--u))}
-  body:not(.touch) #inv{--u:min(.85vh,.48vw)}
+  body:not(.touch) #inv{--u:calc(var(--ux,min(1vh,.55vw))*.85)}
   #inv .slot{width:calc(10.4*var(--u));height:calc(10.4*var(--u));border-radius:50%;background:rgba(18,20,16,.5);border:calc(.45*var(--u)) solid rgba(205,205,195,.42);font-size:calc(1.7*var(--u));padding:0}
   #inv .slot svg{display:none}
   #inv .slot i{position:static;font-size:calc(2.2*var(--u));opacity:.95}
@@ -408,7 +418,7 @@
   <div id="skHud"></div>
   <div id="score"></div>
   <div id="objBox"><div id="objTxt"></div><div id="objBar"><div id="objFill"></div></div></div>
-  <div id="stamwrap"><span id="hpLabel">HEALTH</span><div id="hpwrap"><div id="hpbar"></div></div><span id="stLabel">STAMINA</span><div id="stambar"><div id="stam"></div></div><div id="sqMode"></div></div>
+  <div id="stamwrap"><span id="hpLabel">HEALTH</span><div id="hpwrap"><div id="hpbar"></div></div><span id="stLabel">STAMINA</span><div id="stambar"><div id="stam"></div></div><div id="sqMode"></div><div id="sqCount"></div></div>
   <div id="scope"><i class="h"></i><i class="v"></i></div>
   <div id="tankSight"><i class="h"></i><i class="v"></i><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
   <div id="gunMark"></div>
@@ -427,13 +437,13 @@
   <div id="joy"><div id="joyKnob"></div></div>
   <div class="tbtn" id="tFire"><span class="tx">FIRE</span><svg class="ic" viewBox="0 0 24 24"><path d="M12 1.5c3.2 2.3 4.6 5.3 4.6 8.6V18H7.4v-7.9c0-3.3 1.4-6.3 4.6-8.6z"/><rect x="6.6" y="19.2" width="10.8" height="2.4" rx=".8"/></svg></div>
   <div class="tbtn" id="tAim"><span class="tx">AIM</span><svg class="ic" viewBox="0 0 24 24"><circle class="st" cx="12" cy="12" r="6.4"/><path class="st" d="M12 1.8v5M12 17.2v5M1.8 12h5M17.2 12h5"/><circle cx="12" cy="12" r="1.5"/></svg></div>
-  <div class="tbtn" id="tSprint"><span class="tx">RUN</span><svg class="ic" viewBox="0 0 24 24"><circle cx="14.5" cy="4.2" r="2.4"/><path class="st" d="M13 8.5l-3 4.5 4 2.5-1.5 5M10 13l-4 1.5M13 8.5l4.5 2.5 2.5-1.2M14 15.5l4 2"/></svg></div>
+  <div class="tbtn" id="tSprint"><span class="tx">RUN</span><svg class="ic" viewBox="0 0 24 24"><circle cx="15.6" cy="4.4" r="2.3" style="fill:#e9e6da"/><path class="st" style="stroke-width:2.7" d="M13.6 8.6L10.8 14.2M13.4 9.2L9.2 11.2L6.6 9.6M13.6 9.4L17.2 12.2L20.4 11M10.8 14.2L14.4 16.6L13.6 21M10.8 14.2L7.8 17.6L4.4 17"/></svg></div>
   <div class="tbtn" id="tJump"><span class="tx">JUMP</span><svg class="ic" viewBox="0 0 24 24"><path d="M12 2.8l8.2 9.2h-5v8.2H8.8V12h-5z"/></svg></div>
   <div class="tbtn" id="tReload"><span class="tx">RELOAD</span><svg class="ic" viewBox="0 0 24 24"><path class="st" d="M19.5 12a7.5 7.5 0 1 1-2.4-5.5"/><path d="M20.5 2.8v6.6h-6.6z"/></svg></div>
   <div class="tbtn" id="tNade"><span class="tx">NADE</span><small>3</small></div>
   <div class="tbtn" id="tPeri"><span class="tx">PERI</span><svg class="ic" viewBox="0 0 24 24"><path d="M8 2h9v3H11v4h3v8h-3v-4H8V9h3V5H8z" transform="translate(0,1)"/><rect x="6" y="19" width="12" height="3" rx="1"/></svg></div>
   <div class="tbtn" id="tCrouch"><span class="tx">CROUCH</span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.4"/><path class="st" d="M12 8.5v4.5l-4.2 2.2 1 4.3M12 13l4.2 2.2-.8 4.3M12 9.8l-4.6 2.2M12 9.8l4.2 2"/></svg></div>
-  <div class="tbtn" id="tMelee">STAB</div>
+  <div class="tbtn" id="tMelee"><span class="tx">KNIFE</span><svg class="ic" viewBox="0 0 24 24"><path d="M21.5 2.5C14.5 3.5 9.5 7.5 7 15l2.2 2.2C16.6 14.6 20.6 9.6 21.5 2.5z"/><path class="st" style="stroke-width:2.3" d="M5.6 13.6l5 5"/><path class="st" style="stroke-width:3.6" d="M7.8 17L3.6 21.2"/></svg></div>
   <div class="tbtn" id="tUse">USE</div>
   <div class="tbtn" id="tSpec">BINOC</div>
   <div class="tbtn" id="tArty">STRIKE</div>
@@ -510,6 +520,8 @@ let gfx = IS_TOUCH ? 'medium' : 'high';
 try{ const g=localStorage.getItem('ef_gfx'); if(GFX[g]) gfx=g; }catch(e){}
 const gfxAtStart=gfx;                        // edge smoothing can only change when the page loads
 const renderer = new THREE.WebGLRenderer({antialias:GFX[gfx].aa, powerPreference:'high-performance'});
+function setUnit(){ document.documentElement.style.setProperty('--ux',Math.min(innerHeight/100,innerWidth*0.0055)+'px'); }
+setUnit(); addEventListener('resize',setUnit); addEventListener('orientationchange',()=>setTimeout(setUnit,250));
 // the frame buffers are the biggest memory user (antialiasing multiplies them), so the pixel count is capped, not just the ratio
 const PX_CAP={high:4.0e6,medium:2.6e6,low:1.5e6};
 function calcPR(G){ let pr=Math.min(devicePixelRatio||1,IS_TOUCH?G.prTouch:G.pr); const px=Math.max(1,innerWidth*innerHeight), cap=PX_CAP[gfx]||2.6e6; if(px*pr*pr>cap) pr=Math.max(0.75,Math.sqrt(cap/px)); return pr; }
@@ -731,13 +743,17 @@ function pine(x,z){ const s=0.8+rnd()*0.6; addProp('pine',buildPine,x,z,rnd()*6,
 // static geometry is merged per material so the big city stays fast
 const batch=new Map();
 const _M=new THREE.Matrix4(), _Q=new THREE.Quaternion(), _E=new THREE.Euler(), ONE=new V3(1,1,1);
-const flatDecor=[];   // roads and other flat ground coverings: a hole dug under them would stay hidden
+const flatBoxes=[], flatDecor=[]; let flatMeshes=[];   // flat ground coverings (roads...) are kept as boxes so a hole can be cut out of them   // roads and other flat ground coverings: a hole dug under them would stay hidden
 const noGrass=[];   // ground footprints of everything built (x0,z0,x1,z1), so grass never grows through floors, roads or walls
 function addGeo(geo,m,x,y,z,rx=0,ry=0,rz=0,parent=null){
   _M.compose(new V3(x,y,z),_Q.setFromEuler(_E.set(rx,ry,rz)),ONE);
   if(parent) _M.premultiply(parent);
   geo.applyMatrix4(_M);
   if(geo.computeBoundingBox){ geo.computeBoundingBox(); const bx=geo.boundingBox;
+    if(bx && geo.type==='BoxGeometry' && geo.parameters && bx.max.y<0.07 && bx.min.y>-0.01 && bx.max.x-bx.min.x>0.3 && bx.max.z-bx.min.z>0.3
+       && Math.abs(bx.max.x-bx.min.x-geo.parameters.width)<0.01 && Math.abs(bx.max.z-bx.min.z-geo.parameters.depth)<0.01){
+      noGrass.push(bx.min.x,bx.min.z,bx.max.x,bx.max.z);
+      flatBoxes.push({m,x0:bx.min.x,z0:bx.min.z,x1:bx.max.x,z1:bx.max.z,y0:bx.min.y,y1:bx.max.y}); geo.dispose(); return; }
     if(bx && bx.max.y<0.07 && bx.min.y>-0.01 && bx.max.x-bx.min.x>1.2 && bx.max.z-bx.min.z>1.2) flatDecor.push(bx.min.x,bx.min.z,bx.max.x,bx.max.z); if(bx && bx.min.y<1.5 && (bx.max.x-bx.min.x)*(bx.max.z-bx.min.z)<3500) noGrass.push(bx.min.x,bx.min.z,bx.max.x,bx.max.z); }
   if(!batch.has(m)) batch.set(m,[]);
   batch.get(m).push(geo);
@@ -746,15 +762,38 @@ function sBox(x,y,z,w,h,d,m,collide=true,rx=0,ry=0,rz=0){ // y = bottom
   addGeo(new THREE.BoxGeometry(w,h,d),m,x,y+h/2,z,rx,ry,rz);
   if(collide) addCollider(new THREE.Box3(new V3(x-w/2,y,z-d/2),new V3(x+w/2,y+h,z+d/2)));
 }
+function buildFlat(){
+  for(const m of flatMeshes){ mapRoot.remove(m); const i=shootables.indexOf(m); if(i>=0) shootables.splice(i,1); if(m.geometry) m.geometry.dispose(); }
+  flatMeshes=[]; const by=new Map();
+  for(const b of flatBoxes){ const g=new THREE.BoxGeometry(b.x1-b.x0,b.y1-b.y0,b.z1-b.z0); g.translate((b.x0+b.x1)/2,(b.y0+b.y1)/2,(b.z0+b.z1)/2); if(!by.has(b.m)) by.set(b.m,[]); by.get(b.m).push(g); }
+  for(const [m,geos] of by){ const merged=mergeGeometries(geos,false); geos.forEach(g=>g.dispose()); if(!merged) continue;
+    const me=new THREE.Mesh(merged,m); me.receiveShadow=true; me.castShadow=false; me.userData.batch=true; mapRoot.add(me); shootables.push(me); flatMeshes.push(me); }
+}
+// cut a rectangular hole out of every flat covering (road, rut...) so a pit dug on it shows
+function cutFlat(r){
+  let changed=false;
+  for(let i=flatBoxes.length-1;i>=0;i--){ const b=flatBoxes[i];
+    if(!(r[2]>b.x0 && r[0]<b.x1 && r[3]>b.z0 && r[1]<b.z1)) continue; changed=true; flatBoxes.splice(i,1);
+    const add=(x0,z0,x1,z1)=>{ if(x1-x0>0.05 && z1-z0>0.05) flatBoxes.push({m:b.m,x0,z0,x1,z1,y0:b.y0,y1:b.y1}); };
+    const cx0=Math.max(b.x0,r[0]), cx1=Math.min(b.x1,r[2]);
+    add(b.x0,b.z0,cx0,b.z1); add(cx1,b.z0,b.x1,b.z1); add(cx0,b.z0,cx1,Math.max(b.z0,r[1])); add(cx0,Math.min(b.z1,r[3]),cx1,b.z1); }
+  if(changed) buildFlat();
+}
+const TILE=36;
 function flushBatch(shadow=true){
   for(const [m,geos] of batch){
     const mixed=geos.some(g=>!g.index);
     const list=mixed?geos.map(g=>g.index?g.toNonIndexed():g):geos;
     for(const g of list) for(const k of Object.keys(g.attributes)) if(!['position','normal','uv'].includes(k)) g.deleteAttribute(k);
-    const merged=mergeGeometries(list,false);
-    if(!merged) continue;
-    const me=new THREE.Mesh(merged,m); me.castShadow=shadow; me.receiveShadow=true; me.userData.batch=true;
-    mapRoot.add(me); shootables.push(me);
+    // split into map tiles so the camera and the shadow pass only draw what is near (one giant mesh was always drawn whole)
+    const tiles=new Map();
+    for(const g of list){ if(!g.boundingBox) g.computeBoundingBox(); const bb=g.boundingBox; const k=Math.floor((bb.min.x+bb.max.x)/2/TILE)+','+Math.floor((bb.min.z+bb.max.z)/2/TILE); let t=tiles.get(k); if(!t){ t=[]; tiles.set(k,t); } t.push(g); }
+    for(const tg of tiles.values()){
+      const merged=mergeGeometries(tg,false);
+      if(!merged) continue;
+      const me=new THREE.Mesh(merged,m); me.castShadow=shadow; me.receiveShadow=true; me.userData.batch=true;
+      mapRoot.add(me); shootables.push(me);
+    }
     geos.forEach(g=>g.dispose());
   }
   batch.clear();
@@ -1529,7 +1568,48 @@ function digSegment(K,ax,c,a0,a1,front,bags=true,partial=false){
   return pitFinish(pit,bags);
 }
 // the floor and walls of a pit at a given depth (rebuilt on every shovel stroke while it is being dug)
+// ---- a dug hole: rough earth walls that lean in, a grassy lip, a muddy uneven floor and heaped-up spoil along the rim ----
+let pitEarthMat=null;
+function earthMat(){ if(!pitEarthMat){ pitEarthMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,side:THREE.DoubleSide}); try{ withDetail(pitEarthMat,'dirt',0.9,0.7,false,{bump:3}); }catch(e){} } return pitEarthMat; }
+const hsh=(a,b)=>{ const x=Math.sin(a*127.1+b*311.7)*43758.5453; return x-Math.floor(x); };
+function pitShellEarth(pit,depth){
+  const {ax,c,a0,a1,hw,RL,front}=pit, W=5, J=(W+1)*2+3, nu=Math.max(2,Math.round((a1-a0)/0.5));
+  const pos=new Float32Array((nu+1)*J*3), col=new Float32Array((nu+1)*J*3), idx=[];
+  const put=(i,u,y,v,r,g,b)=>{ const o=i*3; if(ax==='x'){ pos[o]=u; pos[o+1]=y; pos[o+2]=v; } else { pos[o]=v; pos[o+1]=y; pos[o+2]=u; } col[o]=r; col[o+1]=g; col[o+2]=b; };
+  const cl=(t,k)=>{ const lum=0.82+0.36*k;                      // grass fringe at the lip, soil, then dark mud
+    let r,g,b; if(t<0.2){ const f=t/0.2; r=0.30+0.08*f; g=0.40-0.12*f; b=0.15+0.04*f; } else if(t<0.75){ const f=(t-0.2)/0.55; r=0.38-0.16*f; g=0.28-0.11*f; b=0.19-0.08*f; } else { r=0.20-0.05*(t-0.75)*4; g=0.15-0.04*(t-0.75)*4; b=0.10-0.03*(t-0.75)*4; }
+    return [r*lum,g*lum,b*lum]; };
+  for(let i=0;i<=nu;i++){
+    const u=a0+(a1-a0)*i/nu, d=depth*Math.min(1,(u-a0)/RL,(a1-u)/RL), inset=0.3*(d/PIT_D);
+    let j=0;
+    const ptL=k=>{ const t=k/W, n=(hsh(u*3.1,k+1)-0.5), v=c-hw+inset*Math.pow(t,1.3)+n*0.2*t*(d>0.05?1:0), y=-d*t+(hsh(u*2.3,k+9)-0.5)*0.12*t*(d>0.05?1:0); return [v,y,t]; };
+    const ptR=k=>{ const t=k/W, n=(hsh(u*3.1,k+31)-0.5), v=c+hw-inset*Math.pow(t,1.3)-n*0.2*t*(d>0.05?1:0), y=-d*t+(hsh(u*2.3,k+39)-0.5)*0.12*t*(d>0.05?1:0); return [v,y,t]; };
+    for(let k=0;k<=W;k++){ const [v,y,t]=ptL(k), [r,g,b]=cl(t,hsh(u*5.3,k)); put(i*J+j++,u,y,v,r,g,b); }
+    const fl=ptL(W), fr=ptR(W);
+    for(let f=1;f<=3;f++){ const q=f/4, v=fl[0]+(fr[0]-fl[0])*q, y=-d+(hsh(u*4.1,f+60)-0.5)*0.09*(d>0.05?1:0), [r,g,b]=cl(1,hsh(u*6.7,f)); put(i*J+j++,u,y,v,r*(0.9+0.2*hsh(u,f)),g,b); }
+    for(let k=W;k>=0;k--){ const [v,y,t]=ptR(k), [r,g,b]=cl(t,hsh(u*5.3,k+50)); put(i*J+j++,u,y,v,r,g,b); }
+  }
+  for(let i=0;i<nu;i++) for(let j=0;j<J-1;j++){ const a=i*J+j, b=(i+1)*J+j; idx.push(a,b,b+1, a,b+1,a+1); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(pos,3)); g.setAttribute('color',new THREE.BufferAttribute(col,3)); g.setIndex(idx); g.computeVertexNormals();
+  const strip=new THREE.Mesh(g,earthMat()); mapRoot.add(strip);
+  // lumps of dug-out earth along both edges (more of it on the side facing the enemy), covering the straight cut of the ground
+  const blobs=[], base=new THREE.IcosahedronGeometry(1,0).toNonIndexed();
+  for(const side of [-1,1]){ const big=side===front;
+    for(let u=a0+0.3;u<a1-0.3;u+=big?0.5:0.65){
+      const k1=hsh(u*7.7,side+3), k2=hsh(u*3.3,side+8), k3=hsh(u*5.9,side+13), vv=c+side*(hw+(big?0.28:0.1)+(k2-0.5)*0.12);
+      const g2=base.clone(); const pa=g2.attributes.position, n=pa.count, cc=new Float32Array(n*3), lum=0.8+0.4*k3;
+      g2.setAttribute('color',new THREE.BufferAttribute(cc,3));
+      for(let q=0;q<n;q++){ cc[q*3]=0.34*lum; cc[q*3+1]=0.27*lum+0.04*k1; cc[q*3+2]=0.17*lum; }
+      const sx=(big?0.5:0.4)+k1*0.25, sy=(big?0.17:0.1)+k2*0.1, sz=(big?0.5:0.32)+k3*0.2;
+      const m=new THREE.Matrix4().compose(ax==='x'?new V3(u,0.02,vv):new V3(vv,0.02,u),new THREE.Quaternion().setFromEuler(new THREE.Euler(0,k1*6.28,0)),ax==='x'?new V3(sx,sy,sz):new V3(sz,sy,sx));
+      g2.applyMatrix4(m); blobs.push(g2); } }
+  base.dispose();
+  const out=[strip];
+  if(blobs.length){ const merged=mergeGeometries(blobs,false); blobs.forEach(b=>b.dispose()); if(merged){ const bm=new THREE.Mesh(merged,earthMat()); bm.receiveShadow=true; bm.castShadow=true; mapRoot.add(bm); out.push(bm); } }
+  return out;
+}
 function pitShell(pit,depth){
+  if(pit.dug) return pitShellEarth(pit,depth);
   const {ax,c,a0,a1,hw,RL}=pit, P=(u,y,v)=>ax==='x'?[u,y,v]:[v,y,u];
   const prof=[[a0,0],[a0+RL,-depth],[a1-RL,-depth],[a1,0]];
   const fl=[], wl=[];
@@ -2234,13 +2314,13 @@ function buildMap(id){
   pits.length=0; if(ground.geometry!==groundPlain){ ground.geometry.dispose(); ground.geometry=groundPlain; }
   digTrenches = digOverride!==null ? digOverride : wantDig(id);          // tanks simply drive over pits (they stay at y=0)
   runDig = digOverride===null && wantRun(id); digK=null; digPlan.length=0; hedgehogsBuilt.length=0; prep.on=false; prep.phase='off'; prep.bagQ=[]; prep.hhQ=[];
-  colliders.length=0; shootables.length=0; shootables.push(ground); fires.length=0; batch.clear(); noGrass.length=0; flatDecor.length=0; roofZones=[]; emplacements.length=0; skClear();
+  colliders.length=0; shootables.length=0; shootables.push(ground); fires.length=0; batch.clear(); noGrass.length=0; flatDecor.length=0; flatBoxes.length=0; flatMeshes=[]; roofZones=[]; emplacements.length=0; skClear();
   props=[]; propKinds={}; falling.length=0;
   seed=1942+MAP_ORDER.indexOf(id)*1000;
   mapSnow=Mp.snow;
   addBorders();
   Mp.build();
-  flushProps();
+  flushProps(); buildFlat();
   carveGround();
   try{ detailMap(); buildGrass(id); buildClutter(id); buildGroundPatches(id); }catch(e){ console.warn('look upgrade skipped',e); }
   // look & weather
@@ -3360,13 +3440,20 @@ function explode(p,owner,fxOnly){
 
 /* ================= COMBAT AI ================= */
 let lastHeadshot=false, wave=1, kills=0, waveTimer=0, playerHP=100, hurtT=0, lastHurt=99, playerDead=false;
-let visCols=null;
+let visCols=null, visGrid=null, visStamp=0; const VG=12, _dirLOS=new THREE.Vector3();
 const _ray3=new THREE.Ray(), _hp=new V3();
 function lineOfSight(a,b){
-  if(!visCols) visCols=colliders.filter(c=>c.max.y>0.7 && c.max.y-c.min.y<40 && !c.noBullet);   // low walls and sandbags hide crouching soldiers
-  const dir=b.clone().sub(a), dist=dir.length(); if(dist<0.01) return true; dir.divideScalar(dist);
+  if(!visCols){ visCols=colliders.filter(c=>c.max.y>0.7 && c.max.y-c.min.y<40 && !c.noBullet);   // low walls and sandbags hide crouching soldiers
+    visGrid=new Map(); for(const c of visCols){ c._vs=0; const x0=Math.floor(c.min.x/VG),x1=Math.floor(c.max.x/VG),z0=Math.floor(c.min.z/VG),z1=Math.floor(c.max.z/VG);
+      if((x1-x0+1)*(z1-z0+1)>400){ (visGrid.big||(visGrid.big=[])).push(c); continue; }
+      for(let i=x0;i<=x1;i++) for(let j=z0;j<=z1;j++){ const k=i*100003+j; let l=visGrid.get(k); if(!l){ l=[]; visGrid.set(k,l); } l.push(c); } } }
+  _dirLOS.copy(b).sub(a); const dist=_dirLOS.length(); if(dist<0.01) return true; const dir=_dirLOS.divideScalar(dist);
   _ray3.set(a,dir);
-  for(const c of visCols){ if(rayCollider(c,_ray3,_hp) && _hp.distanceToSquared(a)<(dist-0.4)*(dist-0.4)) return false; }
+  const lim=(dist-0.4)*(dist-0.4); visStamp++;
+  const gx0=Math.floor(Math.min(a.x,b.x)/VG), gx1=Math.floor(Math.max(a.x,b.x)/VG), gz0=Math.floor(Math.min(a.z,b.z)/VG), gz1=Math.floor(Math.max(a.z,b.z)/VG);
+  const test=c=>{ if(c._vs===visStamp) return false; c._vs=visStamp; return !!(rayCollider(c,_ray3,_hp) && _hp.distanceToSquared(a)<lim); };
+  if(visGrid.big) for(const c of visGrid.big) if(test(c)) return false;
+  for(let i=gx0;i<=gx1;i++) for(let j=gz0;j<=gz1;j++){ const l=visGrid.get(i*100003+j); if(l) for(const c of l) if(test(c)) return false; }
   if(pits.length && terrainRay(a,dir,dist-0.4)>=0) return false;     // earth between you and him
   return true;
 }
@@ -3821,7 +3908,8 @@ function updateCombat(dt,t){
   $('hpbar').style.background=playerHP>50?'#cfd8b8':playerHP>25?'#e0b050':'#d0603c';
   const dd=$('dmgdir'); if(+dd.dataset.t>0){ dd.dataset.t=+dd.dataset.t-dt; dd.style.opacity=Math.max(0,+dd.dataset.t); }
   const squad=mates.filter(m=>!m.dead).length+(playerDead?0:1);
-  $('waveInfo').textContent= skirm.on ? `${SK_MODES[skirm.mode].short.toUpperCase()} · ${MAPS[currentMap].short}   SQUAD ${squad}/${SQUAD_MATES+1}   KILLS ${kills}` : currentMap==='moscow' ? `MOSCOW · ENEMIES KILLED ${battle.killed}   SQUAD ${squad}/${SQUAD_MATES+1}   KILLS ${kills}` : `${MAPS[currentMap].short} · ENEMIES LEFT ${battle.total-battle.killed}   SQUAD ${squad}/${SQUAD_MATES+1}   KILLS ${kills}`;
+  $('waveInfo').textContent= skirm.on ? `${SK_MODES[skirm.mode].short.toUpperCase()} · ${MAPS[currentMap].short}${IS_TOUCH?'':'   SQUAD '+squad+'/'+(SQUAD_MATES+1)}   KILLS ${kills}` : currentMap==='moscow' ? `MOSCOW · ENEMIES KILLED ${battle.killed}${IS_TOUCH?'':'   SQUAD '+squad+'/'+(SQUAD_MATES+1)}   KILLS ${kills}` : `${MAPS[currentMap].short} · ENEMIES LEFT ${battle.total-battle.killed}${IS_TOUCH?'':'   SQUAD '+squad+'/'+(SQUAD_MATES+1)}   KILLS ${kills}`;
+  $('sqCount').textContent=`SQUAD ${squad}/${SQUAD_MATES+1}`;
 }
 
 /* ================= LEAD HAILSTORM 2: classes, close combat, mounted MGs, match feedback ================= */
@@ -7058,7 +7146,7 @@ function updateTouchUI(){
   $('tAim').classList.toggle('on',touch.aim);
   $('tSprint').classList.toggle('on',touch.sprint);
   $('tCrouch').classList.toggle('on',!!player.crouchToggle);
-  $('tAim').firstChild.textContent=air.on?'TYPE':'AIM'; $('tSprint').firstChild.textContent=air.on?'BRAKE':'RUN'; $('tFire').firstChild.textContent=air.on?'GUNS':'FIRE';
+  { const ak=air.on?1:0; if(updateTouchUI._ak!==ak){ updateTouchUI._ak=ak; $('tAim').firstChild.textContent=air.on?'TYPE':'AIM'; $('tSprint').firstChild.textContent=air.on?'BRAKE':'RUN'; $('tFire').firstChild.textContent=air.on?'GUNS':'FIRE'; } }
   if(air.on) $('tSprint').classList.toggle('on',!!air.touchBrake);
   const nb=$('tNade'); if(air.on){ nb.firstChild.textContent='BOMB'; nb.querySelector('small').textContent=air.pl.bH+air.pl.bL; } else if(isTankMap()){ nb.firstChild.textContent='MG'; nb.querySelector('small').textContent=mgLock?'HOT':Math.round(mgHeat*100)+'%'; } else { nb.firstChild.textContent='NADE'; nb.querySelector('small').textContent=grenadesLeft; }
 }
@@ -8516,10 +8604,13 @@ function toggleShovel(){
   dig.tool=!dig.tool; showMsg(dig.tool?(IS_TOUCH?'SHOVEL · HOLD FIRE TO DIG':'SHOVEL · CLICK TO DIG · CLICK AGAIN TO DEEPEN OR LENGTHEN'):'SHOVEL AWAY',1.4);
 }
 // is this ground rectangle free of pits, walls, trees and buildings?
-function rectFree(x0,z0,x1,z1,pad,ign){
+function rectFree(x0,z0,x1,z1,pad,ign){      // only other trenches (and the map edge) stop you: you can dig anywhere else
   if(x0<-96||z0<-96||x1>96||z1>96) return false;
   for(let i=0;i<flatDecor.length;i+=4){ if(x1>flatDecor[i] && x0<flatDecor[i+2] && z1>flatDecor[i+1] && z0<flatDecor[i+3]) return false; }
   for(const p of pits){ if(p===ign) continue; if(x1+pad>p.x0 && x0-pad<p.x1 && z1+pad>p.z0 && z0-pad<p.z1) return false; }
+  return true;
+}
+function rectSolidFree(x0,z0,x1,z1){
   for(const b of colliders){ if(b.max.y<0.3 || b.min.y>2.5) continue; if(x1+0.3>b.min.x && x0-0.3<b.max.x && z1+0.3>b.min.z && z0-0.3<b.max.z) return false; }
   for(const r of roofZones){ if(x1>r[0] && x0<r[2] && z1>r[1] && z0<r[3]) return false; }
   return true;
@@ -8589,12 +8680,13 @@ function digPlanAt(pt){
   const alongX=Math.abs(d.z)>=Math.abs(d.x), f=alongX?(d.z<0?-1:1):(d.x<0?-1:1);
   const g=alongX?{ax:'x',front:f,c:Math.round(pt.z),a0:Math.round(pt.x)-HOLE_LEN/2,a1:Math.round(pt.x)+HOLE_LEN/2}
                 :{ax:'z',front:f,c:Math.round(pt.x),a0:Math.round(pt.z)-HOLE_LEN/2,a1:Math.round(pt.z)+HOLE_LEN/2};
-  const r=segRect(g); return {kind:'new',g,rect:r,ok:rectFree(r[0],r[1],r[2],r[3],1.5),why:'CANNOT DIG HERE · WALL, TREE, ROAD OR ANOTHER TRENCH'};
+  const r=segRect(g); return {kind:'new',g,rect:r,ok:rectFree(r[0],r[1],r[2],r[3],0.6),why:'CANNOT DIG HERE · ANOTHER TRENCH IS TOO CLOSE'};
 }
 function pitReshape(p){
   p.RL=Math.min(PIT_RL,(p.a1-p.a0-1.5)/2);
   if(p.ax==='x'){ p.x0=p.a0; p.x1=p.a1; p.z0=p.c-p.hw; p.z1=p.c+p.hw; } else { p.z0=p.a0; p.z1=p.a1; p.x0=p.c-p.hw; p.x1=p.c+p.hw; }
   pitDropShell(p); p.shell=pitShell(p,p.curD); carveGround(); try{ hidePitWheat(p); }catch(e){}
+  try{ cutFlat([p.x0-0.05,p.z0-0.05,p.x1+0.05,p.z1+0.05]); }catch(e){ console.warn('cutFlat',e); }
   prep.lookT=2.5; visCols=null;
 }
 // a plain earth hole (no planks): floor and walls only, so it can be deepened and lengthened later
@@ -8658,7 +8750,7 @@ function makeHedgehog(x,z){
   const c=addCollider(new THREE.Box3(new V3(x-0.7,0,z-0.7),new V3(x+0.7,1.35,z+0.7))); c.noBullet=true;
   hedgehogsBuilt.push([x,z]);
 }
-function tryHedgehog(x,z){ if(!rectFree(x-0.8,z-0.8,x+0.8,z+0.8,0.5)) return false; makeHedgehog(x,z); return true; }
+function tryHedgehog(x,z){ if(!rectFree(x-0.8,z-0.8,x+0.8,z+0.8,0.5) || !rectSolidFree(x-0.8,z-0.8,x+0.8,z+0.8)) return false; makeHedgehog(x,z); return true; }
 function engineerBuild(){
   if(state!=='playing' || selClass!=='engineer' || isTankMap() || mounted || !digEnabled()) return;
   let best=null, bd=7;
@@ -8844,17 +8936,18 @@ spawnWorld(selSide,selWeapon,true);
 // crosshair (spreads with movement)
 let crossBars=[];
 function buildCrosshair(){
-  const c=$('cross'); c.innerHTML=''; crossBars=[];
+  const c=$('cross'); c.innerHTML=''; crossBars=[]; updateCrosshair._k=null;
   for(let i=0;i<4;i++){ const b=document.createElement('i'); c.appendChild(b); crossBars.push(b); }
 }
 function updateCrosshair(gap,alpha){
   const [t,b,l,r]=crossBars; if(!t) return;
   const len=8;
+  const gk=Math.round(gap*2)+'|'+len; if(updateCrosshair._k!==gk){ updateCrosshair._k=gk;
   Object.assign(t.style,{width:'2px',height:len+'px',left:'-1px',top:(-gap-len)+'px'});
   Object.assign(b.style,{width:'2px',height:len+'px',left:'-1px',top:gap+'px'});
   Object.assign(l.style,{width:len+'px',height:'2px',top:'-1px',left:(-gap-len)+'px'});
-  Object.assign(r.style,{width:len+'px',height:'2px',top:'-1px',left:gap+'px'});
-  $('cross').style.opacity=alpha;
+  Object.assign(r.style,{width:len+'px',height:'2px',top:'-1px',left:gap+'px'}); }
+  setSty('cross','opacity',Math.round(alpha*50)/50);
 }
 
 /* ================= PLAYER UPDATE (movement physics) ================= */
@@ -9020,16 +9113,20 @@ function updatePlayer(dt){
   worldFlash.position.copy(camera.position).add(new V3(-Math.sin(P.yaw),0,-Math.cos(P.yaw)).multiplyScalar(0.8));
 
   // HUD
-  $('ammoN').textContent=W.rocket?(gun.ammo>0?'READY':'SPENT'):`${gun.ammo} / ${gun.reserve}`;
-  $('ammoW').textContent=W.name+'  ·  GRENADES '+grenadesLeft;
-  $('stam').style.width=(P.stamina*100)+'%';
-  $('stam').style.background=P.tired?'#d0603c':'#d8d0b8';
-  $('reloadTxt').style.opacity=gun.reloading>0?1:0;
+  setTxt('ammoN',W.rocket?(gun.ammo>0?'READY':'SPENT'):`${gun.ammo} / ${gun.reserve}`);
+  setTxt('ammoW',W.name+'  ·  GRENADES '+grenadesLeft);
+  setSty('stam','width',(Math.round(P.stamina*500)/5)+'%');
+  setSty('stam','background',P.tired?'#d0603c':'#d8d0b8');
+  setSty('reloadTxt','opacity',gun.reloading>0?1:0);
   const gap=6+hs*2.2*(1-gun.ads)+gun.kick*10+(P.onGround?0:14);
   updateCrosshair(tpAimOn?gap*0.6:gap,tpAimOn?(1-gun.sprintT):(1-gun.ads)*(1-gun.sprintT));
 }
 
 /* ================= MAIN LOOP ================= */
+// only touch the page when a value really changed (style/text writes every frame cost CPU on phones)
+const _hc={};
+function setTxt(id,v){ const k='t'+id; if(_hc[k]!==v){ _hc[k]=v; $(id).textContent=v; } }
+function setSty(id,p,v){ const k=id+p; if(_hc[k]!==v){ _hc[k]=v; $(id).style[p]=v; } }
 let last=performance.now(), T=0, menuT=0;
 function loop(now){
   requestAnimationFrame(loop);
@@ -9072,7 +9169,7 @@ function loop(now){
   sun.position.set(camera.position.x+30,50,camera.position.z+20); sun.target.position.set(camera.position.x,0,camera.position.z); sun.target.updateMatrixWorld();
 
   if(msgTimer>0){ msgTimer-=dt; if(msgTimer<=0) $('msg').style.opacity=0; }
-  hitTimer-=dt; $('hit').style.opacity=hitTimer>0?1:0;
+  hitTimer-=dt; setSty('hit','opacity',hitTimer>0?1:0);
 
   renderer.clear();
   prepTick(dt); digTick(dt); updateInvUI();

@@ -3913,24 +3913,34 @@ function updateDeathCam(dt){
 }
 
 /* ---- third-person view (H, or the CAM button on touch): you see your own soldier from behind the shoulder ---- */
-let thirdP=false, tpK=0, tpS=null, tpKey='';
+let thirdP=false, tpK=0, tpS=null, tpKey='', tpYaw=0, tpAimOn=false;
 const _tpHead=new V3(), _tpTo=new V3(), _tpF=new V3();
 function tpUpdate(dt,P){
   const can=thirdP && state==='playing' && !playerDead && !isTankMap() && !air.on && peri<0.3 && !binoc && !mounted;
-  const want=can?(1-Math.min(1,gun.ads*1.5)):0;           // aiming pulls the camera back in to your eye
+  const scopedW=!!WEAPONS[gun.type].scope;
+  const want=can?(scopedW?(1-Math.min(1,gun.ads*1.5)):1):0;           // aiming stays over the shoulder (scoped rifles still go to the scope)
+  tpAimOn=can && !scopedW && gun.ads>0.05;
+  const wasOff=tpK<=0;
   tpK+=(want-tpK)*Math.min(1,dt*9); if(!want && tpK<0.01) tpK=0;
   if(tpK<=0){ if(tpS && tpS.root.visible) tpS.root.visible=false; return; }
   const key=selSide+':'+gun.type;
   if(!tpS || tpKey!==key){ if(tpS && tpS.root.parent) tpS.root.parent.remove(tpS.root); tpS=makeSoldier(selSide,gun.type,null); tpKey=key; }
   if(tpS.root.parent!==scene) scene.add(tpS.root);
   const so=tpS; so.root.visible=true;
-  so.pos.set(P.pos.x,P.pos.y,P.pos.z); so.heading=P.yaw; so.root.rotation.y=P.yaw;
-  so.speed=Math.hypot(P.vel.x,P.vel.z); so.wantCrouch=!!P.crouch; so.aimPitch=P.pitch;
+  if(wasOff) tpYaw=P.yaw;
+  // no shift-lock: the soldier turns to face where he walks (you see his face), and only squares up to the camera when he aims or shoots
+  const vh=Math.hypot(P.vel.x,P.vel.z), facing=gun.ads>0.15 || mouseDown || touch.fire || gun.kick>0.04;
+  let wantYaw=tpYaw; if(facing) wantYaw=P.yaw; else if(vh>0.6) wantYaw=Math.atan2(-P.vel.x,-P.vel.z);
+  tpYaw=angLerp(tpYaw,wantYaw,Math.min(1,dt*(facing?16:10)));
+  let dY=Math.abs(angLerp(tpYaw,P.yaw,1)-tpYaw); dY=Math.min(dY,Math.abs(dY-6.2832));
+  so.pos.set(P.pos.x,P.pos.y,P.pos.z); so.heading=tpYaw; so.root.rotation.y=tpYaw;
+  so.speed=vh; so.wantCrouch=!!P.crouch; so.aimPitch=P.pitch*(dY<0.7?1:0.15);
   animateSoldier(so,dt,performance.now()/1000);
   // camera: pulled back and a little to the right and up, and stopped by walls
   _tpHead.set(P.pos.x,P.pos.y+P.eye,P.pos.z);
   const cp=Math.cos(P.pitch); _tpF.set(-Math.sin(P.yaw)*cp,Math.sin(P.pitch),-Math.cos(P.yaw)*cp);
-  _tpTo.copy(_tpHead).addScaledVector(_tpF,-3.1*tpK); _tpTo.x+=Math.cos(P.yaw)*0.55*tpK; _tpTo.z-=Math.sin(P.yaw)*0.55*tpK; _tpTo.y+=0.3*tpK;
+  const ak=scopedW?0:gun.ads;      // aiming: the camera slides in close over the right shoulder
+  _tpTo.copy(_tpHead).addScaledVector(_tpF,-(3.1-1.75*ak)*tpK); _tpTo.x+=Math.cos(P.yaw)*(0.55+0.1*ak)*tpK; _tpTo.z-=Math.sin(P.yaw)*(0.55+0.1*ak)*tpK; _tpTo.y+=(0.3-0.15*ak)*tpK;
   const dv=_tpTo.clone().sub(_tpHead), L=dv.length();
   if(L>0.05){ dv.divideScalar(L); const hit=traceEnv(_tpHead,dv,L+0.25); camera.position.copy(_tpHead).addScaledVector(dv,hit?Math.max(0.25,hit.dist-0.3):L); }
   const gyc=gyAt(camera.position.x,camera.position.z); if(camera.position.y<gyc+0.3) camera.position.y=gyc+0.3;
@@ -8899,7 +8909,7 @@ function updatePlayer(dt){
   $('stam').style.background=P.tired?'#d0603c':'#d8d0b8';
   $('reloadTxt').style.opacity=gun.reloading>0?1:0;
   const gap=6+hs*2.2*(1-gun.ads)+gun.kick*10+(P.onGround?0:14);
-  updateCrosshair(gap,(1-gun.ads)*(1-gun.sprintT));
+  updateCrosshair(tpAimOn?gap*0.6:gap,tpAimOn?(1-gun.sprintT):(1-gun.ads)*(1-gun.sprintT));
 }
 
 /* ================= MAIN LOOP ================= */

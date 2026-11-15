@@ -195,6 +195,15 @@
   body.touch #hpwrap{height:calc(2.2*var(--u));margin:calc(.3*var(--u)) 0 calc(.6*var(--u))} body.touch #stambar{height:calc(1.3*var(--u))}
   body.touch #ammo{right:calc(1.4*var(--u) + env(safe-area-inset-right));left:auto;top:auto;bottom:calc(1.5*var(--u));min-width:calc(20*var(--u));padding:calc(.7*var(--u)) calc(2*var(--u));background:rgba(18,20,16,.5);border-radius:calc(1.2*var(--u));text-align:right}
   body.touch #ammo .n{font-size:calc(3.4*var(--u))} body.touch #ammo .w{font-size:calc(1.7*var(--u))}
+  /* bottom items: bigger on phones */
+  body.touch #inv{gap:calc(1*var(--u));bottom:calc(1.6*var(--u))}
+  body.touch #inv .slot{width:calc(13.6*var(--u));height:calc(13.6*var(--u));border-width:calc(.5*var(--u))}
+  body.touch #inv .slot.sel{width:calc(15.6*var(--u));height:calc(15.6*var(--u))}
+  body.touch #inv .slot i{font-size:calc(2.9*var(--u))} body.touch #inv .slot b{font-size:calc(2*var(--u))} body.touch #inv .slot span{font-size:calc(2.3*var(--u))}
+  body.touch #stamwrap{width:calc(44*var(--u));font-size:calc(2.5*var(--u));padding:calc(1*var(--u)) calc(2*var(--u))}
+  body.touch #hpwrap{height:calc(3*var(--u))} body.touch #stambar{height:calc(1.8*var(--u))}
+  body.touch #ammo{min-width:calc(27*var(--u));padding:calc(1*var(--u)) calc(2.4*var(--u))}
+  body.touch #ammo .n{font-size:calc(4.6*var(--u))} body.touch #ammo .w{font-size:calc(2.2*var(--u))}
   body.touch .controls{display:none}
   @media (max-height:560px){
     #menu{justify-content:safe center;overflow-y:auto;padding:10px 0}
@@ -437,7 +446,7 @@
   <div id="joy"><div id="joyKnob"></div></div>
   <div class="tbtn" id="tFire"><span class="tx">FIRE</span><svg class="ic" viewBox="0 0 24 24"><path d="M12 1.5c3.2 2.3 4.6 5.3 4.6 8.6V18H7.4v-7.9c0-3.3 1.4-6.3 4.6-8.6z"/><rect x="6.6" y="19.2" width="10.8" height="2.4" rx=".8"/></svg></div>
   <div class="tbtn" id="tAim"><span class="tx">AIM</span><svg class="ic" viewBox="0 0 24 24"><circle class="st" cx="12" cy="12" r="6.4"/><path class="st" d="M12 1.8v5M12 17.2v5M1.8 12h5M17.2 12h5"/><circle cx="12" cy="12" r="1.5"/></svg></div>
-  <div class="tbtn" id="tSprint"><span class="tx">RUN</span><svg class="ic" viewBox="0 0 24 24"><circle cx="15.6" cy="4.4" r="2.3" style="fill:#e9e6da"/><path class="st" style="stroke-width:2.7" d="M13.6 8.6L10.8 14.2M13.4 9.2L9.2 11.2L6.6 9.6M13.6 9.4L17.2 12.2L20.4 11M10.8 14.2L14.4 16.6L13.6 21M10.8 14.2L7.8 17.6L4.4 17"/></svg></div>
+  <div class="tbtn" id="tSprint"><span class="tx">RUN</span><svg class="ic" viewBox="0 0 24 24"><circle cx="17.6" cy="3.6" r="2.2" style="fill:#e9e6da"/><path class="st" style="stroke-width:2.1" d="M15.2 7.6L12 14.2M15 8.2L10.6 6.6L8.2 8.4M15 8.4L18.4 10.4L22 9.6M12 14.2L8 17.4L3.6 16.6M12 14.2L15.2 18.2L14 22.6"/></svg></div>
   <div class="tbtn" id="tJump"><span class="tx">JUMP</span><svg class="ic" viewBox="0 0 24 24"><path d="M12 2.8l8.2 9.2h-5v8.2H8.8V12h-5z"/></svg></div>
   <div class="tbtn" id="tReload"><span class="tx">RELOAD</span><svg class="ic" viewBox="0 0 24 24"><path class="st" d="M19.5 12a7.5 7.5 0 1 1-2.4-5.5"/><path d="M20.5 2.8v6.6h-6.6z"/></svg></div>
   <div class="tbtn" id="tNade"><span class="tx">NADE</span><small>3</small></div>

@@ -419,6 +419,7 @@
     <div class="slot sel" id="sl0"><i>1</i><svg viewBox="0 0 60 20"><path d="M2 8h34v3H2zM36 7h14v4H36zM8 11h9l3 8h-6zM50 8h8v2h-8z"/></svg><b id="sn0">RIFLE</b><span id="sa0"></span></div>
     <div class="slot" id="sl1"><i>2</i><svg viewBox="0 0 60 20"><path d="M14 4h30v6H14zM14 10h10l-3 10h-8z"/></svg><b id="sn1">PISTOL</b><span id="sa1"></span></div>
     <div class="slot" id="sl2"><i>3</i><svg viewBox="0 0 60 20"><ellipse cx="30" cy="11" rx="6.5" ry="8"/><rect x="27" y="1" width="6" height="3.5"/><rect x="33" y="2" width="9" height="2" transform="rotate(-18 33 3)"/></svg><b>GRENADE</b><span id="sa2"></span></div>
+    <div class="slot" id="sl3"><i>4</i><svg viewBox="0 0 60 20"><path d="M6 17L34 5" stroke="#e8e3d4" stroke-width="3"/><path d="M34 2l12 4-3 8-10-3z"/></svg><b>SHOVEL</b><span></span></div>
   </div>
 <div id="touchUI">
   <div id="lookZone"></div>
@@ -3251,6 +3252,7 @@ function makeGrenadeMesh(side){
 }
 function throwGrenade(){
   if(isTankMap() || peri>0.3 || prep.on) return;
+  dig.tool=false;
   if(throwCD>0 || gun.reloading>0 || throwT>0) return;
   if(grenadesLeft<=0){ showMsg('NO GRENADES LEFT',1); return; }
   grenadesLeft--; throwCD=1.1; throwT=0.55;
@@ -6899,6 +6901,7 @@ addEventListener('keydown',e=>{
   if(e.code==='Digit1' && !e.repeat) setSlot(0);
   if(e.code==='Digit2' && !e.repeat) setSlot(1);
   if(e.code==='Digit3' && !e.repeat) throwGrenade();
+  if(e.code==='Digit4' && !e.repeat) toggleShovel();
   if(e.code==='KeyC' && !e.repeat) player.crouchToggle=!player.crouchToggle;
   if(e.code==='KeyG') throwGrenade();
   if(e.code==='KeyF' && !e.repeat) toggleSquadMode();
@@ -6995,7 +6998,7 @@ if(IS_TOUCH){
   // phones: resolution comes from the graphics setting
 }
 {
-  for(const [id,fn] of [['sl0',()=>setSlot(0)],['sl1',()=>setSlot(1)],['sl2',()=>throwGrenade()]]){ const el=$(id); el.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); if(state!=='playing') return; initAudio(); el.classList.add('down'); fn(); }); const up=()=>el.classList.remove('down'); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up); el.addEventListener('pointerleave',up); el.addEventListener('contextmenu',e=>e.preventDefault()); }
+  for(const [id,fn] of [['sl0',()=>setSlot(0)],['sl1',()=>setSlot(1)],['sl2',()=>throwGrenade()],['sl3',()=>toggleShovel()]]){ const el=$(id); el.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); if(state!=='playing') return; initAudio(); el.classList.add('down'); fn(); }); const up=()=>el.classList.remove('down'); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up); el.addEventListener('pointerleave',up); el.addEventListener('contextmenu',e=>e.preventDefault()); }
 }
 function goFullscreen(){
   if(!IS_TOUCH) return;
@@ -7011,7 +7014,7 @@ function updateInvUI(){
     set('sn0',(W0.name||'').toUpperCase().slice(0,11)); set('sa0',W0.rocket?(P0.ammo>0?'1':'0'):P0.ammo+' / '+P0.reserve);
     set('sn1',(W1.name||'').toUpperCase().slice(0,11)); set('sa1',(P1.ammo!==undefined?P1.ammo:W1.mag)+' / '+(P1.reserve!==undefined?P1.reserve:W1.reserve));
     set('sa2','x'+grenadesLeft);
-    $('sl0').classList.toggle('sel',inv.slot===0); $('sl1').classList.toggle('sel',inv.slot===1); $('sl2').classList.toggle('sel',throwT>0); }
+    $('sl0').classList.toggle('sel',inv.slot===0&&!dig.tool); $('sl1').classList.toggle('sel',inv.slot===1&&!dig.tool); $('sl3').classList.toggle('sel',!!dig.tool); { const sd=digEnabled()?'flex':'none'; if($('sl3').style.display!==sd) $('sl3').style.display=sd; } $('sl2').classList.toggle('sel',throwT>0); }
 }
 function updateTouchUI(){
   if(!IS_TOUCH) return;
@@ -7034,6 +7037,7 @@ function updateTouchUI(){
 const inv={slot:0,stash:null,pistol:null};      // pistol: remembered {ammo,reserve} while holstered (null = full)
 const invPistolType=()=>selSide==='german'?'p08':'tt33';
 function setSlot(n,force){
+  if(dig.tool){ dig.tool=false; if(n===inv.slot) return; }
   if(n===inv.slot) return;
   if(!force && (state!=='playing' || isTankMap() || air.on || mounted || binoc || playerDead)) return;
   if(n===1){
@@ -7057,6 +7061,7 @@ const primaryType=()=>inv.stash?inv.stash.type:gun.type;
 /* ================= SHOOTING ================= */
 const ray=new THREE.Raycaster();
 function fire(){
+  if(dig.tool) return;
   if(prep.on){ if(msgTimer<=0) showMsg('PREPARATION · NO ONE FIRES YET',1.2); return; }
   if(isTankMap()){ tankFireCannon(); return; }
   if(mounted || binoc) return;
@@ -8472,8 +8477,13 @@ function startGame(){
 
 /* ================= DIG YOUR OWN TRENCHES · PREPARATION · ENGINEERS ================= */
 const PREP_TIME=100, DIG_TIME=6, DIG_LEN=10;
-const dig={held:false,prog:0,ok:false,active:false,seg:null,lock:null,ghost:null,bar:null,fill:null,txt:null,count:0};
-const digEnabled=()=>runDig && !isTankMap() && !!digK;
+const dig={tool:false,held:false,prog:0,ok:false,active:false,seg:null,lock:null,ghost:null,bar:null,fill:null,txt:null,count:0};
+const digEnabled=()=>!!digK && !isTankMap() && !coopNow() && !isDuel();
+function toggleShovel(){
+  if(state!=='playing' || mounted || playerDead || air.on) return;
+  if(!digEnabled()){ showMsg('NOTHING TO DIG HERE',1.2); return; }
+  dig.tool=!dig.tool; showMsg(dig.tool?(IS_TOUCH?'SHOVEL · HOLD FIRE TO DIG':'SHOVEL · HOLD LEFT CLICK TO DIG'):'SHOVEL AWAY',1.4);
+}
 // is this ground rectangle free of pits, walls, trees and buildings?
 function rectFree(x0,z0,x1,z1,pad){
   if(x0<-96||z0<-96||x1>96||z1>96) return false;
@@ -8485,9 +8495,15 @@ function rectFree(x0,z0,x1,z1,pad){
 function segRect(g){ return g.ax==='x' ? [g.a0,g.c-PIT_HW,g.a1,g.c+PIT_HW] : [g.c-PIT_HW,g.a0,g.c+PIT_HW,g.a1]; }
 function digAim(){
   const d=new V3(); camera.getWorldDirection(d); d.y=0; if(d.lengthSq()<1e-6) d.set(0,0,-1);
-  const px=player.pos.x, pz=player.pos.z, L=DIG_LEN;
-  if(Math.abs(d.z)>=Math.abs(d.x)){ const f=d.z<0?-1:1; return {ax:'x',front:f,c:Math.round(pz+f*4.6),a0:Math.round(px-L/2),a1:Math.round(px-L/2)+L}; }
-  const f=d.x<0?-1:1; return {ax:'z',front:f,c:Math.round(px+f*4.6),a0:Math.round(pz-L/2),a1:Math.round(pz-L/2)+L};
+  const px=player.pos.x, pz=player.pos.z, alongX=Math.abs(d.z)>=Math.abs(d.x);
+  const f=alongX?(d.z<0?-1:1):(d.x<0?-1:1);
+  let first=null;
+  for(const L of [DIG_LEN,8,6,4]){        // a shorter trench if the full length would hit a wall
+    const a0=Math.round((alongX?px:pz)-L/2);
+    const g=alongX?{ax:'x',front:f,c:Math.round(pz+f*4.6),a0,a1:a0+L}:{ax:'z',front:f,c:Math.round(px+f*4.6),a0,a1:a0+L};
+    if(!first) first=g; const r=segRect(g); if(rectFree(r[0],r[1],r[2],r[3],1.5)) return g;
+  }
+  return first;
 }
 function digGhost(){
   if(dig.ghost) return dig.ghost;
@@ -8517,22 +8533,23 @@ function digCommit(ax,c,a0,a1,front,bags){
 function digTick(dt){
   const on=state==='playing' && digEnabled() && !mounted && !playerDead && !air.on && !isDuel();
   const g=digGhost();
-  if(!on){ g.visible=false; dig.bar.style.display='none'; dig.active=false; dig.prog=0; dig.lock=null; return; }
+  if(!on){ g.visible=false; dig.bar.style.display='none'; dig.active=false; dig.prog=0; dig.lock=null; if(dig.tool && state!=='playing') dig.tool=false; return; }
+  const held=dig.held || (dig.tool && (mouseDown||touch.fire));
   const a=digAim(), r=segRect(a);
   dig.ok = rectFree(r[0],r[1],r[2],r[3],1.5);
-  if(dig.held){
+  if(held){
     if(!dig.lock || dig.lock.ax!==a.ax || Math.abs(dig.lock.c-a.c)>1 || Math.abs(dig.lock.a0-a.a0)>1 || dig.lock.front!==a.front){ dig.lock=a; dig.prog=0; }
   } else dig.lock=null;
   const useSeg=dig.lock||a, ur=segRect(useSeg);
-  g.visible=true; g.material.color.setHex(dig.ok?0x66ff66:0xff5544);
+  g.visible=held||dig.tool||prep.on; g.material.color.setHex(dig.ok?0x66ff66:0xff5544);
   g.scale.set(ur[2]-ur[0],1,ur[3]-ur[1]); g.position.set((ur[0]+ur[2])/2,0.07,(ur[1]+ur[3])/2);
-  dig.active=dig.held && dig.ok;
-  if(dig.held && !dig.ok && msgTimer<=0) showMsg('CANNOT DIG HERE · TOO CLOSE TO A WALL, TREE OR TRENCH',1.2);
+  dig.active=held && dig.ok;
+  if(held && !dig.ok && msgTimer<=0) showMsg('CANNOT DIG HERE · TOO CLOSE TO A WALL, TREE OR TRENCH',1.2);
   if(dig.active){
     dig.prog+=dt/(DIG_TIME*(selClass==='engineer'?0.5:1));
     if(dig.prog>=1){ dig.prog=0; const pit=digCommit(a.ax,a.c,a.a0,a.a1,a.front,false); dig.lock=null; dig.count++;
       if(pit){ showMsg(selClass==='engineer'?'TRENCH DUG · PRESS T NEXT TO IT FOR SANDBAGS':'TRENCH DUG',1.8); try{ sting('waveStart'); }catch(e){} } }
-  } else if(!dig.held) dig.prog=0;
+  } else if(!held) dig.prog=0;
   dig.bar.style.display=dig.active?'block':'none'; if(dig.active) dig.fill.style.width=Math.min(100,dig.prog*100)+'%';
 }
 /* ---- tank traps ---- */
@@ -8545,7 +8562,7 @@ function makeHedgehog(x,z){
 }
 function tryHedgehog(x,z){ if(!rectFree(x-0.8,z-0.8,x+0.8,z+0.8,0.5)) return false; makeHedgehog(x,z); return true; }
 function engineerBuild(){
-  if(state!=='playing' || selClass!=='engineer' || isTankMap() || mounted || !runDig) return;
+  if(state!=='playing' || selClass!=='engineer' || isTankMap() || mounted || !digEnabled()) return;
   let best=null, bd=7;
   for(const p of pits){ if(p.bagged) continue; const dx=Math.max(p.x0-player.pos.x,0,player.pos.x-p.x1), dz=Math.max(p.z0-player.pos.z,0,player.pos.z-p.z1), d=Math.hypot(dx,dz); if(d<bd){ bd=d; best=p; } }
   if(best){ addPitBags(best); flushBatch(true); visCols=null; showMsg('SANDBAGS BUILT',1.4); return; }
@@ -8591,7 +8608,7 @@ function prepTick(dt){
     for(const pl of digPlan) if(pl.ally && !pl.done && prep.el>=pl.at) planDig(pl);
     if(prep.t<=0){ prepFinish(); return; }
     const m=Math.floor(prep.t/60), sec=Math.floor(prep.t%60);
-    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'HOLD ⛏ TO DIG':'HOLD X TO DIG'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
+    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'EQUIP THE SHOVEL (4) AND HOLD FIRE':'PRESS 4 FOR THE SHOVEL, HOLD LEFT CLICK (OR X)'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
     const pe=$('protect'); if(pe) pe.style.opacity=0;
   } else if(prep.phase==='build'){
     if(pb) pb.style.display='none';

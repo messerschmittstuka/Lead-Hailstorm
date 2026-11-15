@@ -731,12 +731,14 @@ function pine(x,z){ const s=0.8+rnd()*0.6; addProp('pine',buildPine,x,z,rnd()*6,
 // static geometry is merged per material so the big city stays fast
 const batch=new Map();
 const _M=new THREE.Matrix4(), _Q=new THREE.Quaternion(), _E=new THREE.Euler(), ONE=new V3(1,1,1);
+const flatDecor=[];   // roads and other flat ground coverings: a hole dug under them would stay hidden
 const noGrass=[];   // ground footprints of everything built (x0,z0,x1,z1), so grass never grows through floors, roads or walls
 function addGeo(geo,m,x,y,z,rx=0,ry=0,rz=0,parent=null){
   _M.compose(new V3(x,y,z),_Q.setFromEuler(_E.set(rx,ry,rz)),ONE);
   if(parent) _M.premultiply(parent);
   geo.applyMatrix4(_M);
-  if(geo.computeBoundingBox){ geo.computeBoundingBox(); const bx=geo.boundingBox; if(bx && bx.min.y<1.5 && (bx.max.x-bx.min.x)*(bx.max.z-bx.min.z)<3500) noGrass.push(bx.min.x,bx.min.z,bx.max.x,bx.max.z); }
+  if(geo.computeBoundingBox){ geo.computeBoundingBox(); const bx=geo.boundingBox;
+    if(bx && bx.max.y<0.07 && bx.min.y>-0.01 && bx.max.x-bx.min.x>1.2 && bx.max.z-bx.min.z>1.2) flatDecor.push(bx.min.x,bx.min.z,bx.max.x,bx.max.z); if(bx && bx.min.y<1.5 && (bx.max.x-bx.min.x)*(bx.max.z-bx.min.z)<3500) noGrass.push(bx.min.x,bx.min.z,bx.max.x,bx.max.z); }
   if(!batch.has(m)) batch.set(m,[]);
   batch.get(m).push(geo);
 }
@@ -2232,7 +2234,7 @@ function buildMap(id){
   pits.length=0; if(ground.geometry!==groundPlain){ ground.geometry.dispose(); ground.geometry=groundPlain; }
   digTrenches = digOverride!==null ? digOverride : wantDig(id);          // tanks simply drive over pits (they stay at y=0)
   runDig = digOverride===null && wantRun(id); digK=null; digPlan.length=0; hedgehogsBuilt.length=0; prep.on=false; prep.phase='off'; prep.bagQ=[]; prep.hhQ=[];
-  colliders.length=0; shootables.length=0; shootables.push(ground); fires.length=0; batch.clear(); noGrass.length=0; roofZones=[]; emplacements.length=0; skClear();
+  colliders.length=0; shootables.length=0; shootables.push(ground); fires.length=0; batch.clear(); noGrass.length=0; flatDecor.length=0; roofZones=[]; emplacements.length=0; skClear();
   props=[]; propKinds={}; falling.length=0;
   seed=1942+MAP_ORDER.indexOf(id)*1000;
   mapSnow=Mp.snow;
@@ -3964,7 +3966,7 @@ function tpUpdate(dt,P){
   { const dg=!!dig.tool && digEnabled();            // the shovel in his hands
     if(dg && !so.tpShovel){ so.tpShovel=makeShovel(); so.tpShovel.rotation.order='ZXY'; so.tpShovel.rotation.set(-0.8,0,0.65); so.tpShovel.position.set(-0.21,-(2*ST*0.9-ST/2)+0.12,0.02); so.armR.add(so.tpShovel); }
     if(so.weaponObj) so.weaponObj.visible=!dg; if(so.tpShovel) so.tpShovel.visible=dg;
-    if(dg){ const t=dig.swing, lift=t<0.55?Math.sin(t/0.55*Math.PI*0.5):1-Math.min(1,(t-0.55)/0.45), th=t>=0.45&&t<0.7?Math.sin((t-0.45)/0.25*Math.PI):0; const k=(dig.active||t>0)?1:0; so.aimPitch=-0.6*lift*k+0.7*th; } }
+    if(dg){ const t=dig.swing, lift=t<0.3?Math.sin(t/0.3*Math.PI*0.5):1-Math.min(1,(t-0.3)/0.7), th=t>=0.2&&t<0.5?Math.sin((t-0.2)/0.3*Math.PI):0; const k=(dig.active||t>0)?1:0; so.aimPitch=-0.6*lift*k+0.7*th; } }
   animateSoldier(so,dt,performance.now()/1000);
   // camera: pulled back and a little to the right and up, and stopped by walls
   _tpHead.set(P.pos.x,P.pos.y+P.eye,P.pos.z);
@@ -8511,12 +8513,13 @@ const digEnabled=()=>!!digK && !isTankMap() && !coopNow() && !isDuel();
 function toggleShovel(){
   if(state!=='playing' || mounted || playerDead || air.on) return;
   if(!digEnabled()){ showMsg('NOTHING TO DIG HERE',1.2); return; }
-  dig.tool=!dig.tool; showMsg(dig.tool?(IS_TOUCH?'SHOVEL · HOLD FIRE TO DIG':'SHOVEL · HOLD LEFT CLICK TO DIG'):'SHOVEL AWAY',1.4);
+  dig.tool=!dig.tool; showMsg(dig.tool?(IS_TOUCH?'SHOVEL · HOLD FIRE TO DIG':'SHOVEL · CLICK TO DIG · CLICK AGAIN TO DEEPEN OR LENGTHEN'):'SHOVEL AWAY',1.4);
 }
 // is this ground rectangle free of pits, walls, trees and buildings?
-function rectFree(x0,z0,x1,z1,pad){
+function rectFree(x0,z0,x1,z1,pad,ign){
   if(x0<-96||z0<-96||x1>96||z1>96) return false;
-  for(const p of pits){ if(x1+pad>p.x0 && x0-pad<p.x1 && z1+pad>p.z0 && z0-pad<p.z1) return false; }
+  for(let i=0;i<flatDecor.length;i+=4){ if(x1>flatDecor[i] && x0<flatDecor[i+2] && z1>flatDecor[i+1] && z0<flatDecor[i+3]) return false; }
+  for(const p of pits){ if(p===ign) continue; if(x1+pad>p.x0 && x0-pad<p.x1 && z1+pad>p.z0 && z0-pad<p.z1) return false; }
   for(const b of colliders){ if(b.max.y<0.3 || b.min.y>2.5) continue; if(x1+0.3>b.min.x && x0-0.3<b.max.x && z1+0.3>b.min.z && z0-0.3<b.max.z) return false; }
   for(const r of roofZones){ if(x1>r[0] && x0<r[2] && z1>r[1] && z0<r[3]) return false; }
   return true;
@@ -8559,44 +8562,70 @@ function digCommit(ax,c,a0,a1,front,bags){
   carveGround(); try{ hidePitWheat(pit); }catch(e){}
   flushBatch(true); visCols=null; prep.lookT=2.5; return pit;
 }
-// the unfinished trench the player is working on (the aimed spot overlaps it, or he stands next to it)
-function digTarget(r){
-  for(const p of pits){ if(!p.wip) continue;
-    const near=player.pos.x>p.x0-1.6 && player.pos.x<p.x1+1.6 && player.pos.z>p.z0-1.6 && player.pos.z<p.z1+1.6;
-    if(near || (r[2]>p.x0 && r[0]<p.x1 && r[3]>p.z0 && r[1]<p.z1)) return p; }
-  return null;
+// ---- digging: every click makes a hole at once; more clicks deepen it or extend it at either end ----
+const EXT=2, HOLE_LEN=4, HOLE_D0=0.8, DEEPEN=0.5;
+function digAimPoint(){
+  const d=new V3(); camera.getWorldDirection(d);
+  const tr=bulletTrace(camera.position.clone(),d,14,null);
+  if(!tr || !tr.point || tr.soldier || tr.point.y>0.7 || tr.point.y<-2.2) return null;
+  if(Math.hypot(tr.point.x-player.pos.x,tr.point.z-player.pos.z)>6.5) return null;
+  return {x:tr.point.x,z:tr.point.z};
 }
-function digStroke(a,r){
-  let pit=digTarget(r);
-  if(!pit){
-    if(!rectFree(r[0],r[1],r[2],r[3],1.5)) return;
-    pit=digSegment(digK,a.ax,a.c,a.a0,a.a1,a.front,false,true); if(!pit) return;
-    carveGround(); try{ hidePitWheat(pit); }catch(e){}
-  }
+function digPlanAt(pt){
+  const d=new V3(); camera.getWorldDirection(d);
+  for(const p of pits){ if(!p.dug) continue;
+    if(pt.x>p.x0-0.4 && pt.x<p.x1+0.4 && pt.z>p.z0-0.4 && pt.z<p.z1+0.4){
+      const rc=[p.x0,p.z0,p.x1,p.z1];
+      if(p.curD<p.D-0.01) return {kind:'deepen',pit:p,rect:rc,ok:true};
+      return {kind:'full',pit:p,rect:rc,ok:false,why:'FULL DEPTH · DIG AT AN END TO MAKE IT LONGER'}; } }
+  for(const p of pits){ if(!p.dug) continue;
+    const u=p.ax==='x'?pt.x:pt.z, v=p.ax==='x'?pt.z:pt.x;
+    if(Math.abs(v-p.c)>p.hw+1.0) continue;
+    for(const end of [1,0]){ const near=end?(u>p.a1 && u<p.a1+3):(u<p.a0 && u>p.a0-3); if(!near) continue;
+      const e0=end?p.a1:p.a0-EXT, e1=end?p.a1+EXT:p.a0;
+      const r=p.ax==='x'?[e0,p.c-p.hw,e1,p.c+p.hw]:[p.c-p.hw,e0,p.c+p.hw,e1];
+      if(p.a1-p.a0>=40) return {kind:'full',pit:p,rect:r,ok:false,why:'THIS TRENCH IS AS LONG AS IT CAN GET'};
+      return {kind:'extend',pit:p,end,rect:r,ok:rectFree(r[0],r[1],r[2],r[3],0.3,p),why:'CANNOT DIG HERE'}; } }
+  const alongX=Math.abs(d.z)>=Math.abs(d.x), f=alongX?(d.z<0?-1:1):(d.x<0?-1:1);
+  const g=alongX?{ax:'x',front:f,c:Math.round(pt.z),a0:Math.round(pt.x)-HOLE_LEN/2,a1:Math.round(pt.x)+HOLE_LEN/2}
+                :{ax:'z',front:f,c:Math.round(pt.x),a0:Math.round(pt.z)-HOLE_LEN/2,a1:Math.round(pt.z)+HOLE_LEN/2};
+  const r=segRect(g); return {kind:'new',g,rect:r,ok:rectFree(r[0],r[1],r[2],r[3],1.5),why:'CANNOT DIG HERE · WALL, TREE, ROAD OR ANOTHER TRENCH'};
+}
+function pitReshape(p){
+  p.RL=Math.min(PIT_RL,(p.a1-p.a0-1.5)/2);
+  if(p.ax==='x'){ p.x0=p.a0; p.x1=p.a1; p.z0=p.c-p.hw; p.z1=p.c+p.hw; } else { p.z0=p.a0; p.z1=p.a1; p.x0=p.c-p.hw; p.x1=p.c+p.hw; }
+  pitDropShell(p); p.shell=pitShell(p,p.curD); carveGround(); try{ hidePitWheat(p); }catch(e){}
+  prep.lookT=2.5; visCols=null;
+}
+// a plain earth hole (no planks): floor and walls only, so it can be deepened and lengthened later
+function makeHole(ax,c,a0,a1,front,depth){
+  const pit=digSegment(digK,ax,c,a0,a1,front,false,true); if(!pit) return null;
+  pit.wip=false; pit.dug=true; pit.curD=depth; pit.frac=depth/pit.D; pitReshape(pit); return pit;
+}
+function digStroke(){
+  const pt=digAimPoint(); if(!pt) return; const pl=digPlanAt(pt); if(!pl.ok) return;
+  if(pl.kind==='new'){ if(!makeHole(pl.g.ax,pl.g.c,pl.g.a0,pl.g.a1,pl.g.front,HOLE_D0)) return; }
+  else if(pl.kind==='deepen'){ pl.pit.curD=Math.min(pl.pit.D,pl.pit.curD+DEEPEN); pitReshape(pl.pit); }
+  else { if(pl.end) pl.pit.a1+=EXT; else pl.pit.a0-=EXT; pitReshape(pl.pit); }
   try{ noise(0.16,340,0.28,'lowpass'); tone(95,60,0.09,0.2,'triangle'); }catch(e){}
-  dig.dirt=0.35; dig.cur=pit;
-  const done=pitGrow(pit,pit.frac+1/(selClass==='engineer'?5:8));
-  if(done){ dig.count++; showMsg(selClass==='engineer'?'TRENCH DUG · PRESS T NEXT TO IT FOR SANDBAGS':'TRENCH DUG',1.8); try{ sting('waveStart'); }catch(e){} }
+  dig.dirt=0.3; dig.count++;
 }
 function digTick(dt){
   const on=state==='playing' && digEnabled() && !mounted && !playerDead && !air.on && !isDuel();
   const g=digGhost();
   if(!on){ g.visible=false; dig.bar.style.display='none'; dig.active=false; dig.swing=0; if(dig.tool && state!=='playing') dig.tool=false; return; }
-  const keyHeld=dig.held; if(keyHeld && !dig.tool){ dig.tool=true; }
+  dig.bar.style.display='none';
+  const keyHeld=dig.held; if(keyHeld && !dig.tool) dig.tool=true;
   const held=keyHeld || (dig.tool && (mouseDown||touch.fire));
-  const a=digAim(), r=segRect(a), tg=digTarget(r), tr=tg?[tg.x0,tg.z0,tg.x1,tg.z1]:r;
-  dig.ok = !!tg || rectFree(r[0],r[1],r[2],r[3],1.5);
-  g.visible=dig.tool && !tg; g.material.color.setHex(dig.ok?0x66ff66:0xff5544);
-  g.scale.set(tr[2]-tr[0],1,tr[3]-tr[1]); g.position.set((tr[0]+tr[2])/2,0.07,(tr[1]+tr[3])/2);
+  const pt=dig.tool?digAimPoint():null, pl=pt?digPlanAt(pt):null;
+  dig.ok=!!pl && pl.ok;
+  g.visible=!!pl; if(pl){ g.material.color.setHex(pl.ok?0x66ff66:0xff5544); const tr=pl.rect; g.scale.set(tr[2]-tr[0],1,tr[3]-tr[1]); g.position.set((tr[0]+tr[2])/2,0.07,(tr[1]+tr[3])/2); }
   dig.active=held && dig.ok;
-  if(held && !dig.ok && msgTimer<=0) showMsg('CANNOT DIG HERE · TOO CLOSE TO A WALL, TREE OR TRENCH',1.2);
-  // the swing: raise, thrust (the earth gives way on the thrust), recover
+  if(held && !dig.ok && msgTimer<=0) showMsg(pl?(pl.why||'CANNOT DIG HERE'):'LOOK AT THE GROUND · UP TO 6 m AWAY',1.0);
   const prev=dig.swing;
-  if(dig.active || dig.swing>0){ dig.swing+=dt/(selClass==='engineer'?0.62:0.85); if(dig.swing>=1){ dig.swing=dig.active?0:0; } }
-  if(dig.active && prev<0.55 && dig.swing>=0.55) digStroke(a,r);
+  if(dig.active || dig.swing>0){ dig.swing+=dt/(selClass==='engineer'?0.3:0.42); if(dig.swing>=1) dig.swing=0; }
+  if(dig.active && prev<0.3 && dig.swing>=0.3) digStroke();
   if(dig.dirt>0) dig.dirt-=dt;
-  const wp=tg||dig.cur; const showBar=!!tg && dig.tool && (held||tg.frac>0);
-  dig.bar.style.display=showBar?'block':'none'; if(showBar){ dig.fill.style.width=Math.min(100,tg.frac*100)+'%'; }
 }
 /* ---- the shovel (first person + third person) ---- */
 function makeShovel(){
@@ -8615,7 +8644,7 @@ function shovelView(){
     const S=SIDES[selSide], sleeve=mat(S.uniform), skin=mat(0xd6a782,{roughness:.8});
     for(const [y,x] of [[0.42,0.02],[0.02,-0.02]]){ const sl=rbox(0.09,0.09,0.4,sleeve,0.015,false); sl.position.set(x,y,0.2); sl.rotation.x=-0.5; vmShovel.add(sl); const h=rbox(0.085,0.085,0.1,skin,0.02,false); h.position.set(x,y,0.02); vmShovel.add(h); } }
   if(vmShovel.parent!==vmRoot) vmRoot.add(vmShovel);
-  const t=dig.swing, lift=t<0.55?Math.sin(t/0.55*Math.PI*0.5):1-Math.min(1,(t-0.55)/0.45), thrust=t>=0.45&&t<0.7?Math.sin((t-0.45)/0.25*Math.PI):0;
+  const t=dig.swing, lift=t<0.3?Math.sin(t/0.3*Math.PI*0.5):1-Math.min(1,(t-0.3)/0.7), thrust=t>=0.2&&t<0.5?Math.sin((t-0.2)/0.3*Math.PI):0;
   const k=dig.active||t>0?1:0;
   vmRoot.position.set(0.18,-0.34+0.1*lift*k-0.18*thrust,-0.42-0.14*thrust);
   vmRoot.rotation.set(-0.3*lift*k+0.55*thrust,0,0);
@@ -8650,7 +8679,7 @@ function startPrep(){
 function planDig(pl){
   if(pl.done) return; pl.done=true;
   const r=segRect(pl); if(pits.some(p=>r[2]+0.6>p.x0 && r[0]-0.6<p.x1 && r[3]+0.6>p.z0 && r[1]-0.6<p.z1)) return;
-  pl.pit=digCommit(pl.ax,pl.c,pl.a0,pl.a1,pl.front,false);
+  pl.pit=makeHole(pl.ax,pl.c,pl.a0,pl.a1,pl.front,PIT_D);
 }
 function planTraps(pl,q){
   const v=pl.c+pl.front*(PIT_HW+4.5), L=pl.a1-pl.a0, us=L>12?[pl.a0+2.5,(pl.a0+pl.a1)/2,pl.a1-2.5]:[(pl.a0+pl.a1)/2];
@@ -8677,7 +8706,7 @@ function prepTick(dt){
     for(const pl of digPlan) if(pl.ally && !pl.done && prep.el>=pl.at) planDig(pl);
     if(prep.t<=0){ prepFinish(); return; }
     const m=Math.floor(prep.t/60), sec=Math.floor(prep.t%60);
-    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'EQUIP THE SHOVEL (4) AND HOLD FIRE':'PRESS 4 = SHOVEL · HOLD LEFT CLICK TO SWING'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
+    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'EQUIP THE SHOVEL (4) AND HOLD FIRE':'PRESS 4 = SHOVEL · CLICK TO DIG'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
     const pe=$('protect'); if(pe) pe.style.opacity=0;
   } else if(prep.phase==='build'){
     if(pb) pb.style.display='none';

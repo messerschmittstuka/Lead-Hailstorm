@@ -510,7 +510,10 @@ let gfx = IS_TOUCH ? 'medium' : 'high';
 try{ const g=localStorage.getItem('ef_gfx'); if(GFX[g]) gfx=g; }catch(e){}
 const gfxAtStart=gfx;                        // edge smoothing can only change when the page loads
 const renderer = new THREE.WebGLRenderer({antialias:GFX[gfx].aa, powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,IS_TOUCH?GFX[gfx].prTouch:GFX[gfx].pr));
+// the frame buffers are the biggest memory user (antialiasing multiplies them), so the pixel count is capped, not just the ratio
+const PX_CAP={high:4.0e6,medium:2.6e6,low:1.5e6};
+function calcPR(G){ let pr=Math.min(devicePixelRatio||1,IS_TOUCH?G.prTouch:G.pr); const px=Math.max(1,innerWidth*innerHeight), cap=PX_CAP[gfx]||2.6e6; if(px*pr*pr>cap) pr=Math.max(0.75,Math.sqrt(cap/px)); return pr; }
+renderer.setPixelRatio(calcPR(GFX[gfx]));
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -543,7 +546,7 @@ const vFlashLight = new THREE.PointLight(0xffb050, 0, 3); vFlashLight.position.s
 const worldFlash = new THREE.PointLight(0xffa040, 0, 14); scene.add(worldFlash);
 
 addEventListener('resize',()=>{
-  renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(calcPR(GFX[gfx])); renderer.setSize(innerWidth,innerHeight);
   camera.aspect = viewCam.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix(); viewCam.updateProjectionMatrix();
 });
@@ -614,8 +617,8 @@ function groundY(x,z){
   for(let i=0;i<pits.length;i++){ const p=pits[i];
     if(x<p.x0||x>p.x1||z<p.z0||z>p.z1) continue;
     const u=p.ax==='x'?x:z, v=p.ax==='x'?z:x;
-    let y=-p.D*Math.min(1,(u-p.a0)/p.RL,(p.a1-u)/p.RL);
-    if(u>p.a0+p.RL && u<p.a1-p.RL && (v-p.c)*p.front>p.hw-p.stepW) y+=p.stepH;
+    let y=-(p.curD!==undefined?p.curD:p.D)*Math.min(1,(u-p.a0)/p.RL,(p.a1-u)/p.RL);
+    if(p.curD===undefined && u>p.a0+p.RL && u<p.a1-p.RL && (v-p.c)*p.front>p.hw-p.stepW) y+=p.stepH;
     return y;
   }
   return 0;
@@ -1507,7 +1510,7 @@ function pitTris(verts){
   return g;
 }
 let pitMats=null;
-function digSegment(K,ax,c,a0,a1,front,bags=true){
+function digSegment(K,ax,c,a0,a1,front,bags=true,partial=false){
   const D=PIT_D, hw=PIT_HW, RL=Math.min(PIT_RL,(a1-a0-1.5)/2); if(RL<1) return null;
   if(!pitMats) pitMats={wall:mat(0x5c4a35,{roughness:1,side:THREE.DoubleSide}), floor:mat(0x3b2f22,{roughness:1,side:THREE.DoubleSide}), step:mat(0x4d3d2b,{roughness:1}),
     plank:mat(0x7a5c3c,{roughness:.9}), bag:null};
@@ -1518,13 +1521,32 @@ function digSegment(K,ax,c,a0,a1,front,bags=true){
   const pit={ax,c,a0,a1,hw,D,RL,front,stepW:PIT_STEP_W,stepH:PIT_STEP_H,bagged:false}; if(!digK) digK=K;
   if(ax==='x'){ pit.x0=a0; pit.x1=a1; pit.z0=c-hw; pit.z1=c+hw; } else { pit.z0=a0; pit.z1=a1; pit.x0=c-hw; pit.x1=c+hw; }
   pits.push(pit);
-  const prof=[[a0,0],[a0+RL,-D],[a1-RL,-D],[a1,0]];
+  pit.K=K;
+  if(partial){ pit.curD=0.03; pit.wip=true; pit.frac=0; pit.shell=pitShell(pit,pit.curD); return pit; }
+  pit.shell=pitShell(pit,D);
+  return pitFinish(pit,bags);
+}
+// the floor and walls of a pit at a given depth (rebuilt on every shovel stroke while it is being dug)
+function pitShell(pit,depth){
+  const {ax,c,a0,a1,hw,RL}=pit, P=(u,y,v)=>ax==='x'?[u,y,v]:[v,y,u];
+  const prof=[[a0,0],[a0+RL,-depth],[a1-RL,-depth],[a1,0]];
   const fl=[], wl=[];
   for(let i=0;i<3;i++){ const [u0,y0]=prof[i], [u1,y1]=prof[i+1];
     fl.push(...P(u0,y0,c-hw),...P(u1,y1,c-hw),...P(u1,y1,c+hw), ...P(u0,y0,c-hw),...P(u1,y1,c+hw),...P(u0,y0,c+hw)); }
   for(const s of [-1,1]){ const v=c+s*hw;
-    wl.push(...P(a0,0,v),...P(a0+RL,-D,v),...P(a1,0,v), ...P(a0+RL,-D,v),...P(a1-RL,-D,v),...P(a1,0,v)); }
+    wl.push(...P(a0,0,v),...P(a0+RL,-depth,v),...P(a1,0,v), ...P(a0+RL,-depth,v),...P(a1-RL,-depth,v),...P(a1,0,v)); }
   const fm=new THREE.Mesh(pitTris(fl),pitMats.floor), wm=new THREE.Mesh(pitTris(wl),pitMats.wall); mapRoot.add(fm); mapRoot.add(wm);
+  return [fm,wm];
+}
+function pitDropShell(pit){ if(!pit.shell) return; for(const m of pit.shell){ mapRoot.remove(m); if(m.geometry) m.geometry.dispose(); } pit.shell=null; }
+// one shovel stroke deeper; returns true when the trench is finished
+function pitGrow(pit,frac){
+  pit.frac=Math.min(1,frac); pitDropShell(pit);
+  if(pit.frac<1){ pit.curD=Math.max(0.05,pit.D*pit.frac); pit.shell=pitShell(pit,pit.curD); return false; }
+  pit.curD=undefined; pit.wip=false; pit.shell=pitShell(pit,pit.D); pitFinish(pit,false); flushBatch(true); visCols=null; prep.lookT=2.5; return true;
+}
+function pitFinish(pit,bags){
+  const {ax,c,a0,a1,hw,D,RL,front,K}=pit;
   // fittings on the flat part: log revetment, posts, duckboards and the firing step
   const f0=a0+RL, f1=a1-RL, L=f1-f0, cu=(f0+f1)/2;
   const box=(u,y,v,lu,h,lv,m)=>{ if(ax==='x') sBox(u,y,v,lu,h,lv,m,false); else sBox(v,y,u,lv,h,lu,m,false); };
@@ -2198,7 +2220,7 @@ const WAVES_PER_MAP=5;
 let currentMap=null;
 const wantDig=id=>true;
 const coopNow=()=>{ try{ return !!coop; }catch(e){ return false; } };
-const wantRun=id=>(id==='kursk'||id==='seelow') && skirm.sel==='campaign' && !coopNow();
+const wantRun=id=>(id==='kursk'||id==='seelow') && !coopNow();
 const needRebuild=id=>currentMap!==id || wantDig(id)!==digTrenches || (digOverride===null && wantRun(id)!==runDig) || prep.phase!=='off';
 function buildMap(id){
   const Mp=MAPS[id];
@@ -2929,9 +2951,11 @@ function animateBoxSoldier(s,dt,t){
   s.legs[0].rotation.x=sw*(1-ck)-1.25*ck; s.legs[1].rotation.x=-sw*(1-ck)-0.25*ck;
   s.legs[0].scale.y=1-lift*l0*(1-ck); s.legs[1].scale.y=1-lift*l1*(1-ck);
   // arms: the rifle stays up at the ready, the left hand supports the front of it; only a small bob from the stride
-  s.armL.rotation.x=0.95+0.07*sn*a+0.03*Math.sin(t*1.3+s.seedT);
-  s.armL.rotation.z=0.36;
-  s.armR.rotation.x=Math.PI/2-0.06+(s.aimPitch||0)+Math.sin(ph*2)*0.03*a-1.25*(s.wallK||0);
+  // both hands on the gun: the arms angle in so the hands meet either side of the weapon, which is then turned straight again
+  const aimX=Math.PI/2-0.06+(s.aimPitch||0)+Math.sin(ph*2)*0.03*a-1.25*(s.wallK||0), IN=0.65;
+  s.armR.rotation.x=aimX; s.armR.rotation.z=-IN;
+  s.armL.rotation.x=aimX+0.03*Math.sin(t*1.3+s.seedT); s.armL.rotation.z=IN;
+  { const w=s.weaponObj; if(w && w.rotation.order!=='ZXY'){ w.rotation.order='ZXY'; w.rotation.set(-Math.PI/2,0,IN); w.position.x=-0.21; } }
   // body: dips at the widest point of the stride, leans into the run, hips and shoulders counter-rotate
   const bob=(0.5+0.5*Math.cos(ph*2))*(0.03+0.03*run)*a;
   s.body.position.y=bob-0.5*ck;
@@ -3770,7 +3794,7 @@ function updateCombat(dt,t){
   mates.forEach((m,i)=>{ if(m.dead) animateDead(m,dt); else { if(prep.on){ m.vel.set(0,0,0); m.speed=0; } else updateAI(m,dt,slots[i]); animateSoldier(m,dt,t); } });
   const surrendered = battle.done && (berlinAttack() || currentMap==='moscow');
   for(const e of enemies){ if(e.dead) animateDead(e,dt); else if(surrendered){ e.vel.set(0,0,0); e.speed=0; if(e.armR) e.aimPitch=-0.9; animateSoldier(e,dt,t); } else { if(prep.on){ e.vel.set(0,0,0); e.speed=0; } else updateAI(e,dt,null); animateSoldier(e,dt,t); } }
-  if(skirm.on) skirmUpdate(dt,t);
+  if(skirm.on && !prep.on) skirmUpdate(dt,t);
   updateObjective(dt,t); updateMoscowHold(dt,t);
   // remove bodies after they sank
   for(const list of [mates,enemies]) for(let i=list.length-1;i>=0;i--){ const s=list[i]; if(s.dead && s.deadT>8.5){ scene.remove(s.root); list.splice(i,1); } }
@@ -3931,12 +3955,16 @@ function tpUpdate(dt,P){
   const so=tpS; so.root.visible=true;
   if(wasOff) tpYaw=P.yaw;
   // no shift-lock: the soldier turns to face where he walks (you see his face), and only squares up to the camera when he aims or shoots
-  const vh=Math.hypot(P.vel.x,P.vel.z), facing=gun.ads>0.15 || mouseDown || touch.fire || gun.kick>0.04;
+  const vh=Math.hypot(P.vel.x,P.vel.z), facing=gun.ads>0.15 || mouseDown || touch.fire || gun.kick>0.04 || dig.active;
   let wantYaw=tpYaw; if(facing) wantYaw=P.yaw; else if(vh>0.6) wantYaw=Math.atan2(-P.vel.x,-P.vel.z);
   tpYaw=angLerp(tpYaw,wantYaw,Math.min(1,dt*(facing?16:10)));
   let dY=Math.abs(angLerp(tpYaw,P.yaw,1)-tpYaw); dY=Math.min(dY,Math.abs(dY-6.2832));
   so.pos.set(P.pos.x,P.pos.y,P.pos.z); so.heading=tpYaw; so.root.rotation.y=tpYaw;
   so.speed=vh; so.wantCrouch=!!P.crouch; so.aimPitch=P.pitch*(dY<0.7?1:0.15);
+  { const dg=!!dig.tool && digEnabled();            // the shovel in his hands
+    if(dg && !so.tpShovel){ so.tpShovel=makeShovel(); so.tpShovel.rotation.order='ZXY'; so.tpShovel.rotation.set(-0.8,0,0.65); so.tpShovel.position.set(-0.21,-(2*ST*0.9-ST/2)+0.12,0.02); so.armR.add(so.tpShovel); }
+    if(so.weaponObj) so.weaponObj.visible=!dg; if(so.tpShovel) so.tpShovel.visible=dg;
+    if(dg){ const t=dig.swing, lift=t<0.55?Math.sin(t/0.55*Math.PI*0.5):1-Math.min(1,(t-0.55)/0.45), th=t>=0.45&&t<0.7?Math.sin((t-0.45)/0.25*Math.PI):0; const k=(dig.active||t>0)?1:0; so.aimPitch=-0.6*lift*k+0.7*th; } }
   animateSoldier(so,dt,performance.now()/1000);
   // camera: pulled back and a little to the right and up, and stopped by walls
   _tpHead.set(P.pos.x,P.pos.y+P.eye,P.pos.z);
@@ -6120,11 +6148,12 @@ function makeInfantry(side,team,isAT){
   if(isAT){
     // swap the gun for an anti-tank launcher tube
     const hd=-s.weaponObj.position.y; s.weaponObj.visible=false;
+    const piv=new THREE.Group(); piv.rotation.z=0.65; piv.position.x=-0.21; s.armR.add(piv);       // undoes the inward angle of the two-handed hold
     const tube=shade(new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.075,1.25,10),tubeMat));
-    tube.position.set(0,-hd+0.15,0.06); s.armR.add(tube);
+    tube.position.set(0,-hd+0.15,0.06); piv.add(tube);
     const head=shade(new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.12,0.25,10),mat(0x3a3a2a)));
-    head.position.set(0,-hd-0.55,0.06); s.armR.add(head);
-    muzzle.position.set(0,-hd-0.7,0.06); s.armR.add(muzzle);
+    head.position.set(0,-hd-0.55,0.06); piv.add(head);
+    muzzle.position.set(0,-hd-0.7,0.06); piv.add(muzzle);
   } else s.weaponObj.userData.muzzle.add(muzzle);
   const fl=new THREE.Sprite(aiFlashMat); fl.scale.setScalar(isAT?0.9:0.45); fl.visible=false; fl.raycast=()=>{}; muzzle.add(fl);
   const mk=new THREE.Sprite(new THREE.SpriteMaterial({map:team==='enemy'?mkEnemy:mkAlly,transparent:true,depthTest:false,fog:false}));
@@ -6571,7 +6600,7 @@ const flashTex=canvasTex(64,(x,s)=>{
   x.fillStyle=g; x.fillRect(0,0,s,s);
 });
 function buildViewmodel(side,type){
-  vmRoot.clear();
+  vmRoot.clear(); vmShovel=null;
   const S=SIDES[side];
   vmWeapon=makeWeapon(type); vmRoot.add(vmWeapon);
   const sleeve=mat(S.uniform), skin=mat(0xd6a782,{roughness:.8});
@@ -8344,7 +8373,7 @@ function sndStepNew(sprint){
 /* ================= GRAPHICS SETTING ================= */
 function applyGraphics(){
   const G=GFX[gfx];
-  renderer.setPixelRatio(Math.min(devicePixelRatio,IS_TOUCH?G.prTouch:G.pr)); renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(calcPR(G)); renderer.setSize(innerWidth,innerHeight);
   const sz=IS_TOUCH?G.shadowTouch:G.shadow;
   sun.castShadow=G.shadows;
   if(sun.shadow.mapSize.x!==sz){ if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; } sun.shadow.mapSize.set(sz,sz); }
@@ -8477,7 +8506,7 @@ function startGame(){
 
 /* ================= DIG YOUR OWN TRENCHES · PREPARATION · ENGINEERS ================= */
 const PREP_TIME=100, DIG_TIME=6, DIG_LEN=10;
-const dig={tool:false,held:false,prog:0,ok:false,active:false,seg:null,lock:null,ghost:null,bar:null,fill:null,txt:null,count:0};
+const dig={tool:false,held:false,swing:0,dirt:0,cur:null,prog:0,ok:false,active:false,seg:null,lock:null,ghost:null,bar:null,fill:null,txt:null,count:0};
 const digEnabled=()=>!!digK && !isTankMap() && !coopNow() && !isDuel();
 function toggleShovel(){
   if(state!=='playing' || mounted || playerDead || air.on) return;
@@ -8530,27 +8559,67 @@ function digCommit(ax,c,a0,a1,front,bags){
   carveGround(); try{ hidePitWheat(pit); }catch(e){}
   flushBatch(true); visCols=null; prep.lookT=2.5; return pit;
 }
+// the unfinished trench the player is working on (the aimed spot overlaps it, or he stands next to it)
+function digTarget(r){
+  for(const p of pits){ if(!p.wip) continue;
+    const near=player.pos.x>p.x0-1.6 && player.pos.x<p.x1+1.6 && player.pos.z>p.z0-1.6 && player.pos.z<p.z1+1.6;
+    if(near || (r[2]>p.x0 && r[0]<p.x1 && r[3]>p.z0 && r[1]<p.z1)) return p; }
+  return null;
+}
+function digStroke(a,r){
+  let pit=digTarget(r);
+  if(!pit){
+    if(!rectFree(r[0],r[1],r[2],r[3],1.5)) return;
+    pit=digSegment(digK,a.ax,a.c,a.a0,a.a1,a.front,false,true); if(!pit) return;
+    carveGround(); try{ hidePitWheat(pit); }catch(e){}
+  }
+  try{ noise(0.16,340,0.28,'lowpass'); tone(95,60,0.09,0.2,'triangle'); }catch(e){}
+  dig.dirt=0.35; dig.cur=pit;
+  const done=pitGrow(pit,pit.frac+1/(selClass==='engineer'?5:8));
+  if(done){ dig.count++; showMsg(selClass==='engineer'?'TRENCH DUG · PRESS T NEXT TO IT FOR SANDBAGS':'TRENCH DUG',1.8); try{ sting('waveStart'); }catch(e){} }
+}
 function digTick(dt){
   const on=state==='playing' && digEnabled() && !mounted && !playerDead && !air.on && !isDuel();
   const g=digGhost();
-  if(!on){ g.visible=false; dig.bar.style.display='none'; dig.active=false; dig.prog=0; dig.lock=null; if(dig.tool && state!=='playing') dig.tool=false; return; }
-  const held=dig.held || (dig.tool && (mouseDown||touch.fire));
-  const a=digAim(), r=segRect(a);
-  dig.ok = rectFree(r[0],r[1],r[2],r[3],1.5);
-  if(held){
-    if(!dig.lock || dig.lock.ax!==a.ax || Math.abs(dig.lock.c-a.c)>1 || Math.abs(dig.lock.a0-a.a0)>1 || dig.lock.front!==a.front){ dig.lock=a; dig.prog=0; }
-  } else dig.lock=null;
-  const useSeg=dig.lock||a, ur=segRect(useSeg);
-  g.visible=held||dig.tool||prep.on; g.material.color.setHex(dig.ok?0x66ff66:0xff5544);
-  g.scale.set(ur[2]-ur[0],1,ur[3]-ur[1]); g.position.set((ur[0]+ur[2])/2,0.07,(ur[1]+ur[3])/2);
+  if(!on){ g.visible=false; dig.bar.style.display='none'; dig.active=false; dig.swing=0; if(dig.tool && state!=='playing') dig.tool=false; return; }
+  const keyHeld=dig.held; if(keyHeld && !dig.tool){ dig.tool=true; }
+  const held=keyHeld || (dig.tool && (mouseDown||touch.fire));
+  const a=digAim(), r=segRect(a), tg=digTarget(r), tr=tg?[tg.x0,tg.z0,tg.x1,tg.z1]:r;
+  dig.ok = !!tg || rectFree(r[0],r[1],r[2],r[3],1.5);
+  g.visible=dig.tool && !tg; g.material.color.setHex(dig.ok?0x66ff66:0xff5544);
+  g.scale.set(tr[2]-tr[0],1,tr[3]-tr[1]); g.position.set((tr[0]+tr[2])/2,0.07,(tr[1]+tr[3])/2);
   dig.active=held && dig.ok;
   if(held && !dig.ok && msgTimer<=0) showMsg('CANNOT DIG HERE · TOO CLOSE TO A WALL, TREE OR TRENCH',1.2);
-  if(dig.active){
-    dig.prog+=dt/(DIG_TIME*(selClass==='engineer'?0.5:1));
-    if(dig.prog>=1){ dig.prog=0; const pit=digCommit(a.ax,a.c,a.a0,a.a1,a.front,false); dig.lock=null; dig.count++;
-      if(pit){ showMsg(selClass==='engineer'?'TRENCH DUG · PRESS T NEXT TO IT FOR SANDBAGS':'TRENCH DUG',1.8); try{ sting('waveStart'); }catch(e){} } }
-  } else if(!held) dig.prog=0;
-  dig.bar.style.display=dig.active?'block':'none'; if(dig.active) dig.fill.style.width=Math.min(100,dig.prog*100)+'%';
+  // the swing: raise, thrust (the earth gives way on the thrust), recover
+  const prev=dig.swing;
+  if(dig.active || dig.swing>0){ dig.swing+=dt/(selClass==='engineer'?0.62:0.85); if(dig.swing>=1){ dig.swing=dig.active?0:0; } }
+  if(dig.active && prev<0.55 && dig.swing>=0.55) digStroke(a,r);
+  if(dig.dirt>0) dig.dirt-=dt;
+  const wp=tg||dig.cur; const showBar=!!tg && dig.tool && (held||tg.frac>0);
+  dig.bar.style.display=showBar?'block':'none'; if(showBar){ dig.fill.style.width=Math.min(100,tg.frac*100)+'%'; }
+}
+/* ---- the shovel (first person + third person) ---- */
+function makeShovel(){
+  const g=new THREE.Group(), wood=mat(0x8a6a44,{roughness:.8}), steel=mat(0x7d8288,{roughness:.45,metalness:.65});
+  const handle=cyl(0.017,0.017,0.95,wood,8); handle.position.y=0.1; g.add(handle);
+  const grip=rbox(0.16,0.03,0.035,wood,0.01,false); grip.position.y=0.585; g.add(grip);
+  const neck=cyl(0.02,0.02,0.1,steel,8); neck.position.y=-0.4; g.add(neck);
+  const blade=rbox(0.21,0.3,0.012,steel,0.005,false); blade.position.y=-0.6; g.add(blade);
+  const tip=rbox(0.14,0.08,0.012,steel,0.004,false); tip.position.y=-0.79; tip.scale.x=0.7; g.add(tip);
+  const rim=rbox(0.215,0.012,0.03,steel,0.004,false); rim.position.y=-0.45; g.add(rim);
+  return g;
+}
+let vmShovel=null;
+function shovelView(){
+  if(!vmShovel){ vmShovel=makeShovel(); vmShovel.rotation.x=1.05; vmRoot.add(vmShovel);
+    const S=SIDES[selSide], sleeve=mat(S.uniform), skin=mat(0xd6a782,{roughness:.8});
+    for(const [y,x] of [[0.42,0.02],[0.02,-0.02]]){ const sl=rbox(0.09,0.09,0.4,sleeve,0.015,false); sl.position.set(x,y,0.2); sl.rotation.x=-0.5; vmShovel.add(sl); const h=rbox(0.085,0.085,0.1,skin,0.02,false); h.position.set(x,y,0.02); vmShovel.add(h); } }
+  if(vmShovel.parent!==vmRoot) vmRoot.add(vmShovel);
+  const t=dig.swing, lift=t<0.55?Math.sin(t/0.55*Math.PI*0.5):1-Math.min(1,(t-0.55)/0.45), thrust=t>=0.45&&t<0.7?Math.sin((t-0.45)/0.25*Math.PI):0;
+  const k=dig.active||t>0?1:0;
+  vmRoot.position.set(0.18,-0.34+0.1*lift*k-0.18*thrust,-0.42-0.14*thrust);
+  vmRoot.rotation.set(-0.3*lift*k+0.55*thrust,0,0);
+  vmShovel.position.set(0,0.1,0);
 }
 /* ---- tank traps ---- */
 function makeHedgehog(x,z){
@@ -8564,7 +8633,7 @@ function tryHedgehog(x,z){ if(!rectFree(x-0.8,z-0.8,x+0.8,z+0.8,0.5)) return fal
 function engineerBuild(){
   if(state!=='playing' || selClass!=='engineer' || isTankMap() || mounted || !digEnabled()) return;
   let best=null, bd=7;
-  for(const p of pits){ if(p.bagged) continue; const dx=Math.max(p.x0-player.pos.x,0,player.pos.x-p.x1), dz=Math.max(p.z0-player.pos.z,0,player.pos.z-p.z1), d=Math.hypot(dx,dz); if(d<bd){ bd=d; best=p; } }
+  for(const p of pits){ if(p.bagged || p.wip) continue; const dx=Math.max(p.x0-player.pos.x,0,player.pos.x-p.x1), dz=Math.max(p.z0-player.pos.z,0,player.pos.z-p.z1), d=Math.hypot(dx,dz); if(d<bd){ bd=d; best=p; } }
   if(best){ addPitBags(best); flushBatch(true); visCols=null; showMsg('SANDBAGS BUILT',1.4); return; }
   const d=new V3(); camera.getWorldDirection(d); d.y=0; d.normalize();
   if(hedgehogsBuilt.length>=40){ showMsg('NO MORE TANK TRAPS',1.2); return; }
@@ -8608,7 +8677,7 @@ function prepTick(dt){
     for(const pl of digPlan) if(pl.ally && !pl.done && prep.el>=pl.at) planDig(pl);
     if(prep.t<=0){ prepFinish(); return; }
     const m=Math.floor(prep.t/60), sec=Math.floor(prep.t%60);
-    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'EQUIP THE SHOVEL (4) AND HOLD FIRE':'PRESS 4 FOR THE SHOVEL, HOLD LEFT CLICK (OR X)'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
+    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'EQUIP THE SHOVEL (4) AND HOLD FIRE':'PRESS 4 = SHOVEL · HOLD LEFT CLICK TO SWING'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
     const pe=$('protect'); if(pe) pe.style.opacity=0;
   } else if(prep.phase==='build'){
     if(pb) pb.style.display='none';
@@ -8911,6 +8980,8 @@ function updatePlayer(dt){
   if(sp>0.05) camera.rotation.z += sway*0.012*sp;          // the whole view leans a little with the stride
 
   animateReload(W); meleeView();
+  vmWeapon.visible=!dig.tool; if(vmShovel) vmShovel.visible=!!dig.tool;
+  if(dig.tool && digEnabled()) shovelView();
   // muzzle flash
   gun.flash-=dt;
   const fOn=gun.flash>0;

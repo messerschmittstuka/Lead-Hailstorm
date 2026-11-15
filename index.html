@@ -95,8 +95,9 @@
   #tNade{display:none;right:calc(4vw + 31*var(--u) + env(safe-area-inset-right));bottom:calc(50*var(--u));width:calc(14*var(--u));height:calc(14*var(--u))}
   body.tankmode #tNade,body.airmode #tNade{display:flex}
   /* inventory bar: primary / pistol / grenades */
-  #inv{position:absolute;left:50%;bottom:calc(2.5*var(--u));transform:translateX(-50%);display:none;gap:calc(1.6*var(--u));pointer-events:auto}
-  body.touch:not(.tankmode):not(.airmode) #inv{display:flex}
+  #inv{position:fixed;z-index:6;--u:min(1vh,0.55vw);left:50%;bottom:calc(2.5*var(--u));transform:translateX(-50%);display:none;gap:calc(1.6*var(--u));pointer-events:auto}
+  body:not(.touch) #inv{--u:min(.62vh,.34vw);opacity:.92}
+  body.invshow:not(.tankmode):not(.airmode) #inv{display:flex}
   #inv .slot{width:calc(19*var(--u));height:calc(13*var(--u));border-radius:calc(2*var(--u));background:rgba(22,24,26,.58);border:calc(.45*var(--u)) solid rgba(255,255,255,.35);
              display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f1ecde;font:bold calc(2.4*var(--u)) 'Courier New',monospace;line-height:1.15;touch-action:none;user-select:none;-webkit-user-select:none;position:relative}
   #inv .slot svg{width:70%;height:42%;fill:#e8e3d4;pointer-events:none}
@@ -129,10 +130,11 @@
   #tMelee{right:calc(4vw + 44*var(--u) + env(safe-area-inset-right));bottom:calc(7*var(--u));width:calc(13*var(--u));height:calc(13*var(--u));font-size:calc(2.6*var(--u))}
   #tUse{right:calc(4vw + 44*var(--u) + env(safe-area-inset-right));bottom:calc(24*var(--u));width:calc(13*var(--u));height:calc(13*var(--u));display:none}
   #tSpec{right:calc(4vw + 50*var(--u) + env(safe-area-inset-right));bottom:calc(46*var(--u));width:calc(13*var(--u));height:calc(13*var(--u));font-size:calc(2.4*var(--u));display:none}
+  #tDig{left:calc(2.5vw + env(safe-area-inset-left));bottom:calc(69*var(--u));width:calc(14*var(--u));height:calc(14*var(--u));font-size:calc(2.6*var(--u));display:none}
   #tArty{right:calc(4vw + 50*var(--u) + env(safe-area-inset-right));bottom:calc(62*var(--u));width:calc(13*var(--u));height:calc(13*var(--u));font-size:calc(2.2*var(--u));display:none}
   #tScore{right:calc(2vw + 29*var(--u) + env(safe-area-inset-right));top:calc(2*var(--u));width:calc(10*var(--u));height:calc(10*var(--u));border-radius:30%;font-size:calc(2.2*var(--u))}
-  body:not(.touch) #tMelee,body:not(.touch) #tUse,body:not(.touch) #tSpec,body:not(.touch) #tArty,body:not(.touch) #tScore{display:none!important}
-  body.tankmode #tMelee,body.tankmode #tUse,body.tankmode #tSpec,body.tankmode #tArty,body.tankmode #tScore{display:none!important}
+  body:not(.touch) #tMelee,body:not(.touch) #tUse,body:not(.touch) #tSpec,body:not(.touch) #tArty,body:not(.touch) #tDig,body:not(.touch) #tScore{display:none!important}
+  body.tankmode #tMelee,body.tankmode #tUse,body.tankmode #tSpec,body.tankmode #tArty,body.tankmode #tDig,body.tankmode #tScore{display:none!important}
   #tView{right:calc(2vw + 44*var(--u) + env(safe-area-inset-right));top:calc(2*var(--u));width:calc(12*var(--u));height:calc(10*var(--u));border-radius:30%;font-size:calc(2.4*var(--u))}
   body.tankmode #tView,body.airmode #tView{display:none}
   #tPause{right:calc(2vw + env(safe-area-inset-right));top:calc(2*var(--u));width:calc(10*var(--u));height:calc(10*var(--u));border-radius:30%}
@@ -147,6 +149,42 @@
   body.touch #ammo{right:auto;left:calc(2vw + env(safe-area-inset-left));bottom:auto;top:82px;text-align:left}
   body.touch #ammo .n{font-size:17px} body.touch #ammo .w{font-size:10px}
   body.touch #waveInfo{font-size:11px;top:8px;right:auto;left:50%;transform:translateX(-50%);white-space:nowrap}
+  /* ---- Entrenched-style layout (round dark buttons, same positions) ---- */
+  body.touch{--u:min(1vh,0.55vw)}
+  body.touch .tbtn{background:rgba(18,20,16,.5);border:calc(.5*var(--u)) solid rgba(205,205,195,.42);box-shadow:inset 0 0 calc(1.5*var(--u)) rgba(0,0,0,.35);text-shadow:none}
+  body.touch .tbtn.on{background:rgba(255,196,80,.34);border-color:#ffd27a}
+  body.touch .tbtn.down{background:rgba(255,255,255,.28)}
+  body.touch .tbtn .ic{width:54%;height:54%;fill:#e9e6da;filter:none}
+  body.touch .tbtn .ic .st{stroke:#e9e6da}
+  body.touch #joy{bottom:calc(13*var(--u));width:calc(30*var(--u));height:calc(30*var(--u))}
+  body.touch #tAim{right:calc(1.4*var(--u) + env(safe-area-inset-right));bottom:calc(51.4*var(--u));width:calc(14.2*var(--u));height:calc(14.2*var(--u))}
+  body.touch #tFire{right:calc(17*var(--u) + env(safe-area-inset-right));bottom:calc(40.7*var(--u));width:calc(18.6*var(--u));height:calc(18.6*var(--u));border-width:calc(.9*var(--u));border-color:rgba(215,215,205,.5);background:rgba(18,20,16,.5)}
+  body.touch #tFire .ic{width:52%;height:52%;transform:rotate(-45deg)}
+  body.touch #tView{right:calc(17.5*var(--u) + env(safe-area-inset-right));top:auto;bottom:calc(61.1*var(--u));width:calc(10.8*var(--u));height:calc(10.8*var(--u));border-radius:50%}
+  body.touch #tSprint{right:calc(30.5*var(--u) + env(safe-area-inset-right));bottom:calc(24.4*var(--u));width:calc(16*var(--u));height:calc(16*var(--u))}
+  body.touch #tReload{right:calc(17.3*var(--u) + env(safe-area-inset-right));bottom:calc(27.6*var(--u));width:calc(12.1*var(--u));height:calc(12.1*var(--u))}
+  body.touch #tJump{right:calc(7*var(--u) + env(safe-area-inset-right));bottom:calc(11.9*var(--u));width:calc(13.4*var(--u));height:calc(13.4*var(--u))}
+  body.touch #tCrouch{left:calc(.5*var(--u) + env(safe-area-inset-left));bottom:calc(29.4*var(--u));width:calc(12.4*var(--u));height:calc(12.4*var(--u))}
+  body.touch #tDig .tx{display:block}
+  body.touch #tPeri{left:calc(.5*var(--u) + env(safe-area-inset-left));bottom:calc(43*var(--u));width:calc(11*var(--u));height:calc(11*var(--u))}
+  body.touch #tDig{left:calc(.5*var(--u) + env(safe-area-inset-left));bottom:calc(55*var(--u));width:calc(11*var(--u));height:calc(11*var(--u))}
+  body.touch #tMelee{right:calc(48*var(--u) + env(safe-area-inset-right));bottom:calc(12*var(--u));width:calc(10*var(--u));height:calc(10*var(--u));font-size:calc(2*var(--u))}
+  body.touch #tUse{right:calc(1.4*var(--u) + env(safe-area-inset-right));bottom:calc(66.5*var(--u));width:calc(9*var(--u));height:calc(9*var(--u));font-size:calc(2.2*var(--u))}
+  body.touch #tSpec{right:calc(1.4*var(--u) + env(safe-area-inset-right));bottom:calc(76.5*var(--u));width:calc(9*var(--u));height:calc(9*var(--u));font-size:calc(2*var(--u))}
+  body.touch #tArty{right:calc(12*var(--u) + env(safe-area-inset-right));bottom:calc(74*var(--u));width:calc(9*var(--u));height:calc(9*var(--u));font-size:calc(1.9*var(--u))}
+  body.touch #tNade{right:calc(48*var(--u) + env(safe-area-inset-right));bottom:calc(24*var(--u));width:calc(12*var(--u));height:calc(12*var(--u))}
+  #inv{gap:calc(.8*var(--u));align-items:flex-end;bottom:calc(1.5*var(--u))}
+  body:not(.touch) #inv{--u:min(.85vh,.48vw)}
+  #inv .slot{width:calc(10.4*var(--u));height:calc(10.4*var(--u));border-radius:50%;background:rgba(18,20,16,.5);border:calc(.45*var(--u)) solid rgba(205,205,195,.42);font-size:calc(1.7*var(--u));padding:0}
+  #inv .slot svg{display:none}
+  #inv .slot i{position:static;font-size:calc(2.2*var(--u));opacity:.95}
+  #inv .slot b{font-size:calc(1.5*var(--u));max-width:94%;overflow:hidden;opacity:.9}
+  #inv .slot span{font-size:calc(1.7*var(--u));color:#ffe9a8}
+  #inv .slot.sel{width:calc(11.8*var(--u));height:calc(11.8*var(--u));border-color:rgba(255,255,255,.82);background:rgba(44,44,36,.6);box-shadow:none}
+  body.touch #stamwrap{left:calc(1.5*var(--u) + env(safe-area-inset-left));top:auto;bottom:calc(1.5*var(--u));width:calc(34*var(--u));font-size:calc(1.9*var(--u));padding:calc(.8*var(--u)) calc(1.6*var(--u));background:rgba(18,20,16,.45);border-radius:calc(5*var(--u)) calc(1*var(--u)) calc(1*var(--u)) calc(5*var(--u))}
+  body.touch #hpwrap{height:calc(2.2*var(--u));margin:calc(.3*var(--u)) 0 calc(.6*var(--u))} body.touch #stambar{height:calc(1.3*var(--u))}
+  body.touch #ammo{right:calc(1.4*var(--u) + env(safe-area-inset-right));left:auto;top:auto;bottom:calc(1.5*var(--u));min-width:calc(20*var(--u));padding:calc(.7*var(--u)) calc(2*var(--u));background:rgba(18,20,16,.5);border-radius:calc(1.2*var(--u));text-align:right}
+  body.touch #ammo .n{font-size:calc(3.4*var(--u))} body.touch #ammo .w{font-size:calc(1.7*var(--u))}
   body.touch .controls{display:none}
   @media (max-height:560px){
     #menu{justify-content:safe center;overflow-y:auto;padding:10px 0}
@@ -266,7 +304,7 @@
   <button id="deleteSave" style="display:none;margin-top:8px;background:none;border:none;color:#a99;cursor:pointer;font:13px 'Courier New'">delete saved game</button>
   <div class="controls">
     WASD move · Mouse look · Shift sprint · Space jump · C crouch (toggle)<br>
-    Left click fire · Right click / Q aim · H third-person view · hold P in a trench: periscope · G grenade · R reload · M music · Arrow keys also turn · Esc pause
+    Left click fire · Right click / Q aim · H third-person view · hold X: dig a trench (Seelow, Kursk) · Enter: skip preparation · T: Engineer builds sandbags &amp; tank traps · hold P in a trench: periscope · G grenade · R reload · M music · Arrow keys also turn · Esc pause
   </div>
 </div>
 
@@ -377,6 +415,11 @@
   <div id="ammo"><div class="n" id="ammoN">0 / 0</div><div class="w" id="ammoW"></div></div>
 </div>
 
+<div id="inv">
+    <div class="slot sel" id="sl0"><i>1</i><svg viewBox="0 0 60 20"><path d="M2 8h34v3H2zM36 7h14v4H36zM8 11h9l3 8h-6zM50 8h8v2h-8z"/></svg><b id="sn0">RIFLE</b><span id="sa0"></span></div>
+    <div class="slot" id="sl1"><i>2</i><svg viewBox="0 0 60 20"><path d="M14 4h30v6H14zM14 10h10l-3 10h-8z"/></svg><b id="sn1">PISTOL</b><span id="sa1"></span></div>
+    <div class="slot" id="sl2"><i>3</i><svg viewBox="0 0 60 20"><ellipse cx="30" cy="11" rx="6.5" ry="8"/><rect x="27" y="1" width="6" height="3.5"/><rect x="33" y="2" width="9" height="2" transform="rotate(-18 33 3)"/></svg><b>GRENADE</b><span id="sa2"></span></div>
+  </div>
 <div id="touchUI">
   <div id="lookZone"></div>
   <div id="leftZone"></div>
@@ -389,17 +432,13 @@
   <div class="tbtn" id="tNade"><span class="tx">NADE</span><small>3</small></div>
   <div class="tbtn" id="tPeri"><span class="tx">PERI</span><svg class="ic" viewBox="0 0 24 24"><path d="M8 2h9v3H11v4h3v8h-3v-4H8V9h3V5H8z" transform="translate(0,1)"/><rect x="6" y="19" width="12" height="3" rx="1"/></svg></div>
   <div class="tbtn" id="tCrouch"><span class="tx">CROUCH</span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.4"/><path class="st" d="M12 8.5v4.5l-4.2 2.2 1 4.3M12 13l4.2 2.2-.8 4.3M12 9.8l-4.6 2.2M12 9.8l4.2 2"/></svg></div>
-  <div id="inv">
-    <div class="slot sel" id="sl0"><i>1</i><svg viewBox="0 0 60 20"><path d="M2 8h34v3H2zM36 7h14v4H36zM8 11h9l3 8h-6zM50 8h8v2h-8z"/></svg><b id="sn0">RIFLE</b><span id="sa0"></span></div>
-    <div class="slot" id="sl1"><i>2</i><svg viewBox="0 0 60 20"><path d="M14 4h30v6H14zM14 10h10l-3 10h-8z"/></svg><b id="sn1">PISTOL</b><span id="sa1"></span></div>
-    <div class="slot" id="sl2"><i>3</i><svg viewBox="0 0 60 20"><ellipse cx="30" cy="11" rx="6.5" ry="8"/><rect x="27" y="1" width="6" height="3.5"/><rect x="33" y="2" width="9" height="2" transform="rotate(-18 33 3)"/></svg><b>GRENADE</b><span id="sa2"></span></div>
-  </div>
   <div class="tbtn" id="tMelee">STAB</div>
   <div class="tbtn" id="tUse">USE</div>
   <div class="tbtn" id="tSpec">BINOC</div>
   <div class="tbtn" id="tArty">STRIKE</div>
+  <div class="tbtn" id="tDig"><span class="tx">DIG</span></div>
   <div class="tbtn" id="tScore">TAB</div>
-  <div class="tbtn" id="tView">CAM</div>
+  <div class="tbtn" id="tView"><span class="tx">CAM</span><svg class="ic" viewBox="0 0 24 24"><path class="st" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg></div>
   <div class="tbtn" id="tPause">II</div>
   <div class="tbtn" id="tSquad">FREE<small>SQUAD</small></div>
 </div>
@@ -568,6 +607,8 @@ function blocked(p,R,h){ for(const b of colliders) if(overlaps(p,R,h,b)) return 
 // ---------- dug trenches: the ground is flat everywhere except inside these pits ----------
 // A pit is a straight trench: floor at -D, a ramp up to the surface at each end, a firing step along the wall that faces the enemy.
 const pits=[]; let digTrenches=true, digOverride=null;
+let runDig=false, digK=null; const digPlan=[], hedgehogsBuilt=[];
+const prep={on:false,t:0,total:0,el:0,phase:'off',bagQ:[],hhQ:[],lookT:0};
 function groundY(x,z){
   for(let i=0;i<pits.length;i++){ const p=pits[i];
     if(x<p.x0||x>p.x1||z<p.z0||z>p.z1) continue;
@@ -1465,15 +1506,15 @@ function pitTris(verts){
   return g;
 }
 let pitMats=null;
-function digSegment(K,ax,c,a0,a1,front){
-  const D=PIT_D, hw=PIT_HW, RL=Math.min(PIT_RL,(a1-a0-1.5)/2); if(RL<1) return;
+function digSegment(K,ax,c,a0,a1,front,bags=true){
+  const D=PIT_D, hw=PIT_HW, RL=Math.min(PIT_RL,(a1-a0-1.5)/2); if(RL<1) return null;
   if(!pitMats) pitMats={wall:mat(0x5c4a35,{roughness:1,side:THREE.DoubleSide}), floor:mat(0x3b2f22,{roughness:1,side:THREE.DoubleSide}), step:mat(0x4d3d2b,{roughness:1}),
     plank:mat(0x7a5c3c,{roughness:.9}), bag:null};
   if(!pitMats.pl) Object.assign(pitMats,{pl:[mat(0x7a5c3c,{roughness:.9}),mat(0x6a4e32,{roughness:.9}),mat(0x8a6a44,{roughness:.9}),mat(0x5a4228,{roughness:.95}),mat(0x9a7a52,{roughness:.9})],
     mud:mat(0x2d2418,{roughness:.95}), mud2:mat(0x40331f,{roughness:1}), puddle:new THREE.MeshStandardMaterial({color:0x1d1c18,roughness:.06,metalness:.3,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}),
     stone:mat(0x77736a,{roughness:1}), can:mat(0x6a5a3a,{roughness:.6,metalness:.4}), brass:mat(0xb8913a,{roughness:.4,metalness:.7})});
   const P=(u,y,v)=>ax==='x'?[u,y,v]:[v,y,u];
-  const pit={ax,c,a0,a1,hw,D,RL,front,stepW:PIT_STEP_W,stepH:PIT_STEP_H};
+  const pit={ax,c,a0,a1,hw,D,RL,front,stepW:PIT_STEP_W,stepH:PIT_STEP_H,bagged:false}; if(!digK) digK=K;
   if(ax==='x'){ pit.x0=a0; pit.x1=a1; pit.z0=c-hw; pit.z1=c+hw; } else { pit.z0=a0; pit.z1=a1; pit.x0=c-hw; pit.x1=c+hw; }
   pits.push(pit);
   const prof=[[a0,0],[a0+RL,-D],[a1-RL,-D],[a1,0]];
@@ -1515,7 +1556,14 @@ function digSegment(K,ax,c,a0,a1,front){
   box(cu,-D,c+front*(hw-PIT_STEP_W/2),L,PIT_STEP_H,PIT_STEP_W,pitMats.step);
   for(const u of [f0+1.6,cu+L*0.2,f1-2.2]){ if(u<f0+1||u>f1-1) continue; const zc=c+front*(hw-PIT_STEP_W/2), y0=-D+PIT_STEP_H;      // ammunition crates and a lantern on the firing step
     box(u,y0,zc,0.52,0.28,0.36,pitMats.plank); box(u+0.05,y0+0.28,zc,0.4,0.24,0.3,K.log2); box(u+0.7,y0,zc,0.12,0.2,0.12,K.earthD); box(u+0.7,y0+0.2,zc,0.08,0.1,0.08,M.rust); }
-  // sandbag parapet along the rim facing the enemy
+  if(bags) addPitBags(pit);
+  return pit;
+}
+// sandbag parapet along the rim facing the enemy (engineers build this after the digging)
+function addPitBags(pit){
+  if(!pit || pit.bagged) return; pit.bagged=true;
+  const {ax,c,a0,a1,front,hw}=pit;
+  const box=(u,y,v,lu,h,lv,m)=>ax==='x'?sBox(u,y,v,lu,h,lv,m,false):sBox(v,y,u,lv,h,lu,m,false);
   const zz=c+front*(hw+0.3);
   for(let u=a0+0.4;u<a1-0.3;u+=0.62){ const m=bagMats[Math.abs(u*7|0)%3]; box(u,0,zz,0.6,0.22,0.52,m); box(u+0.31,0.22,zz,0.6,0.22,0.5,bagMats[Math.abs(u*5|0)%3]); }
   if(ax==='x') addCollider(new THREE.Box3(new V3(a0,0,zz-0.27),new V3(a1,0.46,zz+0.27))); else addCollider(new THREE.Box3(new V3(zz-0.27,0,a0),new V3(zz+0.27,0.46,a1)));
@@ -1524,6 +1572,7 @@ function buildTrench(K,x0,x1,z,front,gaps){
   if(!digTrenches) return buildTrenchRaised(K,x0,x1,z,front,gaps);
   gaps=gaps.slice().sort((a,b)=>a[0]-b[0]);
   const segs=[]; let a=x0; for(const [g0,g1] of gaps){ if(g0>a) segs.push([a,g0]); a=g1; } if(x1>a) segs.push([a,x1]);
+  if(runDig){ if(!digK) digK=K; for(const [s0,s1] of segs) if(s1-s0>=4) digPlan.push({K,ax:'x',c:z,a0:s0,a1:s1,front,ally:z>0,done:false,at:0,pit:null}); return; }
   for(const [s0,s1] of segs) if(s1-s0>=4) digSegment(K,'x',z,s0,s1,front);
 }
 // the ground gets a hole for every pit
@@ -1717,7 +1766,7 @@ function buildKursk(){
       mtx.compose(new V3(x,0,z),q.setFromEuler(new THREE.Euler((rnd()-.5)*0.12,rnd()*6.28,(rnd()-.5)*0.12)),new V3(sc,sc*(0.9+rnd()*0.25),sc));
       im.setMatrixAt(i,mtx); im.setColorAt(i,c.setHSL(0.12+rnd()*0.02,0.15+rnd()*0.25,0.82+rnd()*0.18));
     }
-    im.receiveShadow=true; im.castShadow=false; im.raycast=()=>{}; mapRoot.add(im);
+    im.receiveShadow=true; im.castShadow=false; im.raycast=()=>{}; im.userData.wheat=true; mapRoot.add(im);
   }
   wheat(9,-21,62,20,1.3); wheat(-62,28,-24,62,1.2); wheat(-60,-60,-14,-32,1.2); wheat(22,28,62,62,1.0);
 
@@ -2146,8 +2195,10 @@ const MAPS={
 const MAP_ORDER=['stalingrad','kursk','berlin','seelow','moscow','duel'];   // (order only sets each map's random seed)
 const WAVES_PER_MAP=5;
 let currentMap=null;
-const wantDig=id=>!(MAPS[id].mode==='tank' && skirm.sel==='campaign');
-const needRebuild=id=>currentMap!==id || wantDig(id)!==digTrenches;
+const wantDig=id=>true;
+const coopNow=()=>{ try{ return !!coop; }catch(e){ return false; } };
+const wantRun=id=>(id==='kursk'||id==='seelow') && skirm.sel==='campaign' && !coopNow();
+const needRebuild=id=>currentMap!==id || wantDig(id)!==digTrenches || (digOverride===null && wantRun(id)!==runDig) || prep.phase!=='off';
 function buildMap(id){
   const Mp=MAPS[id];
   // clear the old map
@@ -2156,7 +2207,8 @@ function buildMap(id){
   for(const t of soldierTpl.values()) t.traverse(o=>{ if(o.isMesh && o.geometry && o.geometry.dispose && o.geometry!==window.__faceGeo) o.geometry.dispose(); });
   soldierTpl.clear(); tracerPool.length=0;
   pits.length=0; if(ground.geometry!==groundPlain){ ground.geometry.dispose(); ground.geometry=groundPlain; }
-  digTrenches = digOverride!==null ? digOverride : wantDig(id);          // the Kursk tank battle keeps its raised trenches, tanks cannot cross holes
+  digTrenches = digOverride!==null ? digOverride : wantDig(id);          // tanks simply drive over pits (they stay at y=0)
+  runDig = digOverride===null && wantRun(id); digK=null; digPlan.length=0; hedgehogsBuilt.length=0; prep.on=false; prep.phase='off'; prep.bagQ=[]; prep.hhQ=[];
   colliders.length=0; shootables.length=0; shootables.push(ground); fires.length=0; batch.clear(); noGrass.length=0; roofZones=[]; emplacements.length=0; skClear();
   props=[]; propKinds={}; falling.length=0;
   seed=1942+MAP_ORDER.indexOf(id)*1000;
@@ -2865,19 +2917,32 @@ function animateBoxSoldier(s,dt,t){
   gunClearance(s,dt);
   const sp=s.speed;
   s.crouchK=(s.crouchK||0)+(((s.wantCrouch?1:0))-(s.crouchK||0))*Math.min(1,dt*8); const ck=s.crouchK;
-  s.phase += dt*sp*(sp>3.4?2.4:3.2);
+  s.phase += dt*sp*(sp>3.4?2.1:2.9);
   const a=Math.min(1,sp/1.2), run=Math.max(0,Math.min(1,(sp-3)/2.5));
-  const sw=Math.sin(s.phase)*(0.65+0.35*run)*a;
+  const ph=s.phase, sn=Math.sin(ph), cs=Math.cos(ph);
+  const amp=(0.5+0.4*run)*a;
+  const sw=sn*amp;
+  // legs: swing from the hip; the leg that is travelling forward is drawn up (a pseudo-knee), the planted one stays long
+  const lift=0.1+0.1*run;
+  const l0=Math.max(0,cs)*a, l1=Math.max(0,-cs)*a;
   s.legs[0].rotation.x=sw*(1-ck)-1.25*ck; s.legs[1].rotation.x=-sw*(1-ck)-0.25*ck;
-  s.armL.rotation.x=-sw*0.9;
-  s.armR.rotation.x=Math.PI/2-0.06+(s.aimPitch||0)+Math.sin(s.phase*2)*0.04*a-1.25*(s.wallK||0);
-  s.body.position.y=Math.abs(Math.sin(s.phase))*0.03*a-0.5*ck;
+  s.legs[0].scale.y=1-lift*l0*(1-ck); s.legs[1].scale.y=1-lift*l1*(1-ck);
+  // arms: the rifle stays up at the ready, the left hand supports the front of it; only a small bob from the stride
+  s.armL.rotation.x=0.95+0.07*sn*a+0.03*Math.sin(t*1.3+s.seedT);
+  s.armL.rotation.z=0.36;
+  s.armR.rotation.x=Math.PI/2-0.06+(s.aimPitch||0)+Math.sin(ph*2)*0.03*a-1.25*(s.wallK||0);
+  // body: dips at the widest point of the stride, leans into the run, hips and shoulders counter-rotate
+  const bob=(0.5+0.5*Math.cos(ph*2))*(0.03+0.03*run)*a;
+  s.body.position.y=bob-0.5*ck;
+  s.body.position.x=sn*0.018*a;
   s.flinch=Math.max(0,s.flinch-dt*3);
-  s.body.rotation.x = 0.08*run - s.flinch*0.25;
-  s.body.rotation.z = s.flinch*0.15*s.flinchDir;
+  s.body.rotation.x = -(0.04*a+0.15*run)*(1-ck) - s.flinch*0.25;
+  s.body.rotation.y = -sn*0.05*a;
+  s.body.rotation.z = s.flinch*0.15*s.flinchDir + sn*0.025*a;
   s.upper.position.y = 2*ST + Math.sin(t*1.7+s.seedT)*0.004;
-  s.upper.rotation.y = Math.sin(s.phase)*0.05*a;
-  s.head.rotation.y = (1-a)*Math.sin(t*0.35+s.seedT)*0.5;
+  s.upper.rotation.y = sn*(0.07+0.05*run)*a;
+  s.head.rotation.x = -s.body.rotation.x*0.7;
+  s.head.rotation.y = (1-a)*Math.sin(t*0.35+s.seedT)*0.5 - s.upper.rotation.y;
 }
 
 /* ================= REAL 3D CHARACTER MODELS ================= */
@@ -3185,7 +3250,7 @@ function makeGrenadeMesh(side){
   return g;
 }
 function throwGrenade(){
-  if(isTankMap() || peri>0.3) return;
+  if(isTankMap() || peri>0.3 || prep.on) return;
   if(throwCD>0 || gun.reloading>0 || throwT>0) return;
   if(grenadesLeft<=0){ showMsg('NO GRENADES LEFT',1); return; }
   grenadesLeft--; throwCD=1.1; throwT=0.55;
@@ -3700,9 +3765,9 @@ function updateCombat(dt,t){
   updateGrenades(dt);
   const slots = squadMode==='free' ? mates.map(m=>freeAnchor(m,dt)) :
     mates.map((m,i)=>{ const o=FORM[i%FORM.length]; return new V3(player.pos.x+o.x*Math.cos(player.yaw)+o.z*Math.sin(player.yaw),0,player.pos.z-o.x*Math.sin(player.yaw)+o.z*Math.cos(player.yaw)); });
-  mates.forEach((m,i)=>{ if(m.dead) animateDead(m,dt); else { updateAI(m,dt,slots[i]); animateSoldier(m,dt,t); } });
+  mates.forEach((m,i)=>{ if(m.dead) animateDead(m,dt); else { if(prep.on){ m.vel.set(0,0,0); m.speed=0; } else updateAI(m,dt,slots[i]); animateSoldier(m,dt,t); } });
   const surrendered = battle.done && (berlinAttack() || currentMap==='moscow');
-  for(const e of enemies){ if(e.dead) animateDead(e,dt); else if(surrendered){ e.vel.set(0,0,0); e.speed=0; if(e.armR) e.aimPitch=-0.9; animateSoldier(e,dt,t); } else { updateAI(e,dt,null); animateSoldier(e,dt,t); } }
+  for(const e of enemies){ if(e.dead) animateDead(e,dt); else if(surrendered){ e.vel.set(0,0,0); e.speed=0; if(e.armR) e.aimPitch=-0.9; animateSoldier(e,dt,t); } else { if(prep.on){ e.vel.set(0,0,0); e.speed=0; } else updateAI(e,dt,null); animateSoldier(e,dt,t); } }
   if(skirm.on) skirmUpdate(dt,t);
   updateObjective(dt,t); updateMoscowHold(dt,t);
   // remove bodies after they sank
@@ -3747,9 +3812,11 @@ const CLASSES={
   officer:{name:'Officer',desc:'Self-loading rifle, binoculars (B) and a big artillery strike (T).',nades:3,
             w:{soviet:['svt40'],german:['g43']}},
   sniper:{name:'Sniper',desc:'Scoped rifle and binoculars (B) to spot enemies through cover.',nades:2,
-            w:{soviet:['mosinSn'],german:['kar98kSn']}}
+            w:{soviet:['mosinSn'],german:['kar98kSn']}},
+  engineer:{name:'Engineer',desc:'SMG. Digs trenches twice as fast. T builds sandbags on a trench and tank traps.',nades:3,
+            w:{soviet:['pps43'],german:['mp40']}}
 };
-const CLASS_ORDER=['rifleman','assault','mg','at','officer','sniper'];
+const CLASS_ORDER=['rifleman','assault','mg','at','officer','sniper','engineer'];
 let selClass='assault'; try{ const c=localStorage.getItem('lh_class'); if(CLASSES[c]) selClass=c; }catch(e){}
 const classWeapons=(c,side)=>CLASSES[c].w[side];
 const maxNades=()=> currentMap==='duel' ? 3 : CLASSES[selClass].nades;
@@ -4085,7 +4152,7 @@ function updateExtras(dt){
     if(binoc) txt='BINOCULARS · enemies in the middle get marked · B to lower';
   }
   if(h.textContent!==txt) h.textContent=txt; h.style.opacity=txt?1:0;
-  if(IS_TOUCH){ const near=!!nearestEmp()||!!mounted; $('tUse').style.display=near?'flex':'none'; $('tSpec').style.display=(selClass==='officer'||selClass==='sniper')?'flex':'none'; $('tArty').style.display=selClass==='officer'?'flex':'none'; }
+  if(IS_TOUCH){ const near=!!nearestEmp()||!!mounted; $('tUse').style.display=near?'flex':'none'; $('tSpec').style.display=(selClass==='officer'||selClass==='sniper')?'flex':'none'; $('tArty').style.display=(selClass==='officer'||selClass==='engineer')?'flex':'none'; $('tArty').textContent=selClass==='engineer'?'BUILD':'STRIKE'; $('tDig').style.display=digEnabled()?'flex':'none'; }
 }
 function resetExtras(){
   mounted=null; binoc=false; meleeCD=meleeAnim=0; strikeCD=0; strikeQ.length=0; deathCam.active=false;
@@ -5311,7 +5378,7 @@ function airMakeHud(){
 .ahM{position:absolute;display:none;transform:translate(-50%,-100%);font-size:11px;white-space:nowrap;text-align:center;padding:1px 6px;background:rgba(0,0,0,.45);border:1px solid rgba(255,210,60,.75);color:#ffe9a0}
 .ahM.f{border-color:rgba(120,230,150,.8);color:#bff0c8} .ahM.a{border-color:rgba(255,100,80,.8);color:#ffb0a0;font-size:10px;padding:0 3px}
 body.airck #ahHor,body.airck #ahHdg,body.airck #stamwrap,body.airck #side,body.airck #ammoN{display:none!important}
-body.airmode #inv,body.airmode #tReload,body.airmode #tJump,body.airmode #tCrouch,body.airmode #tSquad,body.airmode #tMelee,body.airmode #tUse,body.airmode #tSpec,body.airmode #tArty,body.airmode #tScore{display:none!important}`;
+body.airmode #inv,body.airmode #tReload,body.airmode #tJump,body.airmode #tCrouch,body.airmode #tSquad,body.airmode #tMelee,body.airmode #tUse,body.airmode #tSpec,body.airmode #tArty,body.airmode #tDig,body.airmode #tScore{display:none!important}`;
     (document.head||document.body).appendChild(st);
     const w=document.createElement('div'); w.id='ahWrap';
     let lad=''; for(let d=-90;d<=90;d+=10) lad+=`<div class="ahL${d===0?' z':''}" style="top:${150-d*6}px">${d!==0?`<span>${Math.abs(d)}</span>`:''}</div>`;
@@ -6157,6 +6224,7 @@ function updateInfantry(dt,t){
   const finalPush = battle.killed>=battle.total;   // only infantry left: they come for you
   for(const s of inf){
     if(s.dead){ animateDead(s,dt); continue; }
+    if(prep.on) continue;
     const ai=s.ai;
     ai.thinkT-=dt; if(ai.thinkT<=0){ ai.thinkT=0.4; infThink(s); }
     if(ai.target && ai.target.dead){ ai.target=null; ai.seen=false; }
@@ -6284,7 +6352,7 @@ function startEngine(){
 function stopEngine(){ if(!engine) return; try{ engine.o.stop(); engine.o2.stop(); }catch(e){} engine=null; }
 
 // ---------- player tank ----------
-function tankFireCannon(){ if(state!=='playing' || !ptank || ptank.dead) return;
+function tankFireCannon(){ if(state!=='playing' || !ptank || ptank.dead || prep.on) return;
   if(ptank.noBarrel){ sndClick(0,500,0.25); showMsg('NO BARREL! USE THE MACHINE GUN (SPACE)',1.2); return; }
   if(!fireShell(ptank) && ptank.reloadT>0) sndClick(0,700,0.2); }
 function updateTankPlayer(dt){
@@ -6399,7 +6467,7 @@ function updateTankBattle(dt,t){
   for(const tk of tanks) tk.root.updateMatrixWorld(true);
   // which enemies the player can see (for markers), staggered
   if(ptank && Math.random()<0.15){ const eye=ptank.pos.clone().add(new V3(0,2.6,0)); for(const tk of tanks) if(tk.team==='enemy' && !tk.dead) tk.ai.seenByPlayer=tk.pos.distanceTo(ptank.pos)<170 && lineOfSight(eye,tk.pos.clone().add(new V3(0,1.6,0))); }
-  for(const tk of tanks){ if(tk.dead || tk.isPlayer) continue; updateTankAI(tk,dt); }
+  for(const tk of tanks){ if(tk.dead || tk.isPlayer || prep.on) continue; updateTankAI(tk,dt); }
   if(ptank && ptank.flashT>0){ ptank.flashT-=dt; if(ptank.flashT<=0) ptank.flash.visible=false; }
   if(ptank && !ptank.dead) updateTankFire(ptank,dt,t);
   updateDebris(dt);
@@ -6827,10 +6895,12 @@ addEventListener('keydown',e=>{
   if(e.code==='KeyE' && !e.repeat) tryUse();
   if(e.code==='KeyV' && !e.repeat) doMelee();
   if(e.code==='KeyB' && !e.repeat) toggleBinoc();
-  if(e.code==='KeyT' && !e.repeat) callStrike();
+  if(e.code==='KeyT' && !e.repeat){ if(selClass==='engineer') engineerBuild(); else callStrike(); }
+  if(e.code==='KeyX') dig.held=true;
+  if(e.code==='Enter' && !e.repeat && prep.on) prepFinish();
 });
 addEventListener('keydown',e=>{ if(e.code==='Tab'){ e.preventDefault(); if(state==='playing'||state==='dead'||state==='paused') showBoard(true); } });
-addEventListener('keyup',e=>{ keys[e.code]=false; if(e.code==='Tab') showBoard(false); });
+addEventListener('keyup',e=>{ keys[e.code]=false; if(e.code==='KeyX') dig.held=false; if(e.code==='Tab') showBoard(false); });
 addEventListener('blur',()=>{ for(const k in keys) keys[k]=false; mouseDown=rmb=false; });
 renderer.domElement.addEventListener('mousedown',e=>{
   if(state!=='playing') return;
@@ -6909,15 +6979,29 @@ if(IS_TOUCH){
   btn('tView',()=>toggleThirdPerson());
   btn('tCrouch',()=>{ player.crouchToggle=!player.crouchToggle; touch.sprint=false; });
   btn('tPeri',()=>{ touch.peri=!touch.peri; });
-  for(const [id,fn] of [['sl0',()=>setSlot(0)],['sl1',()=>setSlot(1)],['sl2',()=>throwGrenade()]]){ const el=$(id); el.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); if(state!=='playing') return; initAudio(); el.classList.add('down'); fn(); }); const up=()=>el.classList.remove('down'); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up); el.addEventListener('pointerleave',up); el.addEventListener('contextmenu',e=>e.preventDefault()); }
-  btn('tMelee',()=>doMelee()); btn('tUse',()=>tryUse()); btn('tSpec',()=>toggleBinoc()); btn('tArty',()=>callStrike()); btn('tScore',()=>showBoard(!boardOn));
+  btn('tMelee',()=>doMelee()); btn('tUse',()=>tryUse()); btn('tSpec',()=>toggleBinoc()); btn('tArty',()=>{ if(selClass==='engineer') engineerBuild(); else callStrike(); }); btn('tDig',()=>{ dig.held=true; },()=>{ dig.held=false; }); btn('tScore',()=>showBoard(!boardOn));
   $('tPause').addEventListener('pointerdown',e=>{ e.preventDefault(); if(state==='playing') pauseGame(); });
 
   // phones: resolution comes from the graphics setting
 }
+{
+  for(const [id,fn] of [['sl0',()=>setSlot(0)],['sl1',()=>setSlot(1)],['sl2',()=>throwGrenade()]]){ const el=$(id); el.addEventListener('pointerdown',e=>{ e.preventDefault(); e.stopPropagation(); if(state!=='playing') return; initAudio(); el.classList.add('down'); fn(); }); const up=()=>el.classList.remove('down'); el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up); el.addEventListener('pointerleave',up); el.addEventListener('contextmenu',e=>e.preventDefault()); }
+}
 function goFullscreen(){
   if(!IS_TOUCH) return;
   try{ const d=document.documentElement, rq=d.requestFullscreen||d.webkitRequestFullscreen; if(rq && !document.fullscreenElement){ const p=rq.call(d); if(p&&p.then) p.then(()=>{ try{ screen.orientation.lock('landscape').catch(()=>{}); }catch(e){} }).catch(()=>{}); } }catch(e){}
+}
+function updateInvUI(){
+  const show=state==='playing';
+  document.body.classList.toggle('invshow',show);
+  if(!show) return;
+  { const P0=inv.slot===0?gun:(inv.stash||gun), P1=inv.slot===1?gun:(inv.pistol||WEAPONS[invPistolType()]);
+    const t0=inv.slot===0?gun.type:(inv.stash?inv.stash.type:gun.type), W0=WEAPONS[t0], W1=WEAPONS[invPistolType()];
+    const set=(id,txt)=>{ const el=$(id); if(el.textContent!==txt) el.textContent=txt; };
+    set('sn0',(W0.name||'').toUpperCase().slice(0,11)); set('sa0',W0.rocket?(P0.ammo>0?'1':'0'):P0.ammo+' / '+P0.reserve);
+    set('sn1',(W1.name||'').toUpperCase().slice(0,11)); set('sa1',(P1.ammo!==undefined?P1.ammo:W1.mag)+' / '+(P1.reserve!==undefined?P1.reserve:W1.reserve));
+    set('sa2','x'+grenadesLeft);
+    $('sl0').classList.toggle('sel',inv.slot===0); $('sl1').classList.toggle('sel',inv.slot===1); $('sl2').classList.toggle('sel',throwT>0); }
 }
 function updateTouchUI(){
   if(!IS_TOUCH) return;
@@ -6926,13 +7010,6 @@ function updateTouchUI(){
   if(!show){ touch.fire=false; return; }
   if(touch.sprint && (!touch.joyActive || player.tired)) touch.sprint=false;   // stop running when you let go
   if(gun.reloading>0) touch.aim=false;
-  { const P0=inv.slot===0?gun:(inv.stash||gun), P1=inv.slot===1?gun:(inv.pistol||WEAPONS[invPistolType()]);
-    const t0=inv.slot===0?gun.type:(inv.stash?inv.stash.type:gun.type), W0=WEAPONS[t0], W1=WEAPONS[invPistolType()];
-    const set=(id,txt)=>{ const el=$(id); if(el.textContent!==txt) el.textContent=txt; };
-    set('sn0',(W0.name||'').toUpperCase().slice(0,11)); set('sa0',W0.rocket?(P0.ammo>0?'1':'0'):P0.ammo+' / '+P0.reserve);
-    set('sn1',(W1.name||'').toUpperCase().slice(0,11)); set('sa1',(P1.ammo!==undefined?P1.ammo:W1.mag)+' / '+(P1.reserve!==undefined?P1.reserve:W1.reserve));
-    set('sa2','x'+grenadesLeft);
-    $('sl0').classList.toggle('sel',inv.slot===0); $('sl1').classList.toggle('sel',inv.slot===1); $('sl2').classList.toggle('sel',throwT>0); }
   { const inT=!isTankMap() && !air.on && gyAt(player.pos.x,player.pos.z)<-0.6 && player.onGround; const pb=$('tPeri'); const d=inT?'flex':'none'; if(pb.style.display!==d) pb.style.display=d; pb.classList.toggle('on',!!touch.peri); }
   $('tAim').classList.toggle('on',touch.aim);
   $('tSprint').classList.toggle('on',touch.sprint);
@@ -6970,6 +7047,7 @@ const primaryType=()=>inv.stash?inv.stash.type:gun.type;
 /* ================= SHOOTING ================= */
 const ray=new THREE.Raycaster();
 function fire(){
+  if(prep.on){ if(msgTimer<=0) showMsg('PREPARATION · NO ONE FIRES YET',1.2); return; }
   if(isTankMap()){ tankFireCannon(); return; }
   if(mounted || binoc) return;
   const W=WEAPONS[gun.type];
@@ -8351,12 +8429,14 @@ function goToMap(id){
 /* ================= GAME FLOW ================= */
 let atmoLabel='';
 function startGame(){
+  if(runDig && prep.phase!=='off'){ const cm=currentMap; clearSoldiers(); buildMap(cm); visCols=null; }
   if(currentMap!=='moscow') moscowPhase=1;
   resetProps(); clearPlanes(); shock=0; suppress=0; resetExtras();
   setSpawn(); resetArtillery(); mhold={t:MOSCOW_HOLD,prog:0};
   atmoLabel=rollAtmosphere();
   startProtection();
   musicStart(); MUS.int=0; MUS.target=0;
+  if(runDig) startPrep();
   if(isTankMap()) clearSoldiers(); else { leaveTankMode(); spawnWorld(selSide,selWeapon,false); }
   Object.assign(player,{pos:SPAWN.clone(),vel:new V3(),yaw:spawnYaw,pitch:0,onGround:true,crouch:false,crouchToggle:false,eye:1.62,stamina:1,landDip:0,recoilAcc:0});
   const W=WEAPONS[selWeapon];
@@ -8378,6 +8458,140 @@ function startGame(){
   if(skirm.on) skirmBegin();
   if(coopHost()){ coop.failed=false; coop.respT=0; coopAfterStart(); }
   updateSquadLabel();
+}
+
+/* ================= DIG YOUR OWN TRENCHES · PREPARATION · ENGINEERS ================= */
+const PREP_TIME=100, DIG_TIME=6, DIG_LEN=10;
+const dig={held:false,prog:0,ok:false,active:false,seg:null,lock:null,ghost:null,bar:null,fill:null,txt:null,count:0};
+const digEnabled=()=>runDig && !isTankMap() && !!digK;
+// is this ground rectangle free of pits, walls, trees and buildings?
+function rectFree(x0,z0,x1,z1,pad){
+  if(x0<-96||z0<-96||x1>96||z1>96) return false;
+  for(const p of pits){ if(x1+pad>p.x0 && x0-pad<p.x1 && z1+pad>p.z0 && z0-pad<p.z1) return false; }
+  for(const b of colliders){ if(b.max.y<0.3 || b.min.y>2.5) continue; if(x1+0.3>b.min.x && x0-0.3<b.max.x && z1+0.3>b.min.z && z0-0.3<b.max.z) return false; }
+  for(const r of roofZones){ if(x1>r[0] && x0<r[2] && z1>r[1] && z0<r[3]) return false; }
+  return true;
+}
+function segRect(g){ return g.ax==='x' ? [g.a0,g.c-PIT_HW,g.a1,g.c+PIT_HW] : [g.c-PIT_HW,g.a0,g.c+PIT_HW,g.a1]; }
+function digAim(){
+  const d=new V3(); camera.getWorldDirection(d); d.y=0; if(d.lengthSq()<1e-6) d.set(0,0,-1);
+  const px=player.pos.x, pz=player.pos.z, L=DIG_LEN;
+  if(Math.abs(d.z)>=Math.abs(d.x)){ const f=d.z<0?-1:1; return {ax:'x',front:f,c:Math.round(pz+f*4.6),a0:Math.round(px-L/2),a1:Math.round(px-L/2)+L}; }
+  const f=d.x<0?-1:1; return {ax:'z',front:f,c:Math.round(px+f*4.6),a0:Math.round(pz-L/2),a1:Math.round(pz-L/2)+L};
+}
+function digGhost(){
+  if(dig.ghost) return dig.ghost;
+  const g=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x66ff66,transparent:true,opacity:0.38,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}));
+  g.visible=false; g.renderOrder=5; g.raycast=()=>{}; scene.add(g); dig.ghost=g;
+  const hud=document.getElementById('hud');
+  const bar=document.createElement('div'); bar.style.cssText='position:absolute;left:50%;bottom:24%;width:230px;margin-left:-115px;height:16px;border:2px solid #000;background:rgba(0,0,0,.55);display:none;z-index:6;pointer-events:none';
+  bar.innerHTML='<div style="height:100%;width:0%;background:#c9a24a"></div><div style="position:absolute;left:0;right:0;top:-22px;text-align:center;font:700 13px monospace;color:#ffd23a;text-shadow:1px 1px 0 #000">DIGGING…</div>';
+  if(hud) hud.appendChild(bar); dig.bar=bar; dig.fill=bar.firstChild; dig.txt=bar.lastChild;
+  const pb=document.createElement('div'); pb.id='prepbar'; pb.style.cssText='position:absolute;left:50%;top:70px;transform:translateX(-50%);padding:6px 14px;border:2px solid #000;background:rgba(40,32,18,.82);color:#ffd23a;font:700 14px monospace;text-align:center;z-index:7;display:none;cursor:pointer;pointer-events:auto;white-space:nowrap';
+  pb.addEventListener('pointerdown',e=>{ e.stopPropagation(); if(prep.on) prepFinish(); });
+  if(hud) hud.appendChild(pb);
+  return g;
+}
+function hidePitWheat(pit){
+  const mt=new THREE.Matrix4(), pos=new V3(), z=new THREE.Matrix4().makeScale(0,0,0), pad=0.8;
+  for(const im of mapRoot.children){ if(!im.userData || !im.userData.wheat) continue;
+    for(let i=0;i<im.count;i++){ im.getMatrixAt(i,mt); pos.setFromMatrixPosition(mt);
+      if(pos.x>pit.x0-pad && pos.x<pit.x1+pad && pos.z>pit.z0-pad && pos.z<pit.z1+pad) im.setMatrixAt(i,z); }
+    im.instanceMatrix.needsUpdate=true; }
+}
+function digCommit(ax,c,a0,a1,front,bags){
+  const pit=digSegment(digK,ax,c,a0,a1,front,bags); if(!pit) return null;
+  carveGround(); try{ hidePitWheat(pit); }catch(e){}
+  flushBatch(true); visCols=null; prep.lookT=2.5; return pit;
+}
+function digTick(dt){
+  const on=state==='playing' && digEnabled() && !mounted && !playerDead && !air.on && !isDuel();
+  const g=digGhost();
+  if(!on){ g.visible=false; dig.bar.style.display='none'; dig.active=false; dig.prog=0; dig.lock=null; return; }
+  const a=digAim(), r=segRect(a);
+  dig.ok = rectFree(r[0],r[1],r[2],r[3],1.5);
+  if(dig.held){
+    if(!dig.lock || dig.lock.ax!==a.ax || Math.abs(dig.lock.c-a.c)>1 || Math.abs(dig.lock.a0-a.a0)>1 || dig.lock.front!==a.front){ dig.lock=a; dig.prog=0; }
+  } else dig.lock=null;
+  const useSeg=dig.lock||a, ur=segRect(useSeg);
+  g.visible=true; g.material.color.setHex(dig.ok?0x66ff66:0xff5544);
+  g.scale.set(ur[2]-ur[0],1,ur[3]-ur[1]); g.position.set((ur[0]+ur[2])/2,0.07,(ur[1]+ur[3])/2);
+  dig.active=dig.held && dig.ok;
+  if(dig.held && !dig.ok && msgTimer<=0) showMsg('CANNOT DIG HERE · TOO CLOSE TO A WALL, TREE OR TRENCH',1.2);
+  if(dig.active){
+    dig.prog+=dt/(DIG_TIME*(selClass==='engineer'?0.5:1));
+    if(dig.prog>=1){ dig.prog=0; const pit=digCommit(a.ax,a.c,a.a0,a.a1,a.front,false); dig.lock=null; dig.count++;
+      if(pit){ showMsg(selClass==='engineer'?'TRENCH DUG · PRESS T NEXT TO IT FOR SANDBAGS':'TRENCH DUG',1.8); try{ sting('waveStart'); }catch(e){} } }
+  } else if(!dig.held) dig.prog=0;
+  dig.bar.style.display=dig.active?'block':'none'; if(dig.active) dig.fill.style.width=Math.min(100,dig.prog*100)+'%';
+}
+/* ---- tank traps ---- */
+function makeHedgehog(x,z){
+  const m=M.rust, bt=0.14;
+  for(const ry of [0,2.094,4.189]) sBox(x,0.55-bt/2,z,1.7,bt,bt,m,false,0,ry,0.62);
+  sBox(x,0.02,z,0.5,0.1,0.5,m,false);
+  const c=addCollider(new THREE.Box3(new V3(x-0.7,0,z-0.7),new V3(x+0.7,1.35,z+0.7))); c.noBullet=true;
+  hedgehogsBuilt.push([x,z]);
+}
+function tryHedgehog(x,z){ if(!rectFree(x-0.8,z-0.8,x+0.8,z+0.8,0.5)) return false; makeHedgehog(x,z); return true; }
+function engineerBuild(){
+  if(state!=='playing' || selClass!=='engineer' || isTankMap() || mounted || !runDig) return;
+  let best=null, bd=7;
+  for(const p of pits){ if(p.bagged) continue; const dx=Math.max(p.x0-player.pos.x,0,player.pos.x-p.x1), dz=Math.max(p.z0-player.pos.z,0,player.pos.z-p.z1), d=Math.hypot(dx,dz); if(d<bd){ bd=d; best=p; } }
+  if(best){ addPitBags(best); flushBatch(true); visCols=null; showMsg('SANDBAGS BUILT',1.4); return; }
+  const d=new V3(); camera.getWorldDirection(d); d.y=0; d.normalize();
+  if(hedgehogsBuilt.length>=40){ showMsg('NO MORE TANK TRAPS',1.2); return; }
+  if(tryHedgehog(player.pos.x+d.x*3.2,player.pos.z+d.z*3.2)){ flushBatch(true); visCols=null; showMsg('TANK TRAP PLACED',1.2); } else showMsg('NO ROOM HERE',1.2);
+}
+/* ---- the preparation phase ---- */
+function startPrep(){
+  prep.on=true; prep.phase='prep'; prep.t=PREP_TIME; prep.total=PREP_TIME; prep.el=0; prep.bagQ=[]; prep.hhQ=[]; prep.bt=0; dig.prog=0; dig.count=0;
+  const allies=digPlan.filter(p=>p.ally).sort(()=>Math.random()-0.5);
+  allies.forEach((p,i)=>{ p.at=PREP_TIME*(0.1+0.72*(i+Math.random()*0.5)/Math.max(1,allies.length)); });
+  digGhost(); protectT=Math.max(protectT,5);
+  setTimeout(()=>{ if(prep.on && state==='playing') showMsg('PREPARATION: DIG IN BEFORE THE ENEMY ARRIVES',3.5); },600);
+}
+function planDig(pl){
+  if(pl.done) return; pl.done=true;
+  const r=segRect(pl); if(pits.some(p=>r[2]+0.6>p.x0 && r[0]-0.6<p.x1 && r[3]+0.6>p.z0 && r[1]-0.6<p.z1)) return;
+  pl.pit=digCommit(pl.ax,pl.c,pl.a0,pl.a1,pl.front,false);
+}
+function planTraps(pl,q){
+  const v=pl.c+pl.front*(PIT_HW+4.5), L=pl.a1-pl.a0, us=L>12?[pl.a0+2.5,(pl.a0+pl.a1)/2,pl.a1-2.5]:[(pl.a0+pl.a1)/2];
+  for(const u of us) q.push(pl.ax==='x'?[u,v]:[v,u]);
+}
+function prepFinish(){
+  if(!prep.on) return; prep.on=false; prep.phase='build';
+  for(const pl of digPlan) planDig(pl);
+  const q=[]; for(const pl of digPlan){
+    if(!pl.ally){ if(pl.pit) addPitBags(pl.pit); const hh=[]; planTraps(pl,hh); for(const [x,z] of hh) tryHedgehog(x,z); }
+    else { if(pl.pit) prep.bagQ.push(pl.pit); planTraps(pl,prep.hhQ); } }
+  prep.bagQ.sort(()=>Math.random()-0.5); prep.hhQ.sort(()=>Math.random()-0.5); prep.bt=2;
+  flushBatch(true); visCols=null;
+  protectT=Math.max(protectT,5); dig.held=false; dig.prog=0;
+  $('prepbar').style.display='none';
+  showMsg('PREPARATION OVER · HERE THEY COME!',3); try{ sting('waveStart'); }catch(e){}
+}
+function prepTick(dt){
+  if(state!=='playing' || prep.phase==='off') { if(prep.phase==='off' && dig.ghost){ const pb=document.getElementById('prepbar'); if(pb) pb.style.display='none'; } return; }
+  if(prep.lookT>0){ prep.lookT-=dt; if(prep.lookT<=0){ try{ buildGrass(currentMap); buildClutter(currentMap); buildGroundPatches(currentMap); }catch(e){} } }
+  const pb=document.getElementById('prepbar');
+  if(prep.on){
+    prep.t-=dt; prep.el+=dt; protectT=Math.max(protectT,3);
+    for(const pl of digPlan) if(pl.ally && !pl.done && prep.el>=pl.at) planDig(pl);
+    if(prep.t<=0){ prepFinish(); return; }
+    const m=Math.floor(prep.t/60), sec=Math.floor(prep.t%60);
+    if(pb){ pb.style.display='block'; pb.textContent=`⛏ PREPARATION ${m}:${String(sec).padStart(2,'0')} · ${digEnabled()?(IS_TOUCH?'HOLD ⛏ TO DIG':'HOLD X TO DIG'):'WAIT FOR THE TRENCHES'} · ${IS_TOUCH?'TAP HERE':'ENTER'} = START NOW`; }
+    const pe=$('protect'); if(pe) pe.style.opacity=0;
+  } else if(prep.phase==='build'){
+    if(pb) pb.style.display='none';
+    prep.bt-=dt;
+    if(prep.bt<=0){
+      if(prep.bagQ.length){ addPitBags(prep.bagQ.pop()); flushBatch(true); visCols=null; prep.bt=0.5+Math.random()*0.7; }
+      else if(prep.hhQ.length){ let k=0; while(prep.hhQ.length && k++<4){ const [x,z]=prep.hhQ.pop(); if(tryHedgehog(x,z)){ flushBatch(true); visCols=null; break; } } prep.bt=0.6+Math.random()*0.8; }
+      else prep.phase='done';
+    }
+  }
 }
 // Mouse lock. If the browser/preview blocks it, fall back to "cursor mode".
 let lockPending=false, cursorMode=false, mouseX=innerWidth/2;
@@ -8548,7 +8762,7 @@ function updatePlayer(dt){
   if(touch.joyActive){ f-=touch.joyY; s+=touch.joyX; }
   const wish=fwd.multiplyScalar(f).add(right.multiplyScalar(s));
   if(wish.lengthSq()>1) wish.normalize();
-  if(peri>0.3) wish.set(0,0,0);
+  if(peri>0.3 || dig.active) wish.set(0,0,0);
 
   // crouch (can't stand up under something)
   // C toggles crouch; sprinting or jumping stands you back up
@@ -8734,6 +8948,7 @@ function loop(now){
   hitTimer-=dt; $('hit').style.opacity=hitTimer>0?1:0;
 
   renderer.clear();
+  prepTick(dt); digTick(dt); updateInvUI();
   lookTick(T);
   renderer.render(scene,camera);
   if(state!=='menu' && state!=='dead' && vmWeapon && !isTankMap() && !air.on && !binoc && peri<0.3 && tpK<0.15 && !mounted && !(WEAPONS[gun.type].scope && gun.ads>0.85)){ renderer.clearDepth(); renderer.render(viewScene,viewCam); }

@@ -107,7 +107,7 @@
   #tPeri{display:none;left:calc(2.5vw + env(safe-area-inset-left));bottom:calc(53*var(--u));width:calc(14*var(--u));height:calc(14*var(--u))}
   #tNade{display:none;right:calc(4vw + 31*var(--u) + env(safe-area-inset-right));bottom:calc(50*var(--u));width:calc(14*var(--u));height:calc(14*var(--u))}
   body.tankmode #tNade,body.airmode #tNade{display:flex}
-  body.touch:not(.tankmode):not(.airmode) #tNade{display:flex}          /* grenade button on foot, like Entrenched */
+  body.touch:not(.tankmode):not(.airmode) #tNade{display:flex}          /* grenade button on foot */
   /* inventory bar: primary / pistol / grenades */
   #inv{position:fixed;z-index:6;--u:var(--ux,min(1vh,0.55vw));left:50%;bottom:calc(2.5*var(--u));transform:translateX(-50%);display:none;gap:calc(1.6*var(--u));pointer-events:auto}
   body:not(.touch) #inv{opacity:.92}
@@ -163,7 +163,7 @@
   body.touch #ammo{right:auto;left:calc(2vw + env(safe-area-inset-left));bottom:auto;top:82px;text-align:left}
   body.touch #gunBar{width:120px} body.touch #ammo .n{font-size:11px} body.touch #ammo .w{font-size:10px}
   body.touch #waveInfo{font-size:11px;top:8px;right:auto;left:50%;transform:translateX(-50%);white-space:nowrap}
-  /* ---- Entrenched-style layout (round dark buttons, same positions) ---- */
+  /* ---- touch layout (round dark buttons) ---- */
   body.touch{--u:var(--ux,min(1vh,0.55vw))}
   body.touch .tbtn{background:rgba(18,20,16,.5);border:calc(.5*var(--u)) solid rgba(205,205,195,.42);box-shadow:inset 0 0 calc(1.5*var(--u)) rgba(0,0,0,.35);text-shadow:none}
   body.touch .tbtn.on{background:rgba(255,196,80,.34);border-color:#ffd27a}
@@ -393,7 +393,7 @@
  <g fill="url(#lgSteel)" stroke="#33373b" stroke-width="1.6"><circle cx="196" cy="101" r="5.6"/><circle cx="194.4" cy="99.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="89" r="5.6"/><circle cx="194.4" cy="87.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="77" r="5.6"/><circle cx="194.4" cy="75.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="65" r="5.6"/><circle cx="194.4" cy="63.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="53" r="5.6"/><circle cx="194.4" cy="51.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="41" r="5.6"/><circle cx="194.4" cy="39.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="197" cy="29" r="5.6"/><circle cx="195.4" cy="27.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="201" cy="18" r="5.6"/><circle cx="199.4" cy="16.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="208" cy="8" r="5.6"/><circle cx="206.4" cy="6.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="218" cy="0" r="5.6"/><circle cx="216.4" cy="-1.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="231" cy="-7" r="5.6"/><circle cx="229.4" cy="-8.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="245" cy="-11" r="5.6"/><circle cx="243.4" cy="-12.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="259" cy="-12" r="5.6"/><circle cx="257.4" cy="-13.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/></g>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.63</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.65</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -2768,7 +2768,7 @@ function buildTerrain(id){
 }
 
 /* ================= BIG MAPS (Maps mode): every map is twice as wide and long, and the objectives are capture ZONES =================
-   Four kinds of zone, like Entrenched: trench networks, fortified bunkers, villages and open ground. A zone is a ring on the ground that you
+   Four kinds of zone: trench networks, fortified bunkers, villages and open ground. A zone is a ring on the ground that you
    fight over; it does not have to be a building. The original map stays in the middle and new ground is built all round it. */
 const ZONE_R={trench:15,bunker:13,village:19,hill:17};
 let bigZones=[];        // [{key,x,z,type,name}] of the map that is built now
@@ -4904,7 +4904,7 @@ function onEnemyKilled(){
   if(left>0 && !isTankMap() && battle.killed%RESUPPLY_EVERY===0){
     const W=WEAPONS[gun.type];
     if(W.rocket){ gun.ammo=W.mag; gun.reserve=0; } grenadesLeft=maxNades(); invRefill(); sting('clear');
-    showMsg(`RESUPPLY! ${W.rocket?'NEW PANZERFAUST · ':''}GRENADES REFILLED · ${left} ENEMIES LEFT`,3.5);
+    showMsg(`RESUPPLY! ${W.rocket?'NEW PANZERFAUST · ':''}GRENADES REFILLED${skirm.on?'':' · '+left+' ENEMIES LEFT'}`,3.5);
   }
   if(battle.killed===Math.floor(battle.total/2)){
     checkpoint={map:currentMap,killed:battle.killed,kills,reserve:gun.reserve};
@@ -5559,7 +5559,7 @@ const SK_MODES={
   conquest:{name:'CONQUEST',short:'Conquest',desc:'Three buildings to fight over. Capture them and hold them, drain the enemy\'s reinforcements. Fallen squad mates keep coming back while your reinforcements last.'},
   holdout:{name:'HOLDOUT',short:'Holdout',desc:'Defend one building against wave after wave of attackers. Survive as long as you can and beat your high score.'},
   domination:{name:'DOMINATION',short:'Domination',desc:'Three points to hold. Every few seconds each side scores a point for each one it holds. First side to 200 wins. Your squad comes back as often as it needs to.'},
-  frontline:{name:'FRONTLINES',short:'Frontlines',desc:'Turn-based, like Entrenched. Four zones in a row: trenches, bunkers, villages and open ground. One side attacks the front zone for 5 minutes while the other defends. Take it in time and the front moves up and the roles swap. Retake a zone you started with and you get a 3-minute counterattack. Run out the clock and the defenders hold. Capture all four to win. Always 15 v 15. When the 20-minute match timer is over, the turn in progress is finished and the side holding more zones wins, or it is a stalemate.'}
+  frontline:{name:'FRONTLINES',short:'Frontlines',desc:'Turn-based. Four zones in a row: trenches, bunkers, villages and open ground. One side attacks the front zone for 5 minutes while the other defends. Take it in time and the front moves up and the roles swap. Retake a zone you started with and you get a 3-minute counterattack. Run out the clock and the defenders hold. Capture all four to win. Always 15 v 15. When the 20-minute match timer is over, the turn in progress is finished and the side holding more zones wins, or it is a stalemate.'}
 };
 // capture points per map [x, z, name]; the south is where you start
 const SK_MAPS={
@@ -5659,8 +5659,8 @@ function skirmBegin(){
   skirmHud(true);
   squadMode='free'; squadCmd.mode=null; updateSquadLabel();
 }
-// ----- Frontlines: turn-based attack / defence along a line of buildings (like Entrenched) -----
-const FL_PHASE=300, FL_COUNTER=180, FL_MATCH=1200;      // like Entrenched: 5-minute attack turns, a 3-minute counterattack when you retake your own ground, and a global match timer
+// ----- Frontlines: turn-based attack / defence along a line of buildings -----
+const FL_PHASE=300, FL_COUNTER=180, FL_MATCH=1200;      // 5-minute attack turns, a 3-minute counterattack when you retake your own ground, and a global match timer
 function flTarget(){ const P=skirm.pts; return skirm.fl.atk==='ally' ? P.find(p=>p.owner!=='ally') : [...P].reverse().find(p=>p.owner!=='enemy'); }
 let phaseTimers=[];
 function showPhaseBanner(text){
@@ -9043,7 +9043,7 @@ function fire(){
   playerShotAt=performance.now(); gun.ammo--; gun.cooldown=W.rate; if(W.bolt) gun.bolt=W.rate;
   const bip=!!W.bipod && player.crouch && Math.hypot(player.vel.x,player.vel.z)<0.6;     // MG / PTRD with the bipod down
   const r=W.recoil*(1-gun.ads*0.5)*(player.crouch?0.7:1)*(bip?0.3:1)*(1-0.5*peri);   // resting on the sandbags steadies the gun
-  player.pitch+=r; player.recoilAcc+=r; player.yaw+=(Math.random()-.5)*r*0.5;
+  player.pitch+=r; player.recoilAcc+=r; 
   if(W.rocket){ firePzf(W); return; }
   const sample=!!(W.bolt && BOLTSND && gun.type!=='ptrd' && gun.type!=='s25');
   gun.kick=1; gun.flash=0.05; RS.gunHeat=Math.min(1,RS.gunHeat+0.1); if(sample) playBoltSample(0.95); else sndShot(W.heavy); alertByGunshot(player.pos);
@@ -9051,7 +9051,7 @@ function fire(){
   if(W.bolt && !sample){ play(SB.boltUp,0.4,1,0.42); play(SB.boltBack,0.45,1,0.62); play(SB.boltFwd,0.45,1,0.97); play(SB.boltUp,0.3,0.8,1.07); }
   // bullet
   const hs=Math.hypot(player.vel.x,player.vel.z);
-  const spread=Math.max(W.spread,W.scope?0.0012:0.008)*(1-Math.max(gun.ads,peri)*0.75)*moveAcc(hs,player.crouch)*(player.onGround?1:3)*(bip?0.4:1);
+  const spread=0;      // every shot goes exactly where the crosshair is
   ray.setFromCamera(new THREE.Vector2((Math.random()-.5)*spread*2,(Math.random()-.5)*spread*2),camera);
   const tr=bulletTrace(ray.ray.origin.clone(),ray.ray.direction.clone(),200,null);
   const s=tr.soldier;
@@ -11092,8 +11092,7 @@ function updatePlayer(dt){
     if(P.stepAcc>(sprinting?2.1:1.6)){ P.stepAcc=0; sndStep(sprinting); }
   }
   const bobAmt=P.onGround?Math.min(1,hs/4.6):0;
-  const bobY=Math.sin(P.bobPhase*2)*0.045*bobAmt*(1-gun.ads*0.8);
-  const bobX=Math.cos(P.bobPhase)*0.03*bobAmt*(1-gun.ads*0.8);
+  const bobY=0, bobX=0;      // no walking bob: the view and the gun stay steady
 
   P.eye += ((pdown.on?0.32:P.crouch?1.0:1.62)-P.eye)*Math.min(1,dt*(pdown.on?4:10));
 
@@ -11120,8 +11119,7 @@ function updatePlayer(dt){
   const adsWant = (rmb||keys.KeyQ||touch.aim) && throwT<=0 && gun.sprintT<0.3 && gun.reloading<=0 ? 1 : 0;
   gun.ads += (adsWant-gun.ads)*Math.min(1,dt*12);
   gun.kick += (0-gun.kick)*Math.min(1,dt*(W.heavy?9:18));
-  gun.swayX*=Math.exp(-dt*8); gun.swayY*=Math.exp(-dt*8);
-  gun.swayX=Math.max(-0.05,Math.min(0.05,gun.swayX)); gun.swayY=Math.max(-0.05,Math.min(0.05,gun.swayY));
+  gun.swayX=0; gun.swayY=0;      // the gun does not lag behind the mouse
 
   const scoped = W.scope && gun.ads>0.85;
   camera.fov = binoc ? 16 : 75 - gun.ads*(W.scope?58:(W.bolt||W.semi||W.dmg>=100)?22:15);

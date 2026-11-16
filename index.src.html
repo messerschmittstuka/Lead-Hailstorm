@@ -393,7 +393,7 @@
  <g fill="url(#lgSteel)" stroke="#33373b" stroke-width="1.6"><circle cx="196" cy="101" r="5.6"/><circle cx="194.4" cy="99.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="89" r="5.6"/><circle cx="194.4" cy="87.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="77" r="5.6"/><circle cx="194.4" cy="75.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="65" r="5.6"/><circle cx="194.4" cy="63.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="53" r="5.6"/><circle cx="194.4" cy="51.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="41" r="5.6"/><circle cx="194.4" cy="39.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="197" cy="29" r="5.6"/><circle cx="195.4" cy="27.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="201" cy="18" r="5.6"/><circle cx="199.4" cy="16.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="208" cy="8" r="5.6"/><circle cx="206.4" cy="6.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="218" cy="0" r="5.6"/><circle cx="216.4" cy="-1.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="231" cy="-7" r="5.6"/><circle cx="229.4" cy="-8.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="245" cy="-11" r="5.6"/><circle cx="243.4" cy="-12.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="259" cy="-12" r="5.6"/><circle cx="257.4" cy="-13.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/></g>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.61</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.63</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -1527,7 +1527,7 @@ function resetProps(){
     else setPropMatrix(p);
     if(p.col && !colliders.includes(p.col)) colliders.push(p.col);
   }
-  visCols=null;
+  visCols=null; canGrid=null;
 }
 
 // ---------- ruined apartment block ----------
@@ -1953,7 +1953,7 @@ function pitDropShell(pit){ pitDropRoofs(pit); if(!pit.shell) return; for(const 
 function pitGrow(pit,frac){
   pit.frac=Math.min(1,frac); pitDropShell(pit);
   if(pit.frac<1){ pit.curD=Math.max(0.05,pit.D*pit.frac); pit.shell=pitShell(pit,pit.curD); return false; }
-  pit.curD=undefined; pit.wip=false; pit.shell=pitShell(pit,pit.D); pitFinish(pit,false); flushBatch(true); visCols=null; prep.lookT=2.5; return true;
+  pit.curD=undefined; pit.wip=false; pit.shell=pitShell(pit,pit.D); pitFinish(pit,false); flushBatch(true); visCols=null; canGrid=null; prep.lookT=2.5; return true;
 }
 function pitFinish(pit,bags){
   const {ax,c,a0,a1,hw,D,RL,front,K}=pit;
@@ -2963,7 +2963,8 @@ const wantDig=id=>true;
 const coopNow=()=>{ try{ return !!coop; }catch(e){ return false; } };
 const wantRun=id=>(id==='seelow' || (id==='kursk' && skirm.sel!=='campaign')) && !coopNow();      // Kursk's story mission starts with its trenches already dug (no building phase)
 const BIGL=98;       // Maps mode: half the playable size is 98 instead of 70, so the maps are 1.4 times as wide and long
-const bigFor=id=>{ try{ return menuFlow==='maps' && MAP_MENU.includes(id) && !coopNow(); }catch(e){ return false; } };
+const BIG_ON=false;      // false = every map at its original size (the 1.4x hilly version is still here: set to true)
+const bigFor=id=>{ try{ return BIG_ON && menuFlow==='maps' && MAP_MENU.includes(id) && !coopNow(); }catch(e){ return false; } };
 const needRebuild=id=>currentMap!==id || bigFor(id)!==builtBig || pits.some(p=>p.dug) || wantDig(id)!==digTrenches || (digOverride===null && wantRun(id)!==runDig) || prep.phase!=='off';
 function buildMap(id){
   const Mp=MAPS[id];
@@ -4617,6 +4618,8 @@ function explode(p,owner,fxOnly){
 const pdown={on:false,t:0,max:20,revived:false,prog:0,by:null,el:null};   // the player lying wounded, waiting for someone to pick them up
 function pdReset(){ pdown.on=false; pdown.revived=false; pdown.t=0; pdown.prog=0; pdown.by=null; if(pdown.el) pdown.el.style.display='none'; }
 let lastHeadshot=false, wave=1, kills=0, waveTimer=0, playerHP=100, hurtT=0, lastHurt=99, playerDead=false;
+let canGrid=null;      // tree canopies by map cell: dense foliage hides a soldier from enemy eyes
+const CANOPY={pine:[1.3,0.7,3.9],pineG:[1.3,0.7,3.9],ktree:[1.9,2.0,5.4],oak:[2.2,2.8,6.5],apple:[1.3,1.2,3.2]};      // radius, lowest and highest point (per unit of tree size)
 let visCols=null, visGrid=null, visStamp=0; const VG=12, _dirLOS=new THREE.Vector3();
 const _ray3=new THREE.Ray(), _hp=new V3();
 // wheat fields: they hide anyone crouching or lying in them from soldiers more than ~6 m away (firing gives you away for a moment)
@@ -4625,6 +4628,8 @@ function lineOfSight(a,b){
     visGrid=new Map(); for(const c of visCols){ c._vs=0; const x0=Math.floor(c.min.x/VG),x1=Math.floor(c.max.x/VG),z0=Math.floor(c.min.z/VG),z1=Math.floor(c.max.z/VG);
       if((x1-x0+1)*(z1-z0+1)>400){ (visGrid.big||(visGrid.big=[])).push(c); continue; }
       for(let i=x0;i<=x1;i++) for(let j=z0;j<=z1;j++){ const k=i*100003+j; let l=visGrid.get(k); if(!l){ l=[]; visGrid.set(k,l); } l.push(c); } } }
+  if(!canGrid){ canGrid=new Map(); for(const p of props){ const q=CANOPY[p.name]; if(!q || p.fallen) continue; const r=q[0]*p.s, c={x:p.x,z:p.z,r,y0:q[1]*p.s,y1:q[2]*p.s,_s:0};
+      for(let i=Math.floor((p.x-r)/VG);i<=Math.floor((p.x+r)/VG);i++) for(let j=Math.floor((p.z-r)/VG);j<=Math.floor((p.z+r)/VG);j++){ const k=i*100003+j; let l=canGrid.get(k); if(!l){ l=[]; canGrid.set(k,l); } l.push(c); } } }
   _dirLOS.copy(b).sub(a); const dist=_dirLOS.length(); if(dist<0.01) return true; const dir=_dirLOS.divideScalar(dist);
   _ray3.set(a,dir);
   const lim=(dist-0.4)*(dist-0.4); visStamp++;
@@ -4632,6 +4637,16 @@ function lineOfSight(a,b){
   const test=c=>{ if(c._vs===visStamp) return false; c._vs=visStamp; return !!(rayCollider(c,_ray3,_hp) && _hp.distanceToSquared(a)<lim); };
   if(visGrid.big) for(const c of visGrid.big) if(test(c)) return false;
   for(let i=gx0;i<=gx1;i++) for(let j=gz0;j<=gz1;j++){ const l=visGrid.get(i*100003+j); if(l) for(const c of l) if(test(c)) return false; }
+  if(dist>5 && canGrid.size){      // thick foliage between you and him: about a metre and a half of leaves hides a man
+    const dx=b.x-a.x, dz=b.z-a.z, dy=b.y-a.y, A=dx*dx+dz*dz; let leaf=0; visStamp++;
+    if(A>1e-6) for(let i=gx0;i<=gx1 && leaf<1.5;i++) for(let j=gz0;j<=gz1;j++){ const l=canGrid.get(i*100003+j); if(!l) continue;
+      for(const c of l){ if(c._s===visStamp) continue; c._s=visStamp;
+        const fx=a.x-c.x, fz=a.z-c.z, B=2*(fx*dx+fz*dz), C=fx*fx+fz*fz-c.r*c.r, D=B*B-4*A*C; if(D<=0) continue;
+        const sq=Math.sqrt(D); let t0=Math.max(0,(-B-sq)/(2*A)), t1=Math.min(1,(-B+sq)/(2*A)); if(t1<=t0) continue;
+        if(Math.abs(dy)>1e-5){ const u0=(c.y0-a.y)/dy, u1=(c.y1-a.y)/dy; t0=Math.max(t0,Math.min(u0,u1)); t1=Math.min(t1,Math.max(u0,u1)); }
+        else if(a.y<c.y0||a.y>c.y1) continue;
+        if(t1>t0) leaf+=(t1-t0)*dist; } }
+    if(leaf>=1.5) return false; }
   if((pits.length||terrainOn) && terrainRay(a,dir,dist-0.4)>=0) return false;     // earth between you and him
   if(wheatZones.length && dist>6 && b.y<1.15 && !(performance.now()-playerShotAt<1500 && b.distanceToSquared(camera.position)<2.5)){
     let depth=0; const st=0.6;
@@ -5748,6 +5763,7 @@ function skirmAnchor(m){
 }
 
 // ----- per-frame logic (host or solo) -----
+const LIMITED=false;     // false = respawns and reinforcements like before; true = every side fights with TROOPS men and nobody comes back
 const TROOPS=15;     // every side fights with exactly this many men in a match: nobody comes back once they are lost
 function skTroops(){
   const a=mates.filter(m=>!m.dead||m.downed).length+((!playerDead)?1:0);
@@ -5757,12 +5773,12 @@ function skTroops(){
 function skirmOnKill(v,a){
   if(skirm.over) return;
   if(v.team==='enemy'){ if(skirm.mode==='conquest') skirm.tk.enemy=Math.max(0,skirm.tk.enemy-1); if(skirm.hold) skirm.hold.kills++; }
-  else if(v.team==='ally' && !v.isPartner){ skirm.tk.ally=Math.max(0,skirm.tk.ally-1); if(isCoop()) skirm.allyQ.push({t:7,w:v.weapon,label:v.label,cls:v.cls,role:v.role}); }
+  else if(v.team==='ally' && !v.isPartner){ skirm.tk.ally=Math.max(0,skirm.tk.ally-1); if(!LIMITED || isCoop()) skirm.allyQ.push({t:7,w:v.weapon,label:v.label,cls:v.cls,role:v.role}); }
 }
 function skirmPlayerDown(){
   mstats.deaths++; playerDead=true; state='dead'; mouseDown=rmb=false; skirm.tk.ally=Math.max(0,skirm.tk.ally-1);
-  deathCamStart(); skirm.respT=isCoop()?(skirm.mode==='holdout'?6:5):1e9; noise(0.5,300,0.4,'lowpass');
-  if(!skirm.over) showMsg(isCoop()?`YOU WERE KNOCKED OUT · BACK IN ${skirm.respT} s`:'YOU\'RE OUT · NO RESPAWNS · WATCH YOUR SQUAD FINISH IT',4);
+  deathCamStart(); skirm.respT=(!LIMITED||isCoop())?(skirm.mode==='holdout'?6:5):1e9; noise(0.5,300,0.4,'lowpass');
+  if(!skirm.over) showMsg((!LIMITED||isCoop())?`YOU WERE KNOCKED OUT · BACK IN ${skirm.respT} s`:'YOU\'RE OUT · NO RESPAWNS · WATCH YOUR SQUAD FINISH IT',4);
   feed(lastAttackerS,playerTarget);
   const sd=stat(playerTarget); if(sd) sd.d++; const sk=lastAttackerS&&stat(lastAttackerS); if(sk) sk.k++;
 }
@@ -5808,7 +5824,7 @@ function skirmUpdate(dt,t){
       if(H.rest<=0){ H.resting=false; H.wave++; H.total=Math.min(70,5+H.wave*4); H.spawned=0; H.left=H.total; showMsg(`WAVE ${H.wave} · ${H.total} ATTACKERS`,3); sting('waveStart'); } }
     else {
       if(H.spawned<H.total && alive<Math.min(capBase,6+H.wave*2) && skirm.spawnT<=0 && state!=='menu'){ skSpawnEnemy(); H.spawned++; H.left=H.total-H.spawned; skirm.spawnT=0.9+Math.random()*1.0; }
-      if(H.spawned>=H.total && alive===0){ H.resting=true; H.rest=9; if(WEAPONS[gun.type].rocket){ gun.ammo=WEAPONS[gun.type].mag; gun.reserve=0; } grenadesLeft=maxNades(); showMsg(`WAVE ${H.wave} CLEARED · RESUPPLIED`,3.5); sting('clear'); }
+      if(H.spawned>=H.total && alive===0){ H.resting=true; H.rest=9; if(!LIMITED) skirm.tk.ally+=8; if(WEAPONS[gun.type].rocket){ gun.ammo=WEAPONS[gun.type].mag; gun.reserve=0; } grenadesLeft=maxNades(); showMsg(`WAVE ${H.wave} CLEARED${LIMITED?'':' · +8 REINFORCEMENTS'} · RESUPPLIED`,3.5); sting('clear'); }
     }
     // the building
     const p=P[0];
@@ -5817,9 +5833,13 @@ function skirmUpdate(dt,t){
     if(H.integ<=0) skirmFinish(false,'THE BUILDING FELL');
     p.owner=(p.e>0&&p.f===0)?'enemy':'ally'; p.prog=(p.owner==='enemy'?-1:1)*Math.max(0.05,H.integ);
   } else {
-    const can = (skirm.eMade||0)<TROOPS;
+    const can = LIMITED ? (skirm.eMade||0)<TROOPS : (skirm.mode==='frontline' || skirm.tk.enemy>alive);
     if(can && alive<(skirm.mode==='frontline'?15:capBase) && skirm.spawnT<=0){ skSpawnEnemy(); skirm.spawnT=(currentMap==='seelow'?0.6:1.0)+Math.random()*1.1; }
     if(skirm.mode==='conquest'){
+      if(!LIMITED){ skirm.bleedT-=dt;
+        if(skirm.bleedT<=0){ skirm.bleedT=5; const a=P.filter(p=>p.owner==='ally').length, e=P.filter(p=>p.owner==='enemy').length;
+          if(a>e) skirm.tk.enemy=Math.max(0,skirm.tk.enemy-(a-e)); else if(e>a) skirm.tk.ally=Math.max(0,skirm.tk.ally-(e-a)); } }
+      if(!LIMITED && skirm.tk.enemy<=0) skirmFinish(true,'THE ENEMY HAS NO REINFORCEMENTS LEFT');
       if(P.every(p=>p.owner==='ally')){ skirm.holdT+=dt; if(skirm.holdT>=20) skirmFinish(true,'ALL THREE BUILDINGS HELD'); } else skirm.holdT=0;
     } else if(skirm.mode==='frontline'){
       const fl=skirm.fl; fl.match-=dt;
@@ -5837,7 +5857,8 @@ function skirmUpdate(dt,t){
       else if(D.enemy>=D.goal) skirmFinish(false,'THE ENEMY REACHED '+D.goal+' POINTS');
     }
   }
-  { const T=skTroops(); skirm.tk.ally=T.a; if(skirm.mode!=='holdout') skirm.tk.enemy=T.e;
+  if(!LIMITED){ if(skirm.tk.ally<=0) skirmFinish(false,'NO REINFORCEMENTS LEFT'); }
+  else { const T=skTroops(); skirm.tk.ally=T.a; if(skirm.mode!=='holdout') skirm.tk.enemy=T.e;
     if(skirm.t>3 && !isCoop()){
       const able=mates.some(m=>!m.dead) || (!playerDead && !pdown.on);
       if(!able) skirmFinish(false,'YOUR SQUAD HAS BEEN WIPED OUT');
@@ -5881,7 +5902,7 @@ function skirmHud(force){
   let html='', obj='', frac=0, col='#e0c050';
   const near=P.filter(p=>!p.locked).sort((a,b)=>Math.hypot(a.x-player.pos.x,a.z-player.pos.z)-Math.hypot(b.x-player.pos.x,b.z-player.pos.z))[0];
   if(skirm.mode==='conquest'){
-    html=`<span class="tk a">${tkA}</span>${P.map(chip).join('')}<span class="tk e">${skirm.tk.enemy}</span><div class="skl">${SK_MODES.conquest.name} · YOUR TROOPS · ENEMY TROOPS</div>`;
+    html=`<span class="tk a">${tkA}</span>${P.map(chip).join('')}<span class="tk e">${skirm.tk.enemy}</span><div class="skl">${SK_MODES.conquest.name} · ${LIMITED?'YOUR TROOPS · ENEMY TROOPS':'YOUR REINFORCEMENTS · ENEMY'}</div>`;
     const target=P.filter(p=>p.owner!=='ally').sort((a,b)=>Math.hypot(a.x-player.pos.x,a.z-player.pos.z)-Math.hypot(b.x-player.pos.x,b.z-player.pos.z))[0];
     if(P.every(p=>p.owner==='ally')){ obj=`HOLD ALL THREE · ${Math.max(0,Math.ceil(20-skirm.holdT))} s TO VICTORY`; frac=skirm.holdT/20; col='#7db4ff'; }
     else if(target){ obj=`CAPTURE ${target.letter} · ${target.name.toUpperCase()} · ${Math.round(Math.abs(target.owner==='ally'?1:(target.prog>0?target.prog:-target.prog))*100)}%${target.f&&target.e?' · CONTESTED':target.e&&!target.f?' · ENEMY HOLDS IT':''}`; frac=Math.max(0,target.prog); }
@@ -5902,11 +5923,11 @@ function skirmHud(force){
   } else {
     const H=skirm.hold||{integ:1,wave:0,score:0,kills:0,left:0};
     const sc=H.wave*100+H.kills*10;
-    html=`<span class="tk a">${tkA}</span><span class="skw">WAVE ${H.wave||'–'}</span><span class="tk e">${sc}</span><div class="skl">${SK_MODES.holdout.name} · YOUR TROOPS · SCORE</div>`;
+    html=`<span class="tk a">${tkA}</span><span class="skw">WAVE ${H.wave||'–'}</span><span class="tk e">${sc}</span><div class="skl">${SK_MODES.holdout.name} · ${LIMITED?'YOUR TROOPS':'YOUR REINFORCEMENTS'} · SCORE</div>`;
     const p=P[0]; obj=H.resting?`NEXT WAVE IN ${Math.max(0,Math.ceil(H.rest))} s · RESUPPLY`:`DEFEND THE ${p?p.name.toUpperCase():'BUILDING'} · BUILDING ${Math.round(H.integ*100)}%${p&&p.e&&!p.f?' · THEY ARE INSIDE!':''}`;
     frac=H.integ; col=H.integ>0.5?'#7db4ff':H.integ>0.25?'#e0b050':'#d0603c';
   }
-  if(skirm.mode==='domination'||skirm.mode==='frontline') obj+=` · TROOPS ${skirm.tk.ally} v ${skirm.tk.enemy}`;
+  if(LIMITED && (skirm.mode==='domination'||skirm.mode==='frontline')) obj+=` · TROOPS ${skirm.tk.ally} v ${skirm.tk.enemy}`;
   if(skirm.hudKey!==html || force){ el.innerHTML=html; skirm.hudKey=html; }
   $('objTxt').textContent=obj; $('objFill').style.width=Math.max(0,Math.min(1,frac))*100+'%'; $('objFill').style.background=col;
   // colour the chips on every frame (cheap)
@@ -7399,7 +7420,7 @@ function tankCollide1(tk,dx,dz){
       }
     }
   }
-  if(knocked){ for(const b of knocked){ const i=colliders.indexOf(b); if(i>=0) colliders.splice(i,1); } visCols=null; tk.speed*=0.85; }
+  if(knocked){ for(const b of knocked){ const i=colliders.indexOf(b); if(i>=0) colliders.splice(i,1); } visCols=null; canGrid=null; tk.speed*=0.85; }
   for(const o of tanks){ if(o===tk) continue; const ox=tk.pos.x-o.pos.x, oz=tk.pos.z-o.pos.z, dd=Math.hypot(ox,oz);
     if(dd<4.6 && dd>0.01){ const push=(4.6-dd)*0.5; tk.pos.x+=ox/dd*push; tk.pos.z+=oz/dd*push; if(!o.dead){ o.pos.x-=ox/dd*push*0.5; o.pos.z-=oz/dd*push*0.5; } } }
 }
@@ -7583,7 +7604,7 @@ function destroyTank(tk,crit,shooter){
   if(crit){ tk.tur.position.y+=0.8; tk.tur.rotation.z=0.5; tk.tur.rotation.x=0.3; tk.tur.position.x+=0.6; }
   if(tankWreckFires<8){ addFire(tk.pos.x,1.4,tk.pos.z,1.1,false); tankExtras.fires.push(fires[fires.length-1]); tankWreckFires++; }
   tankExtras.cols.push(addCollider(new THREE.Box3(new V3(tk.pos.x-1.8,0,tk.pos.z-1.8),new V3(tk.pos.x+1.8,2,tk.pos.z+1.8))));
-  visCols=null;
+  visCols=null; canGrid=null;
   if(tk.team==='enemy'){ if(shooter && shooter.isPlayer){ kills++; mstats.tanks++; showMsg(crit?'AMMO RACK DETONATION! TANK DESTROYED':'TARGET DESTROYED!',1.6); } onEnemyKilled(); }
   else if(tk.isPlayer){ setTimeout(()=>{ if(!playerDead) playerDies(); },900); }
   else showMsg('ALLIED TANK LOST!',1.4);
@@ -7844,7 +7865,7 @@ function clearTanks(){
   // remove wreck colliders and wreck fires from the last attempt
   for(const c of tankExtras.cols){ const i=colliders.indexOf(c); if(i>=0) colliders.splice(i,1); }
   for(const f of tankExtras.fires){ for(const sp of [...f.smoke,...f.flames]) mapRoot.remove(sp); if(f.light) mapRoot.remove(f.light); const i=fires.indexOf(f); if(i>=0) fires.splice(i,1); }
-  tankExtras={cols:[],fires:[]}; visCols=null;
+  tankExtras={cols:[],fires:[]}; visCols=null; canGrid=null;
   for(const s of shells) scene.remove(s.spr); shells=[];
   for(const d of debris) scene.remove(d.m); debris.length=0;
   tankWreckFires=0;
@@ -8221,9 +8242,9 @@ function engineerGhostTick(){
 function engineerBuild(){
   if(state!=='playing' || selClass!=='engineer' || isTankMap() || mounted || !digEnabled()) return;
   const pl=buildPlan(); if(!pl.ok){ showMsg(pl.msg||'NO ROOM HERE',1.2); return; }
-  if(pl.item===0){ addPitBags(pl.pit); flushBatch(true); visCols=null; showMsg('SANDBAGS BUILT',1.4); }
-  else if(pl.item===1){ if(tryHedgehog(pl.x,pl.z)){ flushBatch(true); visCols=null; showMsg('TANK TRAP PLACED',1.2); } else showMsg('NO ROOM HERE',1.2); }
-  else { makeWire(pl.x,pl.z,pl.yaw); flushBatch(true); visCols=null; showMsg('BARBED WIRE PLACED',1.2); }
+  if(pl.item===0){ addPitBags(pl.pit); flushBatch(true); visCols=null; canGrid=null; showMsg('SANDBAGS BUILT',1.4); }
+  else if(pl.item===1){ if(tryHedgehog(pl.x,pl.z)){ flushBatch(true); visCols=null; canGrid=null; showMsg('TANK TRAP PLACED',1.2); } else showMsg('NO ROOM HERE',1.2); }
+  else { makeWire(pl.x,pl.z,pl.yaw); flushBatch(true); visCols=null; canGrid=null; showMsg('BARBED WIRE PLACED',1.2); }
 }
 // ---- smoke grenades (medic): a cloud enemies cannot see through ----
 function popSmoke(p){ smokeZones.push({x:p.x,z:p.z,r:5.5,t:24,e:0}); try{ noise(0.5,3000,0.18,'highpass'); noise(0.9,900,0.12,'lowpass'); }catch(e){} showMsg('SMOKE',0.8); }
@@ -8461,7 +8482,7 @@ function aiTeamTasks(dt){
         if(Math.hypot(m.engGoal.pos.x-m.pos.x,m.engGoal.pos.z-m.pos.z)<5){
           if(m.engGoal.pit){ addPitBags(m.engGoal.pit); showMsg('ENGINEER '+(m.label||'').toUpperCase()+' BUILT SANDBAGS',1.6); }
           else if(wireZones.length<10){ const g=m.engGoal.pos; makeWire(g.x,g.z,spawnYaw+(Math.random()<.5?0:0.4)); showMsg('ENGINEER '+(m.label||'').toUpperCase()+' STRUNG BARBED WIRE',1.6); }
-          flushBatch(true); visCols=null; m.engGoal=null; m.taskGoal=null; m.engT=25+Math.random()*20;
+          flushBatch(true); visCols=null; canGrid=null; m.engGoal=null; m.taskGoal=null; m.engT=25+Math.random()*20;
         } else if(m.engT<-30){ m.engGoal=null; m.taskGoal=null; m.engT=15; }
       } else {
         m.taskGoal=null;
@@ -9303,7 +9324,7 @@ function showMapList(){
 function hideMenus(){ for(const id of ['menu','missions','sidePick','mapList','statsMenu','briefing','debrief','duelMenu','duelOver','coopMenu']) $(id).style.display='none'; }
 function previewMap(id){
   moscowPhase=1; skirmClear(); resetExtras();
-  if(needRebuild(id)){ leaveTankMode(); clearSoldiers(); buildMap(id); visCols=null; }
+  if(needRebuild(id)){ leaveTankMode(); clearSoldiers(); buildMap(id); visCols=null; canGrid=null; }
   resetAtmosphere();
   setSpawn(); spawnWorld(selSide,selWeapon,true);
 }
@@ -9392,7 +9413,7 @@ function startMission(id){
   const d=readSave();
   if(!restarting && d && (d.killed||0)>0 && skirm.sel==='campaign' && !confirm(`Start this mission? Your saved game (${MAPS[d.map].short}, ${(MAPS[d.map].total||50)-(d.killed||0)} enemies left) will be replaced.`)) return;
   initAudio();
-  if(needRebuild(id)){ clearSoldiers(); buildMap(id); visCols=null; }
+  if(needRebuild(id)){ clearSoldiers(); buildMap(id); visCols=null; canGrid=null; }
   hideMenus(); resetMissionStats(); moscowPhase = (isCoop() && id==='moscow') ? 2 : 1;   // co-op Moscow starts at the on-foot part
   skirm.res=null; skirm.on = skirm.sel!=='campaign' && !!SK_MAPS[id]; if(skirm.on) moscowPhase=1;
   checkpoint=null; startGame(); writeSave(true); lockPointer();
@@ -9709,7 +9730,7 @@ function onDuelData(m){
 const pvpDamage=(W,head)=>Math.min(100,W.dmg??34)*(head?2:1);
 function startDuel(){
   hideMenus(); $('duelOver').style.display='none';
-  if(currentMap!=='duel'){ leaveTankMode(); clearSoldiers(); buildMap('duel'); visCols=null; }
+  if(currentMap!=='duel'){ leaveTankMode(); clearSoldiers(); buildMap('duel'); visCols=null; canGrid=null; }
   clearSoldiers(); leaveTankMode(); resetProps(); resetArtillery(); clearPlanes(); shock=0; suppress=0;
   for(const g of grenades) scene.remove(g.m); grenades.length=0;
   selSide=duelSide; selWeapon=duelWeapon;
@@ -10244,7 +10265,7 @@ function startCoopGuest(m){
   hideMenus(); $('dead').style.display='none'; $('respawnBtn').style.display='';
   coop.active=true; coop.failed=false; coop.mission=m.mission;
   selSide=m.side; moscowPhase=m.phase||1;
-  if(currentMap!==m.map || (m.dg!==undefined && !!m.dg!==digTrenches)){ digOverride=m.dg===undefined?null:!!m.dg; leaveTankMode(); clearSoldiers(); buildMap(m.map); digOverride=null; visCols=null; }
+  if(currentMap!==m.map || (m.dg!==undefined && !!m.dg!==digTrenches)){ digOverride=m.dg===undefined?null:!!m.dg; leaveTankMode(); clearSoldiers(); buildMap(m.map); digOverride=null; visCols=null; canGrid=null; }
   clearSoldiers(); leaveTankMode(); resetProps(); resetArtillery(); clearPlanes(); clearPuppets(); shock=0; suppress=0;
   for(const g of grenades) scene.remove(g.m); grenades.length=0;
   setSpawn();
@@ -10453,7 +10474,7 @@ function resumeFrom(d){
   skirmClear(); skirm.res=null;
   selSide=d.side||selSide; selWeapon=d.weapon||selWeapon;
   moscowPhase = d.map==='moscow' ? (d.phase||1) : 1;
-  if(currentMap!==d.map){ clearSoldiers(); buildMap(d.map); visCols=null; }
+  if(currentMap!==d.map){ clearSoldiers(); buildMap(d.map); visCols=null; canGrid=null; }
   startGame();
   kills=d.kills||0;
   if(d.reserve) gun.reserve=Math.max(gun.reserve,d.reserve);
@@ -10498,7 +10519,7 @@ function goToMap(id){
   for(const t of tracers) freeTracer(t); tracers.length=0;
   clearSoldiers();
   buildMap(id);
-  visCols=null; holes.count=0; holeIdx=0;
+  visCols=null; canGrid=null; holes.count=0; holeIdx=0;
   if(!isTankMap()){ leaveTankMode(); spawnWorld(selSide,gun.type,false); }
   Object.assign(player,{pos:outSpot(SPAWN.clone()),vel:new V3(),yaw:0,pitch:0,crouch:false,crouchToggle:false});
   playerHP=100; pdReset(); grenadesLeft=maxNades(); resetBattle(); if(isTankMap()) setupTankBattle(); sting('waveStart');
@@ -10513,7 +10534,7 @@ function goToMap(id){
 /* ================= GAME FLOW ================= */
 let atmoLabel='';
 function startGame(){
-  if(runDig && prep.phase!=='off'){ const cm=currentMap; clearSoldiers(); buildMap(cm); visCols=null; }
+  if(runDig && prep.phase!=='off'){ const cm=currentMap; clearSoldiers(); buildMap(cm); visCols=null; canGrid=null; }
   if(currentMap!=='moscow') moscowPhase=1;
   resetProps(); clearPlanes(); shock=0; suppress=0; resetExtras();
   setSpawn(); resetArtillery(); mhold={t:MOSCOW_HOLD,prog:0};
@@ -10601,7 +10622,7 @@ function hidePitWheat(pit){
 function digCommit(ax,c,a0,a1,front,bags){
   const pit=digSegment(digK,ax,c,a0,a1,front,bags); if(!pit) return null;
   carveGround(); try{ hidePitWheat(pit); grassDirty(pit); }catch(e){}
-  flushBatch(true); visCols=null; prep.lookT=2.5; return pit;
+  flushBatch(true); visCols=null; canGrid=null; prep.lookT=2.5; return pit;
 }
 // ---- digging: every click makes a hole at once; more clicks deepen it or extend it at either end ----
 const MAX_DIG=6.2;                                           // nobody digs deeper than this (about three men tall); a trench is already far deeper than any fight needs
@@ -10626,7 +10647,7 @@ function pitDropRoofs(p){
   if(!p.roofs) return;
   for(const r of p.roofs){ for(const m of r.meshes){ tunGroup.remove(m); if(m.geometry) m.geometry.dispose(); }
     const i=colliders.indexOf(r.col); if(i>=0) colliders.splice(i,1); const k=tunRoofs.indexOf(r.rect); if(k>=0) tunRoofs.splice(k,1); }
-  p.roofs=null; visCols=null;
+  p.roofs=null; visCols=null; canGrid=null;
 }
 function pitBuildRoofs(p){
   pitDropRoofs(p);
@@ -10647,7 +10668,7 @@ function pitBuildRoofs(p){
     };
     for(let u=u0;u<=u1+1e-6;u+=step){ const ok=okAt(u); if(ok && rs===null) rs=u; if((!ok||u+step>u1+1e-6) && rs!==null){ const ue=ok?u+step/2:u-step/2; if(ue-rs>0.6) slab(rs-step/2,ue); rs=null; } }
   }
-  p.roofs=out; visCols=null;
+  p.roofs=out; visCols=null; canGrid=null;
 }
 // what does the shovel do when it is aimed at the wall of a trench or a tunnel?
 function digWall(pt){
@@ -10723,7 +10744,7 @@ function pitReshape(p){
   p.x0=X0-0.2; p.x1=X1+0.2; p.z0=Z0-0.2; p.z1=Z1+0.2;
   pitDropShell(p); p.shell=pitShell(p,p.curD); carveGround(); try{ pitBuildRoofs(p); }catch(e){ console.warn('roof',e); }
   for(const r of rects){ try{ const q={x0:r[0]-0.2,z0:r[1]-0.2,x1:r[2]+0.2,z1:r[3]+0.2}; hidePitWheat(q); grassDirty(q); cutFlat([r[0]-0.05,r[1]-0.05,r[2]+0.05,r[3]+0.05]); }catch(e){ console.warn('pit',e); } }
-  prep.lookT=2.5; visCols=null;
+  prep.lookT=2.5; visCols=null; canGrid=null;
 }
 // a plain earth hole (no planks): floor and walls only, so it can be deepened and lengthened later
 function makeHole(ax,c,a0,a1,front,depth,extra){
@@ -10812,7 +10833,7 @@ function prepFinish(){
     if(!pl.ally){ if(pl.pit) addPitBags(pl.pit); const hh=[]; planTraps(pl,hh); for(const [x,z] of hh) tryHedgehog(x,z); }
     else { if(pl.pit) prep.bagQ.push(pl.pit); planTraps(pl,prep.hhQ); } }
   prep.bagQ.sort(()=>Math.random()-0.5); prep.hhQ.sort(()=>Math.random()-0.5); prep.bt=2;
-  flushBatch(true); visCols=null;
+  flushBatch(true); visCols=null; canGrid=null;
   protectT=Math.max(protectT,5); dig.held=false; dig.prog=0;
   $('prepbar').style.display='none';
   showMsg('PREPARATION OVER · HERE THEY COME!',3); try{ sting('waveStart'); }catch(e){}
@@ -10832,8 +10853,8 @@ function prepTick(dt){
     if(pb) pb.style.display='none';
     prep.bt-=dt;
     if(prep.bt<=0){
-      if(prep.bagQ.length){ addPitBags(prep.bagQ.pop()); flushBatch(true); visCols=null; prep.bt=0.5+Math.random()*0.7; }
-      else if(prep.hhQ.length){ let k=0; while(prep.hhQ.length && k++<4){ const [x,z]=prep.hhQ.pop(); if(tryHedgehog(x,z)){ flushBatch(true); visCols=null; break; } } prep.bt=0.6+Math.random()*0.8; }
+      if(prep.bagQ.length){ addPitBags(prep.bagQ.pop()); flushBatch(true); visCols=null; canGrid=null; prep.bt=0.5+Math.random()*0.7; }
+      else if(prep.hhQ.length){ let k=0; while(prep.hhQ.length && k++<4){ const [x,z]=prep.hhQ.pop(); if(tryHedgehog(x,z)){ flushBatch(true); visCols=null; canGrid=null; break; } } prep.bt=0.6+Math.random()*0.8; }
       else prep.phase='done';
     }
   }

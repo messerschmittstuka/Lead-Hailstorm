@@ -393,7 +393,7 @@
  <g fill="url(#lgSteel)" stroke="#33373b" stroke-width="1.6"><circle cx="196" cy="101" r="5.6"/><circle cx="194.4" cy="99.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="89" r="5.6"/><circle cx="194.4" cy="87.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="77" r="5.6"/><circle cx="194.4" cy="75.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="65" r="5.6"/><circle cx="194.4" cy="63.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="53" r="5.6"/><circle cx="194.4" cy="51.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="196" cy="41" r="5.6"/><circle cx="194.4" cy="39.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="197" cy="29" r="5.6"/><circle cx="195.4" cy="27.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="201" cy="18" r="5.6"/><circle cx="199.4" cy="16.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="208" cy="8" r="5.6"/><circle cx="206.4" cy="6.2" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="218" cy="0" r="5.6"/><circle cx="216.4" cy="-1.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="231" cy="-7" r="5.6"/><circle cx="229.4" cy="-8.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="245" cy="-11" r="5.6"/><circle cx="243.4" cy="-12.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/><circle cx="259" cy="-12" r="5.6"/><circle cx="257.4" cy="-13.8" r="1.7" fill="#fff" fill-opacity=".75" stroke="none"/></g>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.58</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.59</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -5085,7 +5085,7 @@ function animateDead(s,dt){
   if(s.mixer && !(s.deadT>=1 && s.mixSet)){ s.mixer.update(0); if(s.deadT>=1) s.mixSet=true; }      // a settled body needs no more animation updates
   if(s.armR) s.armR.rotation.x = (Math.PI/2)*(1-e)+0.2*e;
   if(s.deadT>6) b.position.y = 0.17-(s.deadT-6)*0.25;   // sink into the snow
-  if(!s.downed && s.deadT>9 && s.root.visible){ s.root.visible=false; }      // a body that has sunk out of sight is no longer drawn (every body costs a full skinned model in the shadow and main passes)
+  if(!s.downed && s.deadT>1.6 && s.root.visible){ s.root.visible=false; }      // bodies vanish a moment after they fall (every body costs a full skinned model in the shadow and main passes)
 }
 
 function updateCombat(dt,t){
@@ -8233,7 +8233,8 @@ function crossSprite(){
   if(!medic.cross) medic.cross=canvasTex(64,(x,sz)=>{ x.fillStyle='#fff'; x.beginPath(); x.arc(32,32,28,0,6.3); x.fill(); x.fillStyle='#d32'; x.fillRect(26,12,12,40); x.fillRect(12,26,40,12); });
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:medic.cross,depthTest:false,transparent:true})); sp.scale.set(0.7,0.7,1); sp.renderOrder=9; return sp;
 }
-const canDown=s=>!s.revived && !s.downed && !isTankMap() && !isDuel() && !isCoop() && !s.isPartner && !s.remote && !s.puppet;
+const REVIVE_ON=false;      // the downed / revive system is switched off: soldiers die outright
+const canDown=s=>REVIVE_ON && !s.revived && !s.downed && !isTankMap() && !isDuel() && !isCoop() && !s.isPartner && !s.remote && !s.puppet;
 const isMedicS=s=>{ if(s.isMed===undefined) s.isMed = s.team==='ally' ? (s.cls==='MEDIC'||s.sr==='medic') : Math.random()<0.18; return s.isMed; };
 function downSoldier(s,attacker){
   s.hp=0; s.dead=true; s.downed=true; s.downT=pdown.max; s.downBy=attacker||null; s.deadT=0; s.speed=0; s.fallDir=Math.random()<0.5?1:-1; s.revP=0;
@@ -8280,7 +8281,7 @@ function pdownEl(){
     document.body.appendChild(e); pdown.el=e; pdown.sub=e.querySelector('.pdSub'); pdown.bar=e.querySelector('.pdBar'); pdown.note=e.querySelector('.pdNote'); }
   return pdown.el;
 }
-function canDownPlayer(){ return !pdown.revived && !pdown.on && !isTankMap() && !isDuel() && !isCoop() && state==='playing' && !mounted && !air.on; }
+function canDownPlayer(){ return REVIVE_ON && !pdown.revived && !pdown.on && !isTankMap() && !isDuel() && !isCoop() && state==='playing' && !mounted && !air.on; }
 function playerGoesDown(){
   pdown.on=true; pdown.t=pdown.max; pdown.prog=0; pdown.by=null; playerHP=1; mouseDown=rmb=false; player.crouchToggle=true; player.crouch=true; if(dig) dig.tool=false;
   noise(0.4,250,0.5,'lowpass'); tone(160,50,0.4,0.35,'sine');

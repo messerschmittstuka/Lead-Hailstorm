@@ -441,7 +441,7 @@
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.34</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.35</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -11848,7 +11848,8 @@ function liveHud(dt){
     let b=null,bd=1e9; for(const q of (skirm.pts||[])){ if(q.locked) continue; const d=Math.hypot(q.x-player.pos.x,q.z-player.pos.z); if(d<bd){ bd=d; b=q; } }
     if(b && bd<85){ const pv=_zmV.set(b.x,4.2,b.z).project(camera);
       if(pv.z<1 && Math.abs(pv.x)<1.05 && Math.abs(pv.y)<1.05){ shown=true; const x=(pv.x*0.5+0.5)*innerWidth, y=(-pv.y*0.5+0.5)*innerHeight;
-        zm.style.display='block'; zm.style.transform='translate('+(x-31).toFixed(0)+'px,'+(y-30).toFixed(0)+'px)';
+        const cr=Math.hypot(x-innerWidth/2,y-innerHeight/2), lim=Math.max(150,innerHeight*0.26), fk=cr<lim?0.1+0.9*(cr/lim)*(cr/lim):1;
+        zm.style.display='block'; zm.style.opacity=(0.82*fk).toFixed(2); zm.style.transform='translate('+(x-26).toFixed(0)+'px,'+(y-24).toFixed(0)+'px) scale(.82)';
         zm.className=b.owner==='ally'?'':b.owner==='enemy'?'en':'ne'; setTxt('zmL',b.letter||'?'); setTxt('zmP',Math.round(Math.max(0,Math.min(1,(b.prog+1)/2))*100)+'%'); } }
   }
   if(!shown) zm.style.display='none';
@@ -12836,15 +12837,17 @@ setTimeout(()=>{ const l=$('loading'); if(l){ l.style.opacity=0; l.style.pointer
 $('deploy').disabled=false; refreshContinue();
 spawnWorld(selSide,selWeapon,true);
 
-// crosshair (spreads with movement)
+// crosshair (spreads with movement, closes in when aiming, turns red over an enemy)
+const XH={t:0,on:false}, _xhD=new THREE.Vector3(), _xhO=new THREE.Vector3();
 let crossBars=[];
 function buildCrosshair(){
-  const c=$('cross'); c.innerHTML=''; crossBars=[]; updateCrosshair._k=null;
+  const c=$('cross'); c.innerHTML=""; crossBars=[]; updateCrosshair._k=null; updateCrosshair._c=null;
   for(let i=0;i<4;i++){ const b=document.createElement('i'); c.appendChild(b); crossBars.push(b); }
 }
-function updateCrosshair(gap,alpha){
+function updateCrosshair(gap,alpha,lenK,red){
   const [t,b,l,r]=crossBars; if(!t) return;
-  const len=8;
+  const len=Math.round(8*(lenK||1)*2)/2;
+  const col=red?'rgba(255,48,40,.97)':'rgba(255,255,255,.85)'; if(updateCrosshair._c!==col){ updateCrosshair._c=col; for(const q of crossBars) q.style.background=col; }
   const gk=Math.round(gap*2)+'|'+len; if(updateCrosshair._k!==gk){ updateCrosshair._k=gk;
   Object.assign(t.style,{width:'2px',height:len+'px',left:'-1px',top:(-gap-len)+'px'});
   Object.assign(b.style,{width:'2px',height:len+'px',left:'-1px',top:gap+'px'});
@@ -13025,8 +13028,11 @@ function updatePlayer(dt){
   setSty('stam','width',(Math.round(P.stamina*500)/5)+'%');
   setSty('stam','background',P.tired?'#d0603c':'#d8d0b8');
   setSty('reloadTxt','opacity',gun.reloading>0?1:0);
-  const gap=4+W.spread*400*moveAcc(hs,P.crouch)*(1-gun.ads*0.6)+gun.kick*10+(P.onGround?0:14);
-  updateCrosshair(tpAimOn?gap*0.6:gap,tpAimOn?(1-gun.sprintT):(1-gun.ads)*(1-gun.sprintT));
+  XH.t-=dt; if(XH.t<=0){ XH.t=0.07; let on=false;
+    try{ if(!isTankMap()&&!mounted&&!binoc&&!air.on&&state==='playing'){ camera.getWorldDirection(_xhD); _xhO.copy(camera.position); const tr=bulletTrace(_xhO,_xhD,220,null), so=tr.soldier; on=!!(so&&!so.dead&&so.team==='enemy'); } }catch(e){}
+    XH.on=on; }
+  const adsZ=gun.ads, gap=(4+W.spread*400*moveAcc(hs,P.crouch)*(1-gun.ads*0.6)+gun.kick*10+(P.onGround?0:14))*(1-0.5*adsZ)+0.6*adsZ;      // aiming pulls the crosshair in
+  updateCrosshair(tpAimOn?gap*0.6:gap,tpAimOn?(1-gun.sprintT):(W.scope?(1-gun.ads):(1-0.12*gun.ads))*(1-gun.sprintT),1-0.4*adsZ,XH.on);
 }
 
 

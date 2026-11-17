@@ -56,7 +56,7 @@
   #hit{transition:transform .07s ease-out;display:none}      /* no hit marker */
   #ammo{position:absolute;right:30px;bottom:26px;text-align:right;text-shadow:0 2px 3px #000}
   #gunBar{position:relative;width:260px;margin-left:auto;margin-top:4px;filter:drop-shadow(0 0 2px #000)} #gunBar svg{display:block;width:100%;height:auto} #gunBar .n{position:absolute;right:4%;top:50%;transform:translateY(-52%);font-size:20px;font-weight:bold;color:#fff;text-shadow:0 0 3px #000,1px 1px 0 #000}
-  #ammo.rl #gunFill{fill:#cfd2c2}
+  #ammo.rl #gunFill{fill:#b58f45}
   #ammo .w{font-size:14px;opacity:.85}
   #stamwrap{position:absolute;left:30px;bottom:30px;width:200px;text-shadow:0 2px 3px #000;font-size:13px}
   #stambar{height:8px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.4);margin-top:4px}
@@ -412,7 +412,7 @@
   #stambar{height:4px!important;border:none!important;box-shadow:none!important;background:rgba(14,12,30,.5)!important;margin-top:2px!important}
   #stam{background:linear-gradient(90deg,#4440a6,#7c70d8)!important}
   #ammo .w{font:italic 400 13px 'Playfair Display',Georgia,serif;color:#ece5d4;opacity:.95}
-  #gunBar .n{color:#e8505f!important;font:italic 400 20px 'Playfair Display',Georgia,serif!important;text-shadow:0 1px 2px #000!important}
+  #gunBar .n{color:#fff!important;font:italic 400 17px 'Playfair Display',Georgia,serif!important;text-shadow:0 1px 2px #000,0 0 4px #000!important;right:9%!important}
   #inv .slot{border-color:rgba(122,114,196,.62)!important;background:rgba(20,18,34,.62)!important}
   #inv .slot.sel{border-color:#c9a55a!important;background:rgba(36,30,18,.72)!important;box-shadow:0 0 calc(1.4*var(--u)) rgba(201,165,90,.4)!important}
   body.touch #sideTag{left:calc(1.5*var(--u) + env(safe-area-inset-left));top:calc(1.2*var(--u));font-size:calc(3.2*var(--u));padding:1px calc(2*var(--u))}
@@ -442,7 +442,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.41</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.55</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -465,10 +465,6 @@ body:not(.touch) #side{display:none!important}
   </div>
   <div id="gfxNoteMenu" style="font-size:12px;line-height:1.4;opacity:.7;text-align:center;margin:12px 0 8px;max-width:90vw;flex-shrink:0;position:relative"></div>
   <button id="deleteSave" style="display:none;margin-top:8px;background:none;border:none;color:#a99;cursor:pointer;font:13px Playfair Display,Georgia,serif">delete saved game</button>
-  <div class="controls">
-    WASD move · Mouse look · Shift sprint · Space jump · C crouch (toggle)<br>
-    Left click fire · Right click / Q aim · H third-person view · hold X: dig a trench (any map) · Enter: skip preparation · T: Engineer builds sandbags &amp; tank traps · hold P in a trench: periscope · G grenade · R reload · M music · Arrow keys also turn · Esc pause
-  </div>
 </div>
 
 <div id="missions" class="overlay" style="display:none">
@@ -605,7 +601,7 @@ body:not(.touch) #side{display:none!important}
   <div id="roleBanner"><svg class="shd" viewBox="0 0 40 46"><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="#2f86e0"/><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 Z" fill="#1d62b8"/><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="none" stroke="#bcd8f6" stroke-width="1.6"/></svg><span id="roleTxt">DEFEND</span><svg class="shd" viewBox="0 0 40 46"><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="#2f86e0"/><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 Z" fill="#1d62b8"/><path d="M20 2 L37 8 V22 C37 33 29 41 20 44 C11 41 3 33 3 22 V8 Z" fill="none" stroke="#bcd8f6" stroke-width="1.6"/></svg></div>
   <div id="killMsg"><i class="ic"></i><b>Killed</b><em>- Dist: <u id="kmD">0</u> stud(s)</em></div>
   <div id="zoneMark"><div class="dm"><span id="zmL">A</span></div><div class="pc" id="zmP">100%</div></div>
-  <div id="keyHints"><div><i>[Mouse1]</i> Shoot</div><div><i>[Mouse2]</i> Aim</div><div><i>[R]</i> Reload</div><div><i>[V]</i> Melee</div><div><i>[H]</i> Perspective</div><div><i>[G]</i> Throw</div><div><i>[Tab]</i> Scoreboard</div></div>
+  <div id="keyHints"><div><i>[Mouse1]</i> Shoot</div><div><i>[Mouse2]</i> Aim</div><div><i>[R]</i> Reload</div><div><i>[V]</i> Melee</div><div><i>[H]</i> Perspective</div><div><i>[G]</i> Throw</div><div><i>[Tab]</i> Scoreboard</div><div><i>[Shift]</i> Sprint</div><div><i>[C]</i> Crouch</div><div><i>[X]</i> Dig (hold)</div><div><i>[Esc]</i> Pause</div></div>
   <div id="cross"></div>
   <div id="hit"></div>
   <div id="distPop"></div>
@@ -630,7 +626,7 @@ body:not(.touch) #side{display:none!important}
   <div id="scope"><i class="h"></i><i class="v"></i></div>
   <div id="tankSight"><i class="h"></i><i class="v"></i><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
   <div id="gunMark"></div>
-  <div id="ammo"><div class="w" id="ammoW"></div><div id="gunBar"><svg viewBox="0 0 240 44"><defs><clipPath id="gunClip"><path d="M4 17H112V23H4Z M10 12H14V17H10Z M42 12H124V26H42Z M120 10H176V27H120Z M128 27H148V41H128Z M160 27H174L170 41H160Z M174 12L236 8V34L214 34L192 28L174 28Z"/></clipPath></defs><path d="M4 17H112V23H4Z M10 12H14V17H10Z M42 12H124V26H42Z M120 10H176V27H120Z M128 27H148V41H128Z M160 27H174L170 41H160Z M174 12L236 8V34L214 34L192 28L174 28Z" fill="rgba(0,0,0,.55)"/><rect id="gunFill" x="0" y="0" width="240" height="44" fill="#e8b92f" clip-path="url(#gunClip)"/></svg><div class="n" id="ammoN">0 / 0</div></div></div>
+  <div id="ammo"><div class="w" id="ammoW"></div><div id="gunBar"><svg viewBox="0 0 240 44"><defs><clipPath id="gunClip"><path d="M4 22C30 15 62 12 96 12L108 12L116 15L120 9H228V35H120L116 29L108 32L96 32C62 32 30 29 4 22Z M228 6H237V38H228Z"/></clipPath></defs><path d="M4 22C30 15 62 12 96 12L108 12L116 15L120 9H228V35H120L116 29L108 32L96 32C62 32 30 29 4 22Z M228 6H237V38H228Z" fill="#b0333a" stroke="rgba(235,228,215,.7)" stroke-width="1.4"/><rect id="gunFill" x="0" y="0" width="240" height="44" fill="#b58f45" clip-path="url(#gunClip)"/><path d="M96 12L108 12L116 15L116 29L108 32L96 32Z" fill="none" stroke="rgba(0,0,0,.35)" stroke-width="1"/></svg><div class="n" id="ammoN">0 / 0</div></div></div>
 </div>
 
 <div id="inv">
@@ -725,6 +721,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
 window.__started = true;
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints>0 && !matchMedia('(pointer: fine)').matches);
 document.getElementById('err').style.display = 'none';
@@ -1761,11 +1758,12 @@ renderer.debug.onShaderError=(gl,prog,vs,fs)=>{
   else if(src.includes('upV')){ lookFail.grass=true; clearGrass(); }
   else if(src.includes('dTex')){ lookFail.detail=true; for(const m of detailMats) m.needsUpdate=true; }
 };
-const HILL_BASE={kursk:0x6f8f62,seelow:0x6f7462,ardsummer:0x4f7a45,normandy:0x5a8a3f,lorraine:0x8a8a3a,cassino:0x8d8a7c};
+const HILL_BASE={kursk:0x6f8f62,seelow:0x6f7462,ardsummer:0x4f7a45,normandy:0x5a8a3f,lorraine:0x8a8a3a,cassino:0x8d8a7c,remagen:0x6a7a48};
 function updateSkyLook(sky,tod,wx){
   const id=currentMap, top=sky.clone(), hor=sky.clone();
   const bright=Math.min(1,0.25+(sky.r+sky.g+sky.b)/1.8);
-  if(id==='kursk' && tod==='day' && wx==='clear'){ top.set(0x3d7fd2); hor.set(0xe6d3b0); skyMat.uniforms.uCloud.value=1; }
+  if(id==='remagen'){ top.set(0x3a5a9c); hor.set(0xffb26e); skyMat.uniforms.uCloud.value=0.85; }
+  else if(id==='kursk' && tod==='day' && wx==='clear'){ top.set(0x3d7fd2); hor.set(0xe6d3b0); skyMat.uniforms.uCloud.value=1; }
   else { top.multiplyScalar(tod==='night'?0.7:0.86); hor.lerp(new THREE.Color(0xffffff),tod==='night'?0:0.12); skyMat.uniforms.uCloud.value=tod==='night'?0.12:(wx==='precip'?0.9:0.55); }
   skyMat.uniforms.uTop.value.copy(top); skyMat.uniforms.uHor.value.copy(hor);
   const hb=HILL_BASE[id];
@@ -1788,6 +1786,7 @@ function lookTick(t){
   const on=!air.on; skyDome.visible=on && !lookFail.sky; if(!on) hills.visible=false;
   skyDome.position.copy(camera.position); hills.position.set(camera.position.x,0,camera.position.z);
   if(on && !hills.visible && HILL_BASE[currentMap]) hills.visible=true;
+  if(remWater && currentMap==='remagen' && remWater.material && remWater.material.uniforms && remWater.material.uniforms.uTime){ const u=remWater.material.uniforms; u.uTime.value=t; u.uSun.value.copy(SUN_DIR); u.fogColor.value.copy(scene.fog.color); u.fogNear.value=scene.fog.near; u.fogFar.value=scene.fog.far; }
   if(sun) skyMat.uniforms.uSun.value.set(sun.position.x-sun.target.position.x,Math.max(8,sun.position.y),sun.position.z-sun.target.position.z);
 }
 
@@ -1844,9 +1843,10 @@ function buildClutter(id){
     scatter(pg,_puddleMat,Math.floor(cf.puddles*(k>0.9?1:0.6)),mk,(x,y,z)=>{ _grp.set(x,0.014,z); _gre.set(0,Math.random()*6.28,0); _grq.setFromEuler(_gre); const r=0.9+Math.random()*2.4; _grs.set(r,1,r*(0.55+Math.random()*0.4)); _grm.compose(_grp,_grq,_grs); },['#2a2723','#33302a','#24211d'],false); }
 }
 
+GRASS_STYLE.remagen={dens:1.0,h:[0.4,1.0],w:[0.1,0.2],pal:['#7fa23a','#8fb040','#a8b84a','#d8b040','#6f9a38','#c8a03a','#9ab845','#e0b850']};
 GRASS_STYLE.cassino={dens:0.95,h:[0.45,1.05],w:[0.1,0.2],pal:['#6f8a2e','#7f9a35','#8a9a3a','#c8a93a','#d4b84a','#5e7a2a','#b49a3a','#8aa845','#e2c34a','#c9573a','#b88ad0']};
 GRASS_STYLE.lorraine={dens:0.92,h:[0.45,1.0],w:[0.1,0.2],pal:['#9a8a35','#a99a40','#8a7c2e','#b0a24a','#7a8a34','#a8782e','#c0aa55']};
-GRASS_STYLE.normandy={dens:0.85,h:[0.45,0.95],w:[0.1,0.2],pal:['#4f7a2c','#5f8f33','#6f9f3c','#3f6a26','#7fa845','#5a8a34','#8aae4a']}; CLUTTER.cassino={rocks:520,bricks:90,planks:30,puddles:2,rock:['#8c8a80','#777469','#9a9588','#6f6a5e']};
+GRASS_STYLE.normandy={dens:0.85,h:[0.45,0.95],w:[0.1,0.2],pal:['#4f7a2c','#5f8f33','#6f9f3c','#3f6a26','#7fa845','#5a8a34','#8aae4a']}; CLUTTER.remagen={rocks:260,bricks:120,planks:50,puddles:3,rock:['#8c8a80','#9a9588','#a89f8a','#777469']}; CLUTTER.cassino={rocks:520,bricks:90,planks:30,puddles:2,rock:['#8c8a80','#777469','#9a9588','#6f6a5e']};
 CLUTTER.lorraine={rocks:320,bricks:70,planks:40,puddles:5,rock:['#8a857a','#777166','#9a9486']}; CLUTTER.normandy={rocks:200,bricks:90,planks:40,puddles:2,rock:['#7d7a70','#6b665c','#8c8676']};
 /* ---- ground variety: soft mud / dry-grass / dust patches and fine pebbles laid over the flat ground ---- */
 const PATCHES={
@@ -1858,6 +1858,7 @@ const PATCHES={
   moscow:[[['#8a867c','#9a968c','#77736a'],100,1.2,3.4],[['#5a5044','#4a4238'],60,1.0,2.4],[['#eef1f3','#e2e7ea'],80,1.5,4.0]]
 };
 PATCHES.normandy=PATCHES.ardsummer;
+PATCHES.remagen=[[['#d83a2c','#f2c81a','#9a52c0','#f4f0e4','#4f78d8','#f06aa0'],200,0.6,1.8],[['#c2a53e','#d1b44a','#b5983a'],90,1.5,4.2],[['#6f8a2e','#7f9a35','#5e7a2a'],110,1.3,4.0],[['#c9a878','#b89a68'],60,1.2,3.0]];
 PATCHES.cassino=[[['#c2a53e','#d1b44a','#b5983a'],140,1.5,4.6],[['#6f8a2e','#7f9a35','#5e7a2a'],110,1.3,4.0],[['#8c8a80','#777469','#9a9588'],90,1.2,3.4],[['#7a5a3a','#8a6a44'],70,1.0,2.8],[['#d83a2c','#f2c81a','#9a52c0','#f4f0e4','#4f78d8'],160,0.5,1.6]];
 PATCHES.lorraine=[[['#8a7a32','#9a8a3c','#7a6c2a'],150,1.4,4.4],[['#4a3b26','#54432b','#3d311f'],90,1.0,3.0],[['#a88a3a','#b89a46'],100,1.5,4.2],[['#5d7f2c','#6f9433'],60,1.2,3.4]];
 let _patchTex=null, _patchGeo=null;
@@ -2006,7 +2007,7 @@ function winFrame(cx,cz,w,d,y0,y1,alongX){       // sill, lintel, a mullion and 
   sBox(cx,mid-0.035,cz,alongX?w:0.12,0.07,alongX?0.12:w,M.wood,false);
 }
 function ruinedBuilding(x0,z0,x1,z1,floors,style,doors={}){
-  const H=floors*3, T=0.5, mats=style==='brick'?M.brick:M.plaster;
+  const H=floors*3, T=0.5, mats=style==='brick'?M.brick:style==='paint'&&M.paint?M.paint:M.plaster;
   roofZones.push([x0,z0,x1,z1]);
   const sides=[[x0,z0,x1-x0,true,'n'],[x0,z1-T,x1-x0,true,'s'],[x0,z0+T,z1-z0-2*T,false,'w'],[x1-T,z0+T,z1-z0-2*T,false,'e']];
   let n=rnd()*20;
@@ -2063,19 +2064,21 @@ function ruinedBuilding(x0,z0,x1,z1,floors,style,doors={}){
 
 // ---------- rubble pile (climbable, steps up in small ledges) ----------
 function rubble(x,z,r,count,mats=M.brick){
+  const H=r>=1.4?Math.min(1.25,r*0.72):r*0.5;          // height of the heap: the big ones are chest-high, so you can crouch behind them
   for(let i=0;i<count;i++){
     const a=rnd()*Math.PI*2, d=rnd()*r, s=0.25+rnd()*0.7;
-    const y=Math.max(0,(1-d/r)*r*0.45*rnd());
+    const y=Math.max(0,(1-d/r)*H*0.95*rnd());
     const m = rnd()<0.3 ? M.concrete : mats[(rnd()*mats.length)|0];
     addGeo(new THREE.BoxGeometry(s*1.4,s*0.6,s),m,x+Math.cos(a)*d,y+s*0.2,z+Math.sin(a)*d,rnd()*0.8,rnd()*3,rnd()*0.8);
   }
-  const mound=new THREE.SphereGeometry(r,10,6,0,Math.PI*2,0,Math.PI/2); mound.scale(1,0.38,1);
+  const mound=new THREE.SphereGeometry(r,10,6,0,Math.PI*2,0,Math.PI/2); mound.scale(1,H/r*0.9,1);
   addGeo(mound,rnd()<0.5?M.dirt:mats[0],x,0,z);
-  const snowCap=new THREE.SphereGeometry(r*0.75,10,6,0,Math.PI*2,0,Math.PI/2); snowCap.scale(1,0.3,1);
+  const snowCap=new THREE.SphereGeometry(r*0.75,10,6,0,Math.PI*2,0,Math.PI/2); snowCap.scale(1,H/r*0.8,1);
   addGeo(snowCap,capMat(),x+0.1,0.06,z-0.1);
-  // stepped colliders so you can walk up it
-  addCollider(new THREE.Box3(new V3(x-r*0.7,0,z-r*0.7),new V3(x+r*0.7,Math.min(0.4,r*0.38*0.55),z+r*0.7))).cylR=r*0.7;
-  if(r>1.4) addCollider(new THREE.Box3(new V3(x-r*0.35,0,z-r*0.35),new V3(x+r*0.35,r*0.38*0.85,z+r*0.35))).cylR=r*0.35;
+  // solid in steps: the edge you walk up (0.4 m), a waist-high middle you have to jump onto, a chest-high core that stops bullets
+  addCollider(new THREE.Box3(new V3(x-r*0.75,0,z-r*0.75),new V3(x+r*0.75,0.4,z+r*0.75))).cylR=r*0.75;
+  if(r>=1.4) addCollider(new THREE.Box3(new V3(x-r*0.52,0,z-r*0.52),new V3(x+r*0.52,Math.max(0.9,H*0.78),z+r*0.52))).cylR=r*0.52;
+  addCollider(new THREE.Box3(new V3(x-r*0.32,0,z-r*0.32),new V3(x+r*0.32,Math.max(0.6,H*0.95),z+r*0.32))).cylR=r*0.32;
 }
 
 // ---------- wrecks ----------
@@ -2537,7 +2540,7 @@ function kurskDress(K,HOUSES){
   // supplies behind the trench lines, by the dugouts and at the road crossings
   const stacks=[[-9,28.4],[9,28.4],[-22,28],[21,28],[-30,28.6],[30,28.6],[-17,32.5],[19,32.5],[-9,-31.4],[9,-31.4],[-22,-31],[22,-31],[-30,-30.6],[30,-30.6],[-16,-35],[14,-35],[6.2,23],[-6.2,23],[6.2,-24],[-6.2,-24]];
   stacks.forEach(([x,z],i)=>{ const k=i%3; if(k===0) put('kcstack',buildKCrateStack,jit(x,1),jit(z,0.8),rnd()*0.6-0.3,1,1.7,1.3,'shove',0.8);
-    else if(k===1){ put('kcrate',buildKCrate,jit(x,1),jit(z,0.8),rnd()*6,1,0.9,0.5,'shove',0.6); put('kammo',buildKAmmo,jit(x,1.6),jit(z,1.2),rnd()*6,1,0,0,'shove',0,0.05); }
+    else if(k===1){ put('kcrate',buildKCrate,jit(x,1),jit(z,0.8),rnd()*6,1,0.9,0.5,'shove',0.6); put('kammo',buildKAmmo,jit(x,1.6),jit(z,1.2),rnd()*6,1,0.9,0.3,'shove',0.5,0.05); }
     else { put('kbarrel',i%2?buildKBarrel:buildKBarrelRust,jit(x,1),jit(z,0.8),rnd()*6,1,0.62,0.9,'shove'); put('kbarrel',buildKBarrel,jit(x,1.6)+0.5,jit(z,1.2)+0.4,rnd()*6,1,0.62,0.9,'shove'); } });
   // sandbag walls and barbed wire, either side of the road, in front of each line
   sandbags(-5.8,21.7,3); sandbags(5.8,21.7,3); sandbags(-5.8,-24.4,3); sandbags(5.8,-24.4,3);
@@ -2588,7 +2591,7 @@ function kurskDress(K,HOUSES){
 /* ================= BATTLEFIELD DRESSING FOR THE OTHER MAPS =================
    The same kinds of props as Kursk, placed from what each map already has: supplies, sandbags and wire along its trench lines, clutter and rubble around its buildings,
    things left at the edges of its roads, and fallen logs, stumps, branches and dead trees out in the open. Everything keeps clear of spawns and objective points. */
-const DRESS={ stalingrad:{t:'city',k:1}, berlin:{t:'city',k:1.15}, moscow:{t:'city',k:0.9}, seelow:{t:'field',k:1}, ardennes:{t:'wood',k:1}, ardsummer:{t:'wood',k:1}, normandy:{t:'field',k:1}, lorraine:{t:'field',k:1}, cassino:{t:'rock',k:1.1} };
+const DRESS={ stalingrad:{t:'city',k:1}, berlin:{t:'city',k:1.15}, moscow:{t:'city',k:0.9}, seelow:{t:'field',k:1}, ardennes:{t:'wood',k:1}, ardsummer:{t:'wood',k:1}, normandy:{t:'field',k:1}, lorraine:{t:'field',k:1}, cassino:{t:'rock',k:1.1}, remagen:{t:'field',k:0.8} };
 // ---------- detail pass (all maps): a stone plinth and drainpipes on the walls that really exist, and stones lying around ----------
 const buildKStone=()=>{ const hash=(x,y,z)=>{ const h=Math.sin(x*91.3+y*47.7+z*131.1)*43758.5453; return h-Math.floor(h); };
   const st=(r,seed)=>{ const g=new THREE.IcosahedronGeometry(r,0), pa=g.attributes.position; for(let i=0;i<pa.count;i++){ const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i), k=1+0.3*(hash(x+seed,y,z)-0.5)*2; pa.setXYZ(i,x*k,y*k*0.55,z*k); } g.computeVertexNormals(); return g; };
@@ -2651,9 +2654,9 @@ function dressMap(id){
   const jit=(v,a)=>v+(rnd()-.5)*a, axy=(ax,u,v)=>ax==='x'?[u,v]:[v,u];
   const supply=(x,z)=>{ const r=rnd();
     if(r<0.3) put('kcstack',buildKCrateStack,x,z,rnd()*0.6-0.3,1,1.7,1.3,'shove',0.8);
-    else if(r<0.55){ put('kcrate',buildKCrate,x,z,rnd()*6,1,0.9,0.5,'shove',0.6); put('kammo',buildKAmmo,jit(x,1.6),jit(z,1.2),rnd()*6,1,0,0,'shove',0,0.05); }
+    else if(r<0.55){ put('kcrate',buildKCrate,x,z,rnd()*6,1,0.9,0.5,'shove',0.6); put('kammo',buildKAmmo,jit(x,1.6),jit(z,1.2),rnd()*6,1,0.9,0.3,'shove',0.5,0.05); }
     else if(r<0.8){ put('kbarrel',rnd()<0.5?buildKBarrel:buildKBarrelRust,x,z,rnd()*6,1,0.62,0.9,'shove'); put('kbarrel',buildKBarrel,x+0.55,z+0.4,rnd()*6,1,0.62,0.9,'shove'); }
-    else put('kplanks',buildKPlanks,x,z,rnd()*6,1,0,0,'shove',0,0.2); };
+    else put('kplanks',buildKPlanks,x,z,rnd()*6,1,1.5,0.2,'shove',0.9,0.2); };
   // 1) along the trench lines
   for(const t of trs){ if(t.a1-t.a0<8) continue;
     for(let u=t.a0+4;u<t.a1-3;u+=11+rnd()*8){ const [x,z]=axy(t.ax,u,t.c-t.front*(t.hw+2.6+rnd()*1.4)); supply(x,z); }                       // supplies behind the line
@@ -2669,7 +2672,7 @@ function dressMap(id){
       if(side<2){ x=jit(cx,w); z=side?r[3]+off:r[1]-off; } else { z=jit(cz,d); x=side===3?r[2]+off:r[0]-off; }
       const q=rnd();
       if(city){ if(q<0.45){ if(!blocked(x,z,1.2)){ rubble(x,z,1.2+rnd()*0.8,6+((rnd()*6)|0)); vp.push([x,z,1.4]); } } else supply(x,z); }
-      else if(q<0.35) put('kplanks',buildKPlanks,x,z,rnd()*6,1,0,0,'shove',0,0.2);
+      else if(q<0.35) put('kplanks',buildKPlanks,x,z,rnd()*6,1,1.5,0.2,'shove',0.9,0.2);
       else if(q<0.5) put('klog',buildKLog,x,z,rnd()<0.5?0:Math.PI/2,1,3.3,0.5,'fall',0.5);
       else if(q<0.58) put('kcart',buildKCart,x,z,rnd()<0.5?0:Math.PI/2,1,2.6,0.9,'fall',1.5);
       else supply(x,z); } }
@@ -2680,11 +2683,11 @@ function dressMap(id){
       else if(q<0.6) put('kbarrel',buildKBarrelRust,x,z,rnd()*6,1,0.62,0.9,'shove');
       else if(q<0.8) put('kcrate',buildKCrate,x,z,rnd()*6,1,0.9,0.5,'shove',0.6);
       else if(!city) put('kcart',buildKCart,x,z,alongX?0:Math.PI/2,1,2.6,0.9,'fall',1.5);
-      else put('kplanks',buildKPlanks,x,z,rnd()*6,1,0,0,'shove',0,0.2); rn++; } }
+      else put('kplanks',buildKPlanks,x,z,rnd()*6,1,1.5,0.2,'shove',0.9,0.2); rn++; } }
   // 4) out in the open
   const area=(2*L)*(2*L), nOpen=Math.floor(area/900*K);
   for(let i=0,placed=0;i<nOpen*6 && placed<nOpen;i++){ const x=jit(0,2*L-10), z=jit(0,2*L-10), q=rnd(); let ok=false;
-    if(city){ if(q<0.5){ if(!blocked(x,z,1.5)){ rubble(x,z,1+rnd()*1.2,5+((rnd()*6)|0)); vp.push([x,z,1.5]); ok=true; } } else if(q<0.75) ok=put('kplanks',buildKPlanks,x,z,rnd()*6,1,0,0,'shove',0,0.2); else supply(x,z), ok=true; }
+    if(city){ if(q<0.5){ if(!blocked(x,z,1.5)){ rubble(x,z,1+rnd()*1.2,5+((rnd()*6)|0)); vp.push([x,z,1.5]); ok=true; } } else if(q<0.75) ok=put('kplanks',buildKPlanks,x,z,rnd()*6,1,1.5,0.2,'shove',0.9,0.2); else supply(x,z), ok=true; }
     else { if(q<0.22) ok=put('klog',buildKLog,x,z,rnd()<0.5?0:Math.PI/2,0.9+rnd()*0.3,3.3,0.5,'fall',0.5);
       else if(q<0.42) ok=put('kstump',buildKStump,x,z,rnd()*6,0.9+rnd()*0.4,0.6,0.45,'fall');
       else if(q<0.7) ok=put('kbranch',buildKBranch,x,z,rnd()*6,0.8+rnd()*0.7,0,0);
@@ -3535,9 +3538,9 @@ function buildCassino(){
     return [[g,0x8a877c,0,0.3,0],[new THREE.DodecahedronGeometry(0.6,0),0x76736a,0.9,0.25,0.5],[new THREE.CylinderGeometry(0.05,0.08,6.4,6),0x4a3a2a,0,3.4,0],[new THREE.BoxGeometry(1.7,1.0,0.04),0xcfc8b0,0.9,5.9,0]]; };
   let nb=0, ns=0;
   for(let i=0;i<3200&&(nb<150||ns<240);i++){ const x=(rnd()*2-1)*(L-4), z=(rnd()*2-1)*(L-4); if(!ok(x,z)) continue; const r=rnd();
-    if(r<0.3&&nb<150){ const big=rnd()<0.3; const w=rnd()<0.4; addProp(w?'boulderW':'boulder',w?buildBoulderW:buildBoulder,x,z,rnd()*6,big?2.2+rnd()*1.6:0.7+rnd()*1.1,big?3.4:1.6,big?2.6:1.2); nb++; }
+    if(r<0.3&&nb<150){ const big=rnd()<0.3, w=rnd()<0.4, bs=big?2.2+rnd()*1.6:0.7+rnd()*1.1; addProp(w?'boulderW':'boulder',w?buildBoulderW:buildBoulder,x,z,rnd()*6,bs,2.5*bs,1.45*bs,'fall',2.5*bs); nb++; }      // the collision box follows the rock's size
     else if(ns<240){ const s=scrubs[(rnd()*4)|0]; addProp(s[0],s[1],x,z,rnd()*6,0.8+rnd()*0.9,0,0); ns++; } }
-  for(let i=0;i<70;i++){ const a=CAS_PTS[(rnd()*CAS_PTS.length)|0], ang=rnd()*6.28, d=5.6+rnd()*4, x=a[0]+Math.cos(ang)*d, z=a[1]+Math.sin(ang)*d; if(ok(x,z,2)) addProp('boulder',buildBoulder,x,z,rnd()*6,1.0+rnd()*1.3,2.0,1.5); }
+  for(let i=0;i<70;i++){ const a=CAS_PTS[(rnd()*CAS_PTS.length)|0], ang=rnd()*6.28, d=5.6+rnd()*4, x=a[0]+Math.cos(ang)*d, z=a[1]+Math.sin(ang)*d; if(ok(x,z,2)){ const bs=1.0+rnd()*1.3; addProp('boulder',buildBoulder,x,z,rnd()*6,bs,2.5*bs,1.45*bs,'fall',2.5*bs); } }
   for(const [x,z] of [[-86,-60],[88,-40]]) addProp('flag',buildFlag,x,z,0.4,1,1.4,1.2);
   // ---- colour: wildflower meadows in every clearing and along the path ----
   const mkFl=c=>()=>{ const a=[[new THREE.IcosahedronGeometry(0.2,0),0x5e8a34,0,0.12,0]]; for(let k=0;k<6;k++){ const an=k*1.05+0.4, d=0.1+((k*37)%10)*0.045; a.push([new THREE.SphereGeometry(0.085,5,4),c,Math.cos(an)*d,0.26+((k*13)%5)*0.04,Math.sin(an)*d]); } return a; };
@@ -3549,6 +3552,134 @@ function buildCassino(){
   for(const [px,pz] of [[-18,50],[12,40],[-4,-26],[16,-54]]) brokenPole(px,pz);
   flushBatch(true);
   addFire(28,0.4,19,1.4,true); addFire(-27,0.4,-24,1.0,false); addFire(6,0.4,-60,1.2,false); addFire(-10,0.4,72,1.0,false);
+}
+
+
+/* ================= REMAGEN, MARCH 1945: the Ludendorff railway bridge over the Rhine at golden hour (river runs east-west, Americans south, Germans north) ================= */
+const REM_ZC=x=>3*Math.sin(x/40), REM_HW=13;
+const REM_SP=[[-44,-62],[-30,-66],[-14,-66],[2,-68],[16,-66],[-56,-52],[-22,-54],[8,-54]];                    // German spawn pads (north bank)
+const REM_ZN=[[-24,49],[0,0],[-26,-28],[40,-56],[24,27],[6,-44]];                                                             // waterfront, bridge deck, Erpel quay, tunnel portal
+const REM_RAIL=[[0,-32],[10,-38],[18,-44],[30,-56],[40,-64]];                                                 // the railway line from the bridge to the tunnel
+const REM_FLAT=[...REM_SP.map(p=>[p[0],p[1],6]),...REM_ZN.map(p=>[p[0],p[1],9]),[40,-60,8],[0,-36,6]];
+const remRailD=(x,z)=>{ let m=1e9; for(let i=0;i<REM_RAIL.length-1;i++){ const a=REM_RAIL[i], b=REM_RAIL[i+1], dx=b[0]-a[0], dz=b[1]-a[1], t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz))); m=Math.min(m,Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t)); } return m; };
+let remWater=null;       // the river surface (a mirror on High / Medium, a glossy surface on Low and phones); animated from lookTick
+const REM_WATER_SHADER={name:'RemWater',
+  uniforms:{color:{value:null},tDiffuse:{value:null},textureMatrix:{value:null},uTime:{value:0},uSun:{value:new THREE.Vector3(-0.7,0.3,-0.6)},fogColor:{value:new THREE.Color(0xf0b07a)},fogNear:{value:20},fogFar:{value:180}},
+  vertexShader:`uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vW; varying float vDepth;
+    void main(){ vUv=textureMatrix*vec4(position,1.0); vec4 wp=modelMatrix*vec4(position,1.0); vW=wp.xyz; vec4 mv=viewMatrix*wp; vDepth=-mv.z; gl_Position=projectionMatrix*mv; }`,
+  fragmentShader:`uniform vec3 color; uniform sampler2D tDiffuse; uniform float uTime,fogNear,fogFar; uniform vec3 uSun,fogColor; varying vec4 vUv; varying vec3 vW; varying float vDepth;
+    vec2 rip(vec2 p,float t){ return vec2(sin(p.x*0.9+t*1.4)+sin(p.y*1.7-t*1.1)+sin((p.x+p.y)*0.5+t*0.7), cos(p.x*1.5-t*1.2)+sin(p.y*0.8+t*1.0)+cos((p.x-p.y)*0.6-t*0.8)); }
+    void main(){
+      vec2 r=rip(vW.xz,uTime)*0.33;
+      vec3 N=normalize(vec3(r.x*0.07,1.0,r.y*0.07)); vec3 V=normalize(cameraPosition-vW);
+      float fres=pow(1.0-clamp(dot(V,N),0.0,1.0),3.0);
+      vec4 uv=vUv; uv.xy+=r*0.018*uv.w;
+      vec3 refl=texture2DProj(tDiffuse,uv).rgb;
+      vec3 deep=color*(0.75+0.25*sin(vW.x*0.2+vW.z*0.15+uTime*0.3));
+      vec3 col=mix(deep,refl,clamp(0.42+0.58*fres,0.0,1.0));
+      vec3 R=reflect(-V,N); float g=pow(max(dot(R,normalize(uSun)),0.0),180.0)*2.6; col+=vec3(1.0,0.72,0.42)*g;
+      col=mix(col,fogColor,smoothstep(fogNear,fogFar,vDepth));
+      gl_FragColor=vec4(col,1.0);
+      #include <tonemapping_fragment>
+      #include <colorspace_fragment>
+    }`};
+function buildRemagen(){
+  summerPine=true;
+  const zc=REM_ZC, HW=REM_HW;
+  RIVER={zc,hw:HW,xe:118,bridges:[0],bw:3.6};
+  if(!M.paint) M.paint=[0xe0b45e,0xdc8f6c,0x86abc8,0x96c4a0,0xefdfb4,0xd98a98,0xc9754a].map(c=>mat(c,{roughness:1}));
+  const stoneM=mat(0xb8ab92,{roughness:1}), stoneD=mat(0x8b8068,{roughness:1}), roadM=mat(0xc2a878,{roughness:1}), steel=mat(0x3d4650,{roughness:0.6,metalness:0.5}), steelL=mat(0x56606a,{roughness:0.6,metalness:0.4}),
+        deckM=mat(0x5d554c,{roughness:1}), railM=mat(0x2a2a2c,{roughness:0.5,metalness:0.6}), sleeperM=mat(0x5a4330,{roughness:1}), darkM=mat(0x121214,{roughness:1}), bankM=mat(0x8a7648,{roughness:1}), reedM=mat(0xa0a040,{roughness:1}),
+        ballast=mat(0x8a8780,{roughness:1}), rustM=mat(0x6a4a34,{roughness:1});
+  const roofCols=[0xb4562c,0xd0742e,0x4e5a6a,0x4f7a6a,0xd8b04a,0xa8402c].map(c=>mat(c,{roughness:1}));
+  const inRiv=(x,z,pad=0)=>Math.abs(z-zc(x))<HW+pad;
+  const nearBld=(x,z,pad=3)=>roofZones.some(r=>x>r[0]-pad&&x<r[2]+pad&&z>r[1]-pad&&z<r[3]+pad);
+  const onRoad=(x,z)=>(Math.abs(x)<7&&(z>24||z<-24))||Math.abs(z-26)<4||Math.abs(z+24)<4||Math.abs(z-49)<4;
+  const free=(x,z,pad=3)=>Math.abs(x)<L-4&&Math.abs(z)<L-4&&!inRiv(x,z,3)&&!nearBld(x,z,pad)&&!onRoad(x,z)&&!(Math.abs(x)<16&&Math.abs(z)<38)&&remRailD(x,z)>5&&Math.hypot(x,z-93)>13&&!REM_SP.some(q=>Math.hypot(x-q[0],z-q[1])<7)&&!REM_ZN.some(q=>Math.hypot(x-q[0],z-q[1])<10)&&Math.hypot(x-40,z+64)>12;
+  // ---- roads: the approach road to the bridge, a promenade on each bank, a cross street in the town ----
+  sBox(0,0.01,70,9,0.01,88,roadM,false); sBox(0,0.01,26,2*L-4,0.01,5,roadM,false); sBox(0,0.01,-24,2*L-4,0.01,5,roadM,false); sBox(0,0.012,49,2*L-4,0.01,5,roadM,false);
+  // ---- the Rhine: banks, the water (a real mirror when the graphics allow it), reeds, willows ----
+  { const XS=[]; for(let x=-L-6;x<=L+6;x+=4) XS.push(x);
+    const pb=[], ib=[]; XS.forEach((x,i)=>{ const z=zc(x); pb.push(x,0.025,z-HW-1.8,x,0.025,z+HW+1.8); if(i){ const a=(i-1)*2; ib.push(a,a+1,a+2,a+1,a+3,a+2); } });
+    const gb=new THREE.BufferGeometry(); gb.setAttribute('position',new THREE.Float32BufferAttribute(pb,3)); gb.setIndex(ib); gb.computeVertexNormals(); const mb=new THREE.Mesh(gb,bankM); mb.receiveShadow=true; mb.raycast=()=>{}; mapRoot.add(mb);
+    for(let i=0;i<XS.length-1;i++){ const z=zc(XS[i]); noGrass.push(XS[i]-0.2,z-HW-1.2,XS[i]+4.2,z+HW+1.2); }
+    // the water lies in a local XY plane (local y = -z); the mesh is turned flat
+    const pw=[], iw=[]; XS.forEach((x,i)=>{ const z=zc(x); pw.push(x,-(z+HW),0,x,-(z-HW),0); if(i){ const a=(i-1)*2; iw.push(a,a+2,a+1,a+2,a+3,a+1); } });
+    const gw=new THREE.BufferGeometry(); gw.setAttribute('position',new THREE.Float32BufferAttribute(pw,3)); gw.setIndex(iw); gw.computeVertexNormals();
+    let water=null;
+    if(gfx!=='low' && !IS_TOUCH){ try{ const tw=Math.max(256,Math.floor(innerWidth*Math.min(devicePixelRatio||1,1.5)*0.5)), th=Math.max(256,Math.floor(innerHeight*Math.min(devicePixelRatio||1,1.5)*0.5));
+        water=new Reflector(gw,{textureWidth:tw,textureHeight:th,clipBias:0.003,multisample:0,color:0x1b4d63,shader:REM_WATER_SHADER}); water.userData.reflector=true; }catch(e){ console.warn('mirror water skipped',e); water=null; } }
+    if(!water) water=new THREE.Mesh(gw,new THREE.MeshStandardMaterial({color:0x2c6a82,roughness:0.12,metalness:0.45,transparent:true,opacity:0.88}));
+    water.rotation.x=-Math.PI/2; water.position.y=0.07; water.renderOrder=1; water.raycast=()=>{}; water.receiveShadow=false; mapRoot.add(water); remWater=water; }
+  for(let i=0;i<70;i++){ const x=-L+3+rnd()*(2*L-6), side=rnd()<.5?-1:1, z=zc(x)+side*(HW+0.5+rnd()*1.4); if(Math.abs(x)<8) continue;
+    for(let k=0;k<3;k++) addGeo(new THREE.CylinderGeometry(0.02,0.03,1.0+rnd()*0.8,4),reedM,x+(rnd()-.5)*0.7,0.5,z+(rnd()-.5)*0.7,(rnd()-.5)*0.3,0,(rnd()-.5)*0.3); }
+  // ---- the Ludendorff bridge: flush deck, steel arches overhead, four stone towers, damaged and crossable ----
+  { const ZB=32; roofZones.push([-3.6,-HW-2,3.6,HW+2]);
+    addGeo(new THREE.BoxGeometry(7.2,0.16,2*ZB),deckM,0,0.09,0);
+    for(let z=-ZB+1;z<ZB;z+=1.6){ if(Math.abs(z)<HW+3 && rnd()<0.18) continue; addGeo(new THREE.BoxGeometry(5.4,0.05,0.34),sleeperM,0,0.19,z); }                          // sleepers (some torn out)
+    for(const rx of [-0.72,0.72]) addGeo(new THREE.BoxGeometry(0.1,0.12,2*ZB-1),railM,rx,0.25,0);
+    for(const [hz,hx,hw,hd] of [[-6,-1.5,2.2,1.8],[9,1.8,2.0,1.6],[-14,1.2,1.8,1.4]]) addGeo(new THREE.BoxGeometry(hw,0.04,hd),darkM,hx,0.185,hz);          // holes where shells hit the deck
+    const archH=z=>11*(1-Math.pow(z/19,2));
+    for(const sx of [-1,1]){ const x=sx*3.5; let prev=null, k=0;
+      for(let z=-19;z<=19.01;z+=3.8){ const y=archH(z)+0.9; if(prev){ const dz=z-prev[0], dy=y-prev[1], len=Math.hypot(dz,dy), ang=Math.atan2(dy,dz); k++;
+          if(!(sx<0&&k===3)) addGeo(new THREE.BoxGeometry(0.5,0.5,len),steel,x,(y+prev[1])/2,(z+prev[0])/2,-ang,0,0); } prev=[z,y];
+        if(z>-19&&z<19&&!(sx<0&&Math.abs(z+11.4)<0.1)){ const h=archH(z)+0.8; addGeo(new THREE.BoxGeometry(0.16,h,0.16),steelL,x,0.2+h/2,z);
+          if(h>3&&sx>0) addGeo(new THREE.BoxGeometry(7.0,0.26,0.26),steelL,0,archH(z)+0.9,z); } } }
+    addGeo(new THREE.BoxGeometry(0.5,0.5,7),steel,-3.5,0.75,-9,0.5,0,0.4);                                      // a fallen girder across the deck
+    for(const sx of [-1,1]){ const x=sx*3.5; const gaps=sx<0?[[-12,-8],[16,19]]:[[4,7]]; let a=-ZB;      // low rails along the deck, with gaps
+      const segs=[]; for(const [g0,g1] of gaps.concat([[ZB+1,ZB+2]])){ if(g0>a) segs.push([a,g0]); a=g1; } for(const [s0,s1] of segs) if(s1-s0>0.5) sBox(x,0.1,(s0+s1)/2,0.3,1.0,s1-s0,stoneD); }
+    sandbags(-0.5,11,5); sandbags(0.6,-5,5); sandbags(-0.6,-18,5); sBox(1.2,0.12,3,2.4,2.3,6.5,rustM);         // cover on the deck and a wrecked goods wagon
+    const tower=(x,z,h)=>{ sBox(x,0,z,4.8,h,5.2,stoneM); sBox(x,h,z,5.4,0.5,5.8,stoneD,false); for(const [dx,dz] of [[-2.4,-2.6],[2.4,-2.6],[-2.4,2.6],[2.4,2.6]]) sBox(x+dx,h+0.5,z+dz,0.8,1.1,0.8,stoneD,false);
+      addGeo(new THREE.ConeGeometry(3.6,3.4,4),roofCols[0],x,h+2.2,z,0,Math.PI/4,0); for(const dz of [-2.65,2.65]) for(const hh of [3.5,8.5]) addGeo(new THREE.BoxGeometry(1.0,2.4,0.1),darkM,x,hh,z+dz); };
+    for(const sx of [-1,1]) for(const [tz,th] of [[26.5,13],[-26.5,sx<0?13:9.5]]) tower(sx*6.6,tz,th);
+    flushBatch(true); }
+  // ---- the railway to the tunnel (ballast, rails) and the tunnel portal at the foot of the Erpeler Ley ----
+  for(let i=0;i<REM_RAIL.length-1;i++){ const a=REM_RAIL[i], b=REM_RAIL[i+1], dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz), cx=(a[0]+b[0])/2, cz=(a[1]+b[1])/2, ry=-Math.atan2(dz,dx);
+    addGeo(new THREE.BoxGeometry(len+1.6,0.05,5.0),ballast,cx,0.03,cz,0,ry,0); for(const o of [-0.72,0.72]) addGeo(new THREE.BoxGeometry(len+1.6,0.1,0.1),railM,cx-dz/len*o,0.1,cz+dx/len*o,0,ry,0); }
+  { const px=40, pz=-66; sBox(px-3.6,0,pz,2.6,6,3,stoneM); sBox(px+3.6,0,pz,2.6,6,3,stoneM); sBox(px,5,pz,10,2.0,3,stoneM); sBox(px,0,pz-1.2,6,5.0,1.0,darkM);          // the portal: two piers, a lintel, a black mouth
+    sandbags(px-4,pz+8,5); sandbags(px+4,pz+8,5); hedgehog(px-2,pz+12); hedgehog(px+3,pz+12); }
+  // ---- the town of Remagen on the south bank: painted houses with coloured roofs, shot to pieces ----
+  const gable=(x0,z0,x1,z1,H)=>{ const w=x1-x0, d=z1-z0; for(const north of [true,false]) if(rnd()<0.72){ addGeo(new THREE.BoxGeometry(w+0.5,0.16,d*0.5),roofCols[(rnd()*roofCols.length)|0],(x0+x1)/2,H+1.0,north?z0+d*0.26:z1-d*0.26,north?-0.5:0.5,0,0); } };
+  const S=[ [-62,32,-46,44,3,{e:[4]}],[-42,32,-28,46,3,{s:[5]}],[-22,32,-10,44,2,{e:[4]}],[-62,54,-46,68,3,{e:[6]}],[-40,53,-27,66,2,{n:[4]}],[-22,54,-10,66,3,{e:[5]}],[-60,76,-48,88,2,{}],[-36,74,-24,86,2,{}],
+            [10,32,24,44,3,{w:[4]}],[28,32,44,46,2,{s:[5]}],[48,32,62,44,3,{w:[4]}],[10,54,22,66,2,{}],[28,53,44,66,3,{w:[5]}],[48,54,64,68,2,{n:[4]}],[12,74,24,86,2,{}],[34,74,48,86,3,{n:[5]}] ];
+  for(const b of S){ ruinedBuilding(b[0],b[1],b[2],b[3],b[4],'paint',b[5]); gable(b[0],b[1],b[2],b[3],b[4]*3); }
+  // ---- Erpel on the north bank, held by the Germans: brick and painted houses along the quay ----
+  const N=[ [-72,-44,-60,-32,2,'paint',{s:[3]}],[-52,-46,-38,-34,2,'paint',{s:[4]}],[-34,-48,-20,-36,3,'brick',{s:[5]}],[-16,-46,-4,-35,2,'paint',{s:[4]}],[52,-44,64,-34,2,'brick',{w:[3]}] ];
+  for(const b of N){ ruinedBuilding(b[0],b[1],b[2],b[3],b[4],b[5],b[6]); gable(b[0],b[1],b[2],b[3],b[4]*3); }
+  // ---- defences: sandbags and wire along both quays, stone sangars, wrecks ----
+  for(const x of [-30,-12,14,32]){ sandbags(x,21,5); sandbags(x+4,-21,5); }
+  barbedWire(-66,-19,-12,-19); barbedWire(12,-19,66,-19); for(const [x,z] of [[-22,-18],[20,-18],[-40,23],[24,23]]) hedgehog(x,z);
+  const sangar=(x,z,w=5,back=1)=>{ const m=back>0?stoneM:stoneD; sBox(x,0,z,w,1.2,0.8,m); sBox(x-w/2,0,z+back*1.2,0.8,1.2,2.4,m); sBox(x+w/2,0,z+back*1.2,0.8,1.2,2.4,m); sandbags(x-1.2,z+back*0.1,2.4); };
+  for(const [x,z] of [[-50,-26],[-6,-28],[26,-26],[52,-24]]) sangar(x,z,5,-1); for(const [x,z] of [[-52,28],[-8,30],[22,30],[54,28]]) sangar(x,z,5,1);
+  wreckTank(14,40,0.4,false); wreckTank(-18,-30,2.6,true); wreckTruck(-8,40,1.2); wreckTruck(30,-30,0.6);
+  { const bx=-48, bz=zc(bx); sBox(bx,0,bz+3,15,1.3,4.4,rustM); sBox(bx+3,1.3,bz+3,5,1.6,3,stoneD,false); }          // a wrecked river barge in the shallows
+  // ---- trees, all colours: pink blossom along the quays, gold poplars, orange maples, willows on the banks, dark pines on the hills ----
+  const mkTree=(tc,cols,r,sy=1)=>()=>{ const a=[[new THREE.CylinderGeometry(0.12,0.22,2.2*sy,6),tc,0,1.1*sy,0]]; cols.forEach((c,i)=>a.push([new THREE.IcosahedronGeometry(r*(i?0.72:1),1),c,(i?(i%2?0.9:-0.8):0)*r*0.6,(2.3+r*0.55)*sy+(i?0.3:0),(i?(i<2?0.5:-0.5):0)*r*0.6])); return a; };
+  const buildBlossom=mkTree(0x5a4636,[0xf2a0c0,0xf7c4d6,0xe888b0],1.5), buildGold=mkTree(0x5a4636,[0xe3b13a,0xd99a2a,0xf0c85a],1.7), buildMaple=mkTree(0x4d3a28,[0xd0602a,0xe0782e,0xb84a22],1.6), buildWillow=mkTree(0x4d3a28,[0x9ab04a,0x86a03e,0xb0c05a],1.8,0.8);
+  const buildPoplar=()=>[[new THREE.CylinderGeometry(0.1,0.18,1.6,6),0x4d3a28,0,0.8,0],[new THREE.ConeGeometry(0.95,8,7),0xdcae34,0,5.3,0],[new THREE.ConeGeometry(0.7,5,7),0xeec552,0,7.2,0]];
+  const tree=(name,fn,x,z,s)=>addProp(name,fn,x,z,rnd()*6,s,0.5,6);
+  for(let x=-96;x<=96;x+=9){ for(const z of [30.8,-28.8]){ const px=x+(rnd()-.5)*3; if(Math.abs(px)<10||!free(px,z,1.5)) continue; tree('blossom',buildBlossom,px,z,0.9+rnd()*0.3); } }
+  for(let i=0;i<46;i++){ const x=-L+6+rnd()*(2*L-12), side=rnd()<.5?-1:1, z=zc(x)+side*(HW+3+rnd()*2); if(Math.abs(x)<12||!free(x,z,1.5)) continue; tree('willow',buildWillow,x,z,0.9+rnd()*0.5); }
+  for(let i=0;i<90;i++){ const x=(rnd()*2-1)*(L-6), z=(rnd()*2-1)*(L-6); if(!free(x,z,4)) continue; const r=rnd(); if(r<0.34) tree('gold',buildGold,x,z,0.9+rnd()*0.5); else if(r<0.62) tree('maple',buildMaple,x,z,0.9+rnd()*0.5); else if(r<0.82) tree('blossom',buildBlossom,x,z,0.9+rnd()*0.4); else tree('poplar',buildPoplar,x,z,0.9+rnd()*0.4); }
+  for(let z=58;z<=74;z+=8) for(const sx of [-1,1]){ const x=sx*6.6; if(!nearBld(x,z,1)) tree('poplar',buildPoplar,x,z,1.1); }
+  for(let i=0;i<260;i++){ const x=(rnd()*2-1)*(L-5), z=-30-rnd()*(L-35); if(Math.abs(x)<22&&z>-80) continue; if(x<-44&&x>-106&&z>-98&&z<-42) continue; if(free(x,z,4)) pine(x,z); }
+  // ---- vineyard terraces on the hills of the north bank, in green and gold ----
+  const mkVine=c=>()=>{ const a=[]; for(let k=0;k<5;k++){ a.push([new THREE.IcosahedronGeometry(0.4,0),c,(k-2)*1.3,0.55,0]); a.push([new THREE.CylinderGeometry(0.04,0.04,1.1,4),0x5a4630,(k-2)*1.3,0.55,0.0]); } return a; };
+  const vines=[['vineG',mkVine(0x5f8a2e)],['vineY',mkVine(0xd8a838)],['vineR',mkVine(0xb85a30)]];
+  for(let z=-96;z<-44;z+=3.6) for(let x=-104;x<-46;x+=7){ if(!free(x,z,2)) continue; const v=vines[(((z+100)/3.6|0)+(x>-76?1:0))%3]; addProp(v[0],v[1],x,z,0,1,0,0); }
+  // ---- colour on the ground: wildflower meadows, flower beds along the quays ----
+  const mkFl=c=>()=>{ const a=[[new THREE.IcosahedronGeometry(0.2,0),0x5e8a34,0,0.12,0]]; for(let k=0;k<6;k++){ const an=k*1.05+0.4, d=0.1+((k*37)%10)*0.045; a.push([new THREE.SphereGeometry(0.085,5,4),c,Math.cos(an)*d,0.26+((k*13)%5)*0.04,Math.sin(an)*d]); } return a; };
+  const fls=[['flR',0xd83a2c],['flY',0xf2c81a],['flP',0x9a52c0],['flW',0xf4f0e4],['flB',0x4f78d8],['flO',0xee8a2e],['flK',0xf06aa0]].map(f=>[f[0],mkFl(f[1])]);
+  for(let i=0;i<520;i++){ const x=(rnd()*2-1)*(L-5), z=(rnd()*2-1)*(L-5); if(!free(x,z,1.5)) continue; const f=fls[(rnd()*7)|0]; addProp(f[0],f[1],x,z,rnd()*6,0.9+rnd()*0.6,0,0); }
+  for(let x=-100;x<=100;x+=2.6){ for(const z of [23.2,-21.2]){ if(Math.abs(x)<9) continue; const f=fls[(rnd()*7)|0]; addProp(f[0],f[1],x+(rnd()-.5),z,rnd()*6,1.0,0,0); } }
+  // ---- coloured sun umbrellas on the south quay, boulders and a few craters, a burning wreck ----
+  for(let i=0;i<9;i++){ const x=-70+i*17+rnd()*4, z=29+rnd()*3; if(Math.abs(x)<10) continue; const c=[0xd83a2c,0xf2c81a,0x3f7fe8,0xe8e0cc,0xe88a2e][i%5]; addGeo(new THREE.CylinderGeometry(0.05,0.05,2.3,5),0x5a4630,x,1.15,z); addGeo(new THREE.ConeGeometry(1.7,0.7,10),c,x,2.5,z); }
+  const buildBoulder=()=>{ const g=new THREE.DodecahedronGeometry(1.0,0); g.scale(1.3,0.85,1.1); return [[g,0x8a877c,0,0.6,0],[new THREE.DodecahedronGeometry(0.6,0),0x76736a,0.95,0.4,0.45]]; };
+  for(let i=0;i<70;i++){ const x=(rnd()*2-1)*(L-6), z=(rnd()*2-1)*(L-6); if(!free(x,z,3)) continue; const bs=0.8+rnd()*1.4; addProp('boulder',buildBoulder,x,z,rnd()*6,bs,2.5*bs,1.45*bs,'fall',2.5*bs); }
+  for(let i=0;i<30;i++){ const x=(rnd()*2-1)*(L-8), z=(rnd()*2-1)*(L-8); if(!free(x,z,2)||Math.abs(x)<8) continue; crater(x,z,1.0+rnd()*1.5); }
+  for(const [px,pz] of [[-20,20],[18,-20],[-46,40],[44,-30]]) brokenPole(px,pz);
+  flushBatch(true);
+  addFire(5,0.4,40,1.6,true); addFire(-30,0.4,-30,1.2,false); addFire(36,0.4,-48,1.0,false); addFire(-4,0.4,16,0.9,false);
 }
 
 // ---- the shape of the land, different on every map ----
@@ -3565,7 +3696,11 @@ const TERR={
   cassino:{rock:true,openEdge:true,slope:0.62,rise:10,amp:21,sc:44,lo:0.28,hi:0.7,ridge:false,pw:1,edgeW:70,
     mask:(x,z)=>0.45+0.55*sstep(30,62,Math.abs(x)),                                         // rolling ground along the pass, steep rugged mountains on both sides
     cone:(x,z)=>22*sstep(46,100,Math.abs(x))+16*sstep(-78,-110,z)+10*sstep(98,112,z),     // high ridges east and west, the massif behind the abbey, rock behind the Allied shelf
-    flat:CAS_FLAT}
+    flat:CAS_FLAT},
+  remagen:{rock:true,openEdge:true,slope:0.62,rise:9,amp:9,sc:60,lo:0.3,hi:0.72,ridge:false,pw:1.1,edgeW:70,
+    mask:(x,z)=>0.12+0.4*sstep(-10,-60,z)+0.25*sstep(60,100,Math.abs(x)),                                      // flat town and meadows in the south, the hills of the north bank behind Erpel
+    cone:(x,z)=>{ const a=Math.hypot((x-62)/26,(z+74)/23); return 44*Math.pow(sstep(0,1,1-a),0.9)+14*sstep(-92,-112,z)+12*sstep(92,112,Math.abs(x)); },   // the Erpeler Ley, a steep rock above the tunnel, and ridges framing the valley
+    flat:REM_FLAT}
 };
 TERR.ardsummer=TERR.ardennes;
 function vnoise(x,z,sd){
@@ -3678,7 +3813,7 @@ const BIG_PLAN={
   ardennes:{kind:'forest',style:'plaster',fl:[['village','Forester hamlet',-18],['trench','Forest trenches',28],['hill','Windy clearing',-28],['bunker','Sawmill bunker',16]],mid:['village','Crossroads inn']},
   normandy:{kind:'bocage',style:'brick',fl:[['village','Farmhouse',-18],['hill','Orchard field',28],['bunker','Hedgerow pillbox',-26],['village','Manor house',16]],mid:['trench','Sunken lane']}
 };
-BIG_PLAN.ardsummer=BIG_PLAN.ardennes; BIG_PLAN.lorraine=BIG_PLAN.normandy; BIG_PLAN.cassino=BIG_PLAN.normandy;
+BIG_PLAN.ardsummer=BIG_PLAN.ardennes; BIG_PLAN.lorraine=BIG_PLAN.normandy; BIG_PLAN.cassino=BIG_PLAN.normandy; BIG_PLAN.remagen=BIG_PLAN.normandy;
 function bigLists(){
   const z=k=>bigZones.find(q=>q.key===k), a=q=>[q.x,q.z,q.name,0,q.type];
   const f=['fl0','fl1','fl2','fl3'].map(k=>a(z(k)));
@@ -3855,10 +3990,12 @@ const MAPS={
     sky:0xb7c4cc,fog:[16,118],hemi:[0xe6e8e4,0x6b6238,1.35],sun:[0xffe6b8,1.8]},
   cassino:{id:'cassino',name:'Monte Cassino · May 1944',short:'CASSINO',build:buildCassino,snow:false,mode:'infantry',total:50,tex:grassTex,L:112,
     sky:0xb4c6d2,fog:[12,105],hemi:[0xdfe9f0,0x6a7a4c,1.6],sun:[0xfff3d8,2.3]},
+  remagen:{id:'remagen',name:'Remagen · March 1945',short:'REMAGEN',build:buildRemagen,snow:false,mode:'infantry',total:50,tex:grassTex,L:112,
+    sky:0xf0b27a,fog:[28,190],hemi:[0xffd9b0,0x5a6a4a,1.75],sun:[0xff9d4a,2.8],sunDir:[-62,15,-6]},
   duel:{id:'duel',name:'Duel · Stalingrad courtyard',short:'DUEL',build:buildDuel,snow:true,mode:'duel',total:0,tex:snowTex,
     sky:0x8c9096,fog:[12,110],hemi:[0xd6dce4,0x5a5048,1.35],sun:[0xffe2c4,1.5]}
 };
-const MAP_ORDER=['stalingrad','kursk','berlin','seelow','moscow','duel','ardennes','ardsummer','normandy','lorraine','cassino'];   // (order only sets each map's random seed)
+const MAP_ORDER=['stalingrad','kursk','berlin','seelow','moscow','duel','ardennes','ardsummer','normandy','lorraine','cassino','remagen'];   // (order only sets each map's random seed)
 const WAVES_PER_MAP=5;
 let currentMap=null;
 const wantDig=id=>true;
@@ -3871,11 +4008,11 @@ const needRebuild=id=>currentMap!==id || bigFor(id)!==builtBig || pits.some(p=>p
 function buildMap(id){
   const Mp=MAPS[id];
   // clear the old map
-  for(const c of [...mapRoot.children]){ mapRoot.remove(c); c.traverse(o=>{ if(o.geometry) o.geometry.dispose(); const m=o.material; if(m && !Array.isArray(m)){ if(m.map && m.map.dispose) m.map.dispose(); } }); }
+  for(const c of [...mapRoot.children]){ mapRoot.remove(c); c.traverse(o=>{ if(o.userData&&o.userData.reflector&&o.dispose){ try{ o.dispose(); }catch(e){} } if(o.geometry) o.geometry.dispose(); const m=o.material; if(m && !Array.isArray(m)){ if(m.map && m.map.dispose) m.map.dispose(); } }); }
   // drop the old soldier templates' GPU buffers; anything still on screen simply re-uploads if it is drawn again
   for(const t of soldierTpl.values()) t.traverse(o=>{ if(o.isMesh && o.geometry && o.geometry.dispose && o.geometry!==window.__faceGeo) o.geometry.dispose(); });
   soldierTpl.clear(); tracerPool.length=0;
-  clearHill(); clearTunnels(); dgClear(); pits.length=0; if(ground.geometry!==groundPlain && ground.geometry!==groundBig){ ground.geometry.dispose(); }
+  remWater=null; clearHill(); clearTunnels(); dgClear(); pits.length=0; if(ground.geometry!==groundPlain && ground.geometry!==groundBig){ ground.geometry.dispose(); }
   builtBig=bigFor(id); L=builtBig?BIGL:(Mp.L||70); ground.geometry=(builtBig||Mp.L>70)?groundBig:groundPlain; RIVER=null;
   digTrenches = digOverride!==null ? digOverride : wantDig(id);          // tanks simply drive over pits (they stay at y=0)
   runDig = digOverride===null && wantRun(id); digK=null; digPlan.length=0; hedgehogsBuilt.length=0; prep.on=false; prep.phase='off'; prep.bagQ=[]; prep.hhQ=[];
@@ -4377,7 +4514,7 @@ let atmo={tod:'day',wx:'clear'}, precip={speed:1,drift:1};
 let flareT=6, flareK=0;
 const flareSpr=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTexAI(),color:0xfff2c8,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,fog:false}));
 flareSpr.scale.setScalar(3); flareSpr.visible=false; scene.add(flareSpr);
-function warmHaze(sky,tod,wx,snowy){ if(snowy||tod==='night') return; if(currentMap==='cassino'){ sky.lerp(new THREE.Color(0xc4d2dc),0.3); return; } sky.lerp(new THREE.Color(0xd2a574),wx==='precip'?0.07:0.17); }
+function warmHaze(sky,tod,wx,snowy){ if(snowy||tod==='night'||currentMap==='remagen') return; if(currentMap==='cassino'){ sky.lerp(new THREE.Color(0xc4d2dc),0.3); return; } sky.lerp(new THREE.Color(0xd2a574),wx==='precip'?0.07:0.17); }
 const AT={tr:null,t:170,k:0,from:null,to:null,sky:null};      // AT.tr: a slow change of time/weather in progress
 function applyAtmosphere(tod,wx){
   AT.tr=null; AT.t=150+Math.random()*110;
@@ -4409,7 +4546,7 @@ function applyAtmosphere(tod,wx){
 }
 // ---- cheap colour grade: one CSS filter on the canvas (High and Medium; RAY has its own film grade; LOW and phones' Medium stay untouched so they keep their speed) ----
 const GRADES={ stalingrad:[1.10,0.86,1.0,0,-4], kursk:[1.06,1.06,1.02,0,0], berlin:[1.10,0.82,0.99,0,-3], seelow:[1.08,0.9,1.0,0,-2],
-  ardennes:[1.08,0.92,0.99,0,-4], normandy:[1.07,0.98,1.0,0.03,0], lorraine:[1.07,0.98,1.0,0.03,0], cassino:[1.1,1.14,1.03,0,-3], moscow:[1.08,0.86,1.0,0,-4] };      // [contrast, saturation, brightness, sepia (warmth), hue shift deg (negative = cooler)]
+  ardennes:[1.08,0.92,0.99,0,-4], normandy:[1.07,0.98,1.0,0.03,0], lorraine:[1.07,0.98,1.0,0.03,0], cassino:[1.1,1.14,1.03,0,-3], remagen:[1.08,1.2,1.0,0.08,2], moscow:[1.08,0.86,1.0,0,-4] };      // [contrast, saturation, brightness, sepia (warmth), hue shift deg (negative = cooler)]
 let GRADE_CSS='', _fltLast=null;
 function setFilter(f){ if(f!==_fltLast){ _fltLast=f; renderer.domElement.style.filter=f; } }
 function applyGrade(){
@@ -4440,6 +4577,7 @@ function atmoParams(tod,wx){
 }
 const _atL=(a,b,k)=>a+(b-a)*k;
 function atmoBegin(){
+  if(currentMap==='remagen'){ AT.t=1e9; return; }          // the sun stays low over the Rhine
   const order=['dawn','day','dusk','night'], from={tod:atmo.tod,wx:atmo.wx}, to={tod:from.tod,wx:from.wx}, snowy=MAPS[currentMap].snow; const say=[];
   const goT=Math.random()<0.5, goW=Math.random()<(from.wx==='clear'?0.4:0.6);
   if(!goT&&!goW){ AT.t=60+Math.random()*60; return; }
@@ -4466,6 +4604,7 @@ function atmoTick(dt){
 }
 function resetAtmosphere(){ if(currentMap) applyAtmosphere('day','clear'); }
 function rollAtmosphere(){
+  if(currentMap==='remagen'){ applyAtmosphere('day','clear'); return 'GOLDEN SUNSET · CLEAR SKIES'; }
   const pick=a=>a[(Math.random()*a.length)|0];
   const tod=pick(['dawn','day','day','dusk']), wx=pick(['clear','clear','precip']);
   applyAtmosphere(tod,wx);
@@ -4640,8 +4779,8 @@ const WALIAS={mas36:'kar98k',mas36Sn:'kar98kSn',rsc17:'g43',mas38:'mp40',chaucha
 // who fights whom: Soviets vs Germans everywhere, except the Ardennes where the Germans face the French
 const isArd=id=>id==='ardennes'||id==='ardsummer';
 const isNorm=id=>id==='normandy';
-const isLor=id=>id==='lorraine'; const isCas=id=>id==='cassino';
-function enemyOf(side){ return side==='soviet'||side==='france'||side==='usa' ? 'german' : (isNorm(currentMap)||isLor(currentMap)||isCas(currentMap) ? 'usa' : isArd(currentMap) ? 'france' : 'soviet'); }
+const isLor=id=>id==='lorraine'; const isCas=id=>id==='cassino'; const isRem=id=>id==='remagen';
+function enemyOf(side){ return side==='soviet'||side==='france'||side==='usa' ? 'german' : (isNorm(currentMap)||isLor(currentMap)||isCas(currentMap)||isRem(currentMap) ? 'usa' : isArd(currentMap) ? 'france' : 'soviet'); }
 const SQUAD_SPECIAL={soviet:['dp28','mosinSn'],german:['mg42','kar98kSn'],france:['chauchat','mas36Sn'],usa:['bar','m1903Sn']};
 // which rank (index into RANKS) unlocks each extra weapon
 const UNLOCKS={ soviet:[['svt40',1],['pps43',2],['mosinSn',4],['dp28',5]], german:[['g43',1],['stg44',2],['kar98kSn',4],['mg42',5]], france:[['rsc17',1],['mas36Sn',4],['chauchat',5]], usa:[['garand',1],['m1903Sn',4],['bar',5]] };
@@ -6547,9 +6686,11 @@ function resetRoster(){ rosterStats.clear(); feedList.length=0; const k=$('killf
 
 // ---------- death camera ----------
 /* ---- waiting to respawn (map modes): the death camera hands over to a teammate's shoulder, with a countdown ---- */
-const spec={m:null,yaw:0,pitch:0,roll:0,init:false}; let respOn=false, respLast=-1;
-const specList=()=>mates.filter(m=>!m.dead);
-function specNext(d=1){ const l=specList(); if(!l.length){ spec.m=null; return; } const i=l.indexOf(spec.m); spec.m=l[i<0?0:(i+d+l.length)%l.length]; }
+const spec={m:null,yaw:0,pitch:0,roll:0,init:false,h:0,hm:null,keepT:0}; let respOn=false, respLast=-1;
+const specList=()=>mates.filter(m=>!m.dead && !(m.hp<=0) && m.root && m.root.visible!==false);
+let specNextAt=0;
+function specNext(d=1){ const nw=performance.now(); if(nw<specNextAt) return; specNextAt=nw+600;      // at most one switch every 0.6 s, so a burst of clicks can't flick through everyone
+  const l=specList(); if(!l.length){ spec.m=null; return; } const i=l.indexOf(spec.m); spec.m=l[i<0?0:(i+d+l.length)%l.length]; }
 const specActive=()=>skirm.on && !skirm.over && !isCoop() && state==='dead' && skirm.respT<1e8 && deathCam.active;
 function respUI(){
   const el=$('respCt'), on=specActive();
@@ -6577,9 +6718,12 @@ function updateDeathCam(dt){
   if(!deathCam.active || isTankMap()) return;
   deathCam.t+=dt; const t=deathCam.t;
   if(specActive() && t>1.6){
-    if(!spec.m || spec.m.dead || !mates.includes(spec.m)){ let b=null,bd=1e9; for(const m of specList()){ const d=Math.hypot(m.pos.x-deathCam.base.x,m.pos.z-deathCam.base.z); if(d<bd){ bd=d; b=m; } } spec.m=b; }
+    spec.keepT=Math.max(0,spec.keepT-dt);
+    if(!spec.m || spec.m.dead || spec.m.hp<=0 || !mates.includes(spec.m)){ let b=null,bd=1e9; const ref=spec.m&&spec.m.pos?spec.m.pos:deathCam.base; for(const m of specList()){ const d=Math.hypot(m.pos.x-ref.x,m.pos.z-ref.z); if(d<bd){ bd=d; b=m; } } spec.m=b; spec.keepT=2.5; }     // stay on the one you picked: only move on when he dies, and then to the nearest teammate
     const m=spec.m;
-    if(m){ const h=m.heading||0, fx=-Math.sin(h), fz=-Math.cos(h);
+    if(m && spec.hm!==m){ spec.hm=m; spec.h=m.heading||0; }
+    if(m) spec.h=angLerp(spec.h,m.heading||0,Math.min(1,dt*0.9));      // the camera follows his heading only slowly, so it doesn't swing round every time he turns
+    if(m){ const h=spec.h, fx=-Math.sin(h), fz=-Math.cos(h);
       _specV.set(m.pos.x-fx*3.4,m.pos.y+2.3,m.pos.z-fz*3.4);
       if(!spec.init){ spec.init=true; spec.yaw=camera.rotation.y; spec.pitch=camera.rotation.x; spec.roll=camera.rotation.z; }
       camera.position.lerp(_specV,Math.min(1,dt*(t<2.6?2.2:6)));
@@ -6611,7 +6755,7 @@ function tpUpdate(dt,P){
   const wasOff=tpK<=0;
   tpK+=(want-tpK)*Math.min(1,dt*9); if(!want && tpK<0.01) tpK=0;
   if(tpK<=0){ if(tpS && tpS.root.visible) tpS.root.visible=false; return; }
-  const key=selSide+':'+gun.type;
+  const key=selSide+':'+gun.type+':'+cosId(selSide);          // the look is part of the key, so a newly chosen look shows on your own body too
   if(!tpS || tpKey!==key){ if(tpS && tpS.root.parent) tpS.root.parent.remove(tpS.root); tpS=makeSoldier(selSide,gun.type,null); tpKey=key; }
   if(tpS.root.parent!==scene) scene.add(tpS.root);
   const so=tpS; so.root.visible=true;
@@ -6894,7 +7038,7 @@ const SK_MODES={
   conquest:{name:'CONQUEST',short:'Conquest',desc:'Six zones to fight over. Capture them and hold them, drain the enemy\'s reinforcements. Fallen squad mates keep coming back while your reinforcements last.'},
   holdout:{name:'HOLDOUT',short:'Holdout',desc:'Defend one building against wave after wave of attackers. Survive as long as you can and beat your high score.'},
   domination:{name:'DOMINATION',short:'Domination',desc:'Six points to hold. Every few seconds each side scores a point for each one it holds. First side to 200 wins. Your squad comes back as often as it needs to.'},
-  frontline:{name:'FRONTLINES',short:'Frontlines',desc:'Turn-based. Zones in a row, one behind the other (four on a normal map, six on a big one), and each side starts out holding half of them: trenches, bunkers, villages and open ground. One side attacks the front zone for 5 minutes while the other defends. Take it in time and the front moves up and the roles swap. Retake a zone you lost and you get a 3-minute counterattack. Run out the clock and the defenders hold. Capture all four to win. Always 20 v 20. When the 40-minute match timer is over, the turn in progress is finished and the side holding more zones wins, or it is a stalemate.'}
+  frontline:{name:'FRONTLINES',short:'Frontlines',desc:'Turn-based. Zones in a row, one behind the other (four on a normal map, six on a big one), and each side starts out holding half of them: trenches, bunkers, villages and open ground. One side attacks the front zone for 5 minutes while the other defends. Take it in time and the front moves up and the roles swap. Retake a zone you lost and you get a 3-minute counterattack. Run out the clock and the defenders hold. Capture all four to win. Always 20 v 20. The match lasts 20 or 40 minutes, your choice before you start. When the match timer is over, the turn in progress is finished and the side holding more zones wins, or it is a stalemate.'}
 };
 // capture points per map [x, z, name]; the south is where you start
 const SK_MAPS={
@@ -6912,6 +7056,8 @@ const SK_MAPS={
           fl:[[24,24.5,'Cottage'],[-6,-8,'Roadblock'],[20,-35,'Workshop'],[-24,-60,'Tram depot']], hold:[24,24.5,'Cottage']},
   cassino:{con:[[-30,58,'Terrace sangars'],[24,10,'Ruined chapel'],[0,-84,'Abbey ruins']],
            fl:[[-30,58,'Terrace sangars'],[24,10,'Ruined chapel'],[-22,-16,'Mountain bunkers'],[0,-84,'Abbey ruins']], hold:[24,10,'Ruined chapel']},
+  remagen:{con:[[-24,49,'Remagen waterfront'],[0,0,'Ludendorff bridge'],[40,-56,'Tunnel portal']],
+           fl:[[-24,49,'Remagen waterfront'],[24,27,'South quay'],[0,0,'Ludendorff bridge'],[-26,-28,'Erpel quay'],[6,-44,'Wine cellars'],[40,-58,'Tunnel portal']], hold:[0,0,'Ludendorff bridge']},
   lorraine:{con:[[35,22,'Farmstead'],[20,-17,'Stone mill'],[-20,-54,'Ridge fort']],
             fl:[[35,22,'Farmstead'],[-37,7,'Orchard barn'],[20,-17,'Stone mill'],[-20,-54,'Ridge fort']], hold:[35,22,'Farmstead']},
   normandy:{con:[[-40,21.5,'Farmhouse'],[35,-31,'Village church'],[-23,-52,'Manor house']],
@@ -6922,6 +7068,7 @@ const SK_SPAWNS={
   seelow:[[-40,-56],[-28,-60],[-16,-56],[-4,-62],[8,-58],[20,-60],[32,-56],[44,-58],[-50,-46],[52,-44],[0,-52]],
   ardennes:[[-44,-58],[-26,-60],[-8,-62],[10,-60],[28,-58],[46,-56],[-54,-44],[54,-42]],
   cassino:CAS_SP,
+  remagen:REM_SP,
   lorraine:[[-44,-72],[-26,-74],[-8,-74],[10,-74],[28,-72],[46,-72],[-62,-60],[62,-58]],
   normandy:[[-44,-72],[-26,-74],[-8,-74],[10,-74],[28,-72],[46,-72],[-62,-60],[62,-58]]
 };
@@ -6973,11 +7120,12 @@ function skPaint(p,t){
   p.grp.visible=true;
 }
 // every capture mode plays on six zones: the map's own named buildings plus extra field posts dropped into the biggest gaps
+const skWetOrBridge=(x,z)=>!!RIVER&&(Math.abs(z-RIVER.zc(x))<RIVER.hw+3||RIVER.bridges.some(b=>Math.abs(x-b)<9&&Math.abs(z-RIVER.zc(x))<RIVER.hw+24));      // no extra zone in the water, or on a bridge and its approach
 const SK_EXTRA=['Supply dump','Water tower','Field post','Mortar pit','Cellar','Roadblock','Watch post','Ammo store'];
-const skExtra=()=>currentMap==='cassino'?['Goat track','Supply dump','Stone hut','Mortar pit','Watch post','Ammo store','Sangar','Field post']:SK_EXTRA;
+const skExtra=()=>currentMap==='remagen'?['Rail siding','Supply dump','Wine cellar','Mortar pit','Watch post','Ammo store','Quay steps','Field post']:currentMap==='cassino'?['Goat track','Supply dump','Stone hut','Mortar pit','Watch post','Ammo store','Sangar','Field post']:SK_EXTRA;
 function skSix(list){
   const out=list.map(d=>d.slice()); let ex=0;
-  const open=(x,z)=>{ if(hillY(x,z)>0.3) return false; if(blocked(new V3(x,0,z),0.35,1.7)) return false; let n=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) n++; } return n<=2; };
+  const open=(x,z)=>{ if(hillY(x,z)>0.3||skWetOrBridge(x,z)) return false; if(blocked(new V3(x,0,z),0.35,1.7)) return false; let n=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) n++; } return n<=2; };
   while(out.length<6){
     let gi=0, gd=-1; for(let i=0;i<out.length-1;i++){ const d=Math.hypot(out[i][0]-out[i+1][0],out[i][1]-out[i+1][1]); if(d>gd){ gd=d; gi=i; } }
     const a=out[gi], b=out[gi+1], mx=(a[0]+b[0])/2, mz=(a[1]+b[1])/2;
@@ -7004,7 +7152,7 @@ function skFront(list0,n){
     if(best) sel.push(best);
   }
   sel.push(last);
-  const open=(x,z)=>{ if(hillY(x,z)>0.3) return false; if(blocked(new V3(x,0,z),0.35,1.7)) return false; let c=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) c++; } return c<=2; };
+  const open=(x,z)=>{ if(hillY(x,z)>0.3||skWetOrBridge(x,z)) return false; if(blocked(new V3(x,0,z),0.35,1.7)) return false; let c=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) c++; } return c<=2; };
   let ex=0;
   while(sel.length<n){
     let gi=0, gd=-1; for(let i=0;i<sel.length-1;i++){ const d=T(sel[i+1])-T(sel[i]); if(d>gd){ gd=d; gi=i; } }
@@ -7090,7 +7238,8 @@ function skirmBegin(){
   squadMode='free'; squadCmd.mode=null; squadCmd.zone=null; updateSquadLabel();
 }
 // ----- Frontlines: turn-based attack / defence along a line of buildings -----
-const FL_PHASE=300, FL_COUNTER=180, FL_MATCH=2400;      // 5-minute attack turns, a 3-minute counterattack when a side retakes a zone it lost, and a global match timer
+const FL_PHASE=300, FL_COUNTER=180, FL_MATCH_DEF=2400;      // 5-minute attack turns, a 3-minute counterattack when a side retakes a zone it lost, and a global match timer
+let FL_MATCH=FL_MATCH_DEF; try{ const v=+localStorage.getItem('ef_flmatch'); if(v===1200||v===2400) FL_MATCH=v; }catch(e){}      // match length you chose: 20 or 40 minutes
 function flTarget(){ const P=skirm.pts; return skirm.fl.atk==='ally' ? P.find(p=>p.owner!=='ally') : [...P].reverse().find(p=>p.owner!=='enemy'); }
 let phaseTimers=[];
 function showPhaseBanner(text){
@@ -8852,7 +9001,7 @@ function tankCollide1(tk,dx,dz){
     const d=ax==='x'?dx:dz; tk.pos[ax]+=d;
     for(const b of colliders){
       if(b.prop){ // trees, poles, fences, hedgehogs, sandbags: the tank just goes through and flattens them
-        if(!b.prop.fallen && Math.abs(tk.speed)>0.3 && tk.pos.x+1.9>b.min.x && tk.pos.x-1.9<b.max.x && tk.pos.z+1.9>b.min.z && tk.pos.z-1.9<b.max.z){ knockProp(b.prop,tk); (knocked||(knocked=[])).push(b); }
+        if(!b.prop.fallen && !/^boulder|^flag/.test(b.prop.name) && Math.abs(tk.speed)>0.3 && tk.pos.x+1.9>b.min.x && tk.pos.x-1.9<b.max.x && tk.pos.z+1.9>b.min.z && tk.pos.z-1.9<b.max.z){ knockProp(b.prop,tk); (knocked||(knocked=[])).push(b); }
         continue; }
       if(b.max.y<0.95 || (b.noBullet && b.max.y<1.25)) continue;
       if(tk.pos.x+R>b.min.x && tk.pos.x-R<b.max.x && tk.pos.z+R>b.min.z && tk.pos.z-R<b.max.z){
@@ -9352,6 +9501,13 @@ function updateTankPlayer(dt){
   const sight = (rmb||keys.KeyQ||touch.aim) && !tk.dead;
   gun.ads += ((sight?1:0)-gun.ads)*Math.min(1,dt*10);
   player.pitch=Math.max(-0.35,Math.min(0.5,player.pitch));
+  if(sight && tk.gun){      // gunner sight: your aim may only lead the gun a little, so the turret can't be dragged round and round
+    const gy=tk.heading+tk.turYaw, gpch=tk.gunPitch-(tk.dropComp||0), L=0.16;
+    if(!tk._sightOn){ player.yaw=gy; player.pitch=gpch; }
+    let dy=((player.yaw-gy+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+    player.yaw=gy+Math.max(-L,Math.min(L,dy)); player.pitch=Math.max(gpch-L*0.6,Math.min(gpch+L*0.6,player.pitch));
+  }
+  tk._sightOn=!!sight;
   const d=new V3(-Math.sin(player.yaw)*Math.cos(player.pitch),Math.sin(player.pitch),-Math.cos(player.yaw)*Math.cos(player.pitch));
   const piv=tk.pos.clone().add(new V3(0,2.6,0));
   let aimFrom;
@@ -9362,7 +9518,7 @@ function updateTankPlayer(dt){
     const yaw=tk.heading+tk.turYaw, pitch=tk.gunPitch-(tk.dropComp||0);
     camera.position.copy(gp).add(new V3(0,0.45,0)).addScaledVector(fwdOf(yaw),0.6);
     camera.lookAt(camera.position.clone().add(new V3(-Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch))));
-    aimFrom=camera.position.clone();
+    aimFrom=tk.pos.clone().add(new V3(0,2.6,0));      // fixed point on the hull, so the aim doesn't move when the turret turns
   } else {
     camera.position.copy(piv).addScaledVector(d,-10).add(new V3(0,1.2,0));
     if(camera.position.y<0.6) camera.position.y=0.6;
@@ -10192,7 +10348,7 @@ function buildSounds(){
 // Apple devices (Safari's audio engine) and phones get a much lighter sound setup so the audio never falls behind
 const LITE_AUDIO = IS_TOUCH || /Mac|iPhone|iPad|iPod/.test(navigator.platform||'') || /Safari/.test(navigator.userAgent) && !/Chrome|Chromium|Edg/.test(navigator.userAgent);
 let voices=0; const MAX_VOICES = LITE_AUDIO ? 14 : 28;
-const ECHO={cassino:0.45,lorraine:0.15,normandy:0.2,ardennes:0.2,ardsummer:0.2,berlin:0.5,stalingrad:0.42,moscow:0.32,duel:0.38,seelow:0.14,kursk:0.1};
+const ECHO={remagen:0.35,cassino:0.45,lorraine:0.15,normandy:0.2,ardennes:0.2,ardsummer:0.2,berlin:0.5,stalingrad:0.42,moscow:0.32,duel:0.38,seelow:0.14,kursk:0.1};
 function play(buf,vol=1,rate=1,delay=0,ech=0){
   if(!actx || !buf || vol<0.01) return;
   if(voices>=MAX_VOICES && delay===0 && vol<0.6) return;      // too many sounds at once: skip quiet far-away ones
@@ -10903,13 +11059,14 @@ const MAP_INFO={
   berlin:{date:'Eastern Front · April 1945',place:'Berlin, the Reichstag',text:'Street fighting through the ruins around the Reichstag, with rubble, barricades and cellars.'},
   seelow:{date:'Eastern Front · April 1945',place:'The Seelow Heights, above the Oder',text:'A muddy ridge. Dig your trench line before the enemy arrives, then hold the slope.'},
   cassino:{date:'Italian Front · May 1944',place:'The mountains above Cassino',text:'A cold mist hangs in a rocky mountain pass. The Allies come up from a shelf in the south; the Germans hold the heights in the north, with the shattered abbey at their back. A dusty path zig-zags up between stone sangars, dry-stone walls and small bunkers, past a ruined chapel, and the slopes on both sides are steep: climb them for the high ground, or cross the wildflower meadows tucked in the mountains.'},
+  remagen:{date:'Western Front · March 1945',place:'The Ludendorff bridge over the Rhine',text:'Golden evening light on the Rhine. The Americans come up from the town of Remagen on the south bank; the Germans hold Erpel and the rocky Erpeler Ley on the north bank. In the middle stands the railway bridge, scarred and half wrecked but still crossable, with the sunset reflected in the river. The ground is open: cross the bridge, wade the shallows, or work along the quays.'},
   lorraine:{date:'Western Front · September 1944',place:'The Lorraine farmland, autumn',text:'Rolling autumn fields with waist-high stone walls, orchards, hay bales and a line of poplars along the farm track. The ground is open: cross it from wall to wall, hay bale to hay bale, and take the farmstead, the barn, the mill and the ridge fort.'},
   ardsummer:{date:'Western Front · Summer',place:'The Ardennes forest',text:'A deep green summer forest around a winding logging track, a lodge and a shattered sawmill. Warm light, a hazy distance and dense trees to creep through.'},
   normandy:{date:'Western Front · June 1944',place:'A Normandy village, the bocage',text:'Small green fields walled in by thick hedgerows, sunken lanes and old stone farm buildings. Creep along the hedges, fight for the farmhouse, the barn, the church and the manor, and dig in wherever you like.'},
   ardennes:{date:'Western Front · Winter',place:'The Ardennes forest',text:'A snowbound pine forest cut by one winding logging track, with a lodge and a shattered sawmill. Thick fog, very close woods and a woodcutters camp. Fight between the trees and hold the crossroads.'}
 };
-const MAP_MENU=['stalingrad','kursk','berlin','seelow','ardennes','ardsummer','normandy','lorraine','cassino'];
-const sidesFor=id=>(isLor(id)||isCas(id))?['usa','german']:isNorm(id)?['usa','france','german']:isArd(id)?['france','german']:['soviet','german'];
+const MAP_MENU=['stalingrad','kursk','berlin','seelow','ardennes','ardsummer','normandy','lorraine','cassino','remagen'];
+const sidesFor=id=>(isLor(id)||isCas(id)||isRem(id))?['usa','german']:isNorm(id)?['usa','france','german']:isArd(id)?['france','german']:['soviet','german'];
 function showSidePick(title,sub,sides,pick,back){
   hideMenus(); state='menu'; $('sidePick').style.display='flex';
   $('spTitle').textContent=title; $('spSub').textContent=sub;
@@ -10950,7 +11107,7 @@ function showMapList(){
   hideMenus(); state='menu'; $('mapList').style.display='flex';
   const box=$('mapCards'); box.innerHTML='';
   MAP_MENU.forEach(id=>{ const I=MAP_INFO[id], sd=sidesFor(id).map(k=>SIDES[k].title).join(' or '), c=document.createElement('div'); c.className='mcard';
-    c.innerHTML=`<div class="mnum">${MAP_MENU.indexOf(id)+1}</div><div class="mbody"><b>${MAPS[id].short}${id==='cassino'?' <span class="mdone" style="color:#8fd0ff">NEW</span>':''}</b><span>${I.date} · ${I.place}</span><small>${sd}</small></div>`;
+    c.innerHTML=`<div class="mnum">${MAP_MENU.indexOf(id)+1}</div><div class="mbody"><b>${MAPS[id].short}${id==='remagen'?' <span class="mdone" style="color:#8fd0ff">NEW</span>':''}</b><span>${I.date} · ${I.place}</span><small>${sd}</small></div>`;
     c.onclick=()=>showSidePick(MAPS[id].short,'CHOOSE YOUR SIDE',sidesFor(id),()=>{ menuFlow='maps'; if(skirm.sel==='campaign') skirm.sel='frontline'; showBriefing(id); },showMapList);
     box.appendChild(c); });
 }
@@ -11008,7 +11165,9 @@ function renderSquadPick(mode){
   const fl=menuFlow==='maps' && skirm.sel==='frontline';
   if(fl){ if(squadBeforeFL===null) squadBeforeFL=SQUAD_MATES;
     if(SQUAD_MATES!==19){ SQUAD_MATES=19; buildForm(19); spawnWorld(selSide,selWeapon,true); }
-    el.innerHTML='<span style="opacity:.75;margin-right:8px">TEAMS:</span><b style="color:#ffd75e;letter-spacing:2px">20 v 20</b>'; return; }
+    el.innerHTML='<span style="opacity:.75;margin-right:8px">TEAMS:</span><b style="color:#ffd75e;letter-spacing:2px">20 v 20</b><br><span style="opacity:.75;margin-right:8px;display:inline-block;margin-top:6px">MATCH:</span>'+[[1200,'20 minutes'],[2400,'40 minutes']].map(([v,t])=>`<button class="sq${v===FL_MATCH?' sel':''}" data-m="${v}">${t}</button>`).join('');
+    el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ FL_MATCH=+b.dataset.m; try{ localStorage.setItem('ef_flmatch',FL_MATCH); }catch(e){} renderSquadPick(mode); });
+    return; }
   if(squadBeforeFL!==null){ SQUAD_MATES=squadBeforeFL; squadBeforeFL=null; buildForm(SQUAD_MATES); spawnWorld(selSide,selWeapon,true); }
   el.innerHTML='<span style="opacity:.75;margin-right:8px">SQUAD:</span>'+SQUAD_OPTIONS.map(n=>`<button class="sq${n===SQUAD_MATES?' sel':''}" data-n="${n}">${n} teammates</button>`).join('')+
     (SQUAD_MATES>=20?'<div style="font-size:11px;opacity:.6;margin-top:4px">20 teammates looks great but can lag on phones</div>':'');
@@ -11588,7 +11747,7 @@ function groundType(p){
   p=p||player.pos;
   if(DG.n>0 && dgAt(p.x,p.z)<-0.15) return 'mud';            // churned earth inside a trench
   if(mapSnow) return 'snow';                                  // ruins in winter are full of snow as well
-  if(RIVER && Math.abs(p.x)<RIVER.xe && Math.abs(p.z-RIVER.zc(p.x))<RIVER.hw && !RIVER.bridges.some(b=>Math.abs(p.x-b)<2.8)) return 'water';   // wading the Rapido
+  if(RIVER && Math.abs(p.x)<RIVER.xe && Math.abs(p.z-RIVER.zc(p.x))<RIVER.hw && !RIVER.bridges.some(b=>Math.abs(p.x-b)<(RIVER.bw||2.8))) return 'water';   // wading the Rapido
   for(const r of roofZones) if(p.x>r[0] && p.x<r[2] && p.z>r[1] && p.z<r[3]) return currentMap==='kursk'?'wood':'rubble';
   if(mapSnow) return 'snow';
   return currentMap==='berlin' ? 'rubble' : 'mud';
@@ -11820,12 +11979,14 @@ function liveHud(dt){
   if(!playing||!currentMap||air.on){ tag.style.display='none'; clk.style.display='none'; $('zoneMark').style.display='none'; HUDR.wasPlay=false; return; }
   if(!HUDR.wasPlay){ HUDR.wasPlay=true; }
   if(state==='playing' && !pdown.on) HUDR.clk+=dt;
-  const role=hudRole();
+  const flOnly=skirm.on && skirm.mode==='frontline';      // the ATTACK/DEFEND tag, its banner and the match clock belong to Frontlines only
+  const role=flOnly?hudRole():'';
   if(role){
     tag.style.display='block'; setTxt('sideTag',role);
     if(role!==HUDR.role){ HUDR.role=role; HUDR.t=4.2; const rb=$('roleBanner'); $('roleTxt').textContent=role; rb.className='show'+(role==='ATTACK'?' atk':''); }
   } else tag.style.display='none';
-  clk.style.display='block'; setTxt('clockTag',hudClockText());
+  if(flOnly){ clk.style.display='block'; setTxt('clockTag',hudClockText()); } else clk.style.display='none';
+  if(!role){ HUDR.role=''; HUDR.t=0; $('roleBanner').className=''; }
   if(HUDR.t>0){ HUDR.t-=dt; if(HUDR.t<=0.5){ const rb=$('roleBanner'); if(rb.className.indexOf('out')<0) rb.className+=' out'; } if(HUDR.t<=0){ $('roleBanner').className=''; } }
   if(HUDR.km>0){ HUDR.km-=dt; if(HUDR.km<=0.4) $('killMsg').className='out'; if(HUDR.km<=0) $('killMsg').className=''; }
   // health label: who you are and what you play
@@ -13020,7 +13181,7 @@ function updatePlayer(dt){
     try{ if(!isTankMap()&&!mounted&&!binoc&&!air.on&&state==='playing'){ camera.getWorldDirection(_xhD); _xhO.copy(camera.position); const tr=bulletTrace(_xhO,_xhD,220,null), so=tr.soldier; on=!!(so&&!so.dead&&so.team==='enemy'); } }catch(e){}
     XH.on=on; }
   const adsZ=gun.ads, gap=(4+W.spread*400*moveAcc(hs,P.crouch)*(1-gun.ads*0.6)+gun.kick*10+(P.onGround?0:14))*(1-0.5*adsZ)+0.6*adsZ;      // aiming pulls the crosshair in
-  updateCrosshair(tpAimOn?gap*0.6:gap,tpAimOn?(1-gun.sprintT):(W.scope?(1-gun.ads):(1-0.12*gun.ads))*(1-gun.sprintT),1-0.4*adsZ,XH.on);
+  updateCrosshair(tpAimOn?gap*0.6:gap,tpAimOn?(1-gun.sprintT):(1-gun.ads)*(1-gun.sprintT),1-0.4*adsZ,XH.on);
 }
 
 
@@ -13297,6 +13458,7 @@ function renderMain(){
    and snapped to the shadow map's own pixel grid, so shadows do not shimmer or crawl as you move ---- */
 const SUN_DIR=new V3(42,36,26).normalize(), _shC=new V3(), _shR=new V3(), _shU=new V3(), _shL=new V3();
 function placeShadows(){
+  { const sdv=MAPS[currentMap]&&MAPS[currentMap].sunDir; if(sdv) SUN_DIR.set(sdv[0],sdv[1],sdv[2]).normalize(); else SUN_DIR.set(42,36,26).normalize(); }
   camera.getWorldDirection(_shL); _shL.y=0; if(_shL.lengthSq()<1e-6) _shL.set(0,0,-1); _shL.normalize();
   _shC.set(camera.position.x,0,camera.position.z).addScaledVector(_shL,SHADOW_HALF*0.4);
   _shR.set(SUN_DIR.z,0,-SUN_DIR.x).normalize(); _shU.crossVectors(SUN_DIR,_shR).normalize();

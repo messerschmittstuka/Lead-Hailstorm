@@ -418,6 +418,7 @@
   body.touch #sideTag{left:calc(1.5*var(--u) + env(safe-area-inset-left));top:calc(1.2*var(--u));font-size:calc(3.2*var(--u));padding:1px calc(2*var(--u))}
   body.touch #clockTag{right:calc(1.5*var(--u) + env(safe-area-inset-right));top:calc(1.2*var(--u));font-size:calc(3.2*var(--u));padding:1px calc(2.4*var(--u))}
   body.touch #roleBanner{top:calc(18*var(--u))} body.touch #killMsg{bottom:calc(27*var(--u));font-size:calc(2.6*var(--u))}
+body:not(.touch) #side{display:none!important}
 </style>
 </head>
 <body>
@@ -441,7 +442,7 @@
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.36</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.39</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -1843,7 +1844,7 @@ function buildClutter(id){
     scatter(pg,_puddleMat,Math.floor(cf.puddles*(k>0.9?1:0.6)),mk,(x,y,z)=>{ _grp.set(x,0.014,z); _gre.set(0,Math.random()*6.28,0); _grq.setFromEuler(_gre); const r=0.9+Math.random()*2.4; _grs.set(r,1,r*(0.55+Math.random()*0.4)); _grm.compose(_grp,_grq,_grs); },['#2a2723','#33302a','#24211d'],false); }
 }
 
-GRASS_STYLE.cassino={dens:0.95,h:[0.45,1.05],w:[0.1,0.2],pal:['#6f8a2e','#7f9a35','#8a9a3a','#c8a93a','#d4b84a','#5e7a2a','#b49a3a','#8aa845']};
+GRASS_STYLE.cassino={dens:0.95,h:[0.45,1.05],w:[0.1,0.2],pal:['#6f8a2e','#7f9a35','#8a9a3a','#c8a93a','#d4b84a','#5e7a2a','#b49a3a','#8aa845','#e2c34a','#c9573a','#b88ad0']};
 GRASS_STYLE.lorraine={dens:0.92,h:[0.45,1.0],w:[0.1,0.2],pal:['#9a8a35','#a99a40','#8a7c2e','#b0a24a','#7a8a34','#a8782e','#c0aa55']};
 GRASS_STYLE.normandy={dens:0.85,h:[0.45,0.95],w:[0.1,0.2],pal:['#4f7a2c','#5f8f33','#6f9f3c','#3f6a26','#7fa845','#5a8a34','#8aae4a']}; CLUTTER.cassino={rocks:520,bricks:90,planks:30,puddles:2,rock:['#8c8a80','#777469','#9a9588','#6f6a5e']};
 CLUTTER.lorraine={rocks:320,bricks:70,planks:40,puddles:5,rock:['#8a857a','#777166','#9a9486']}; CLUTTER.normandy={rocks:200,bricks:90,planks:40,puddles:2,rock:['#7d7a70','#6b665c','#8c8676']};
@@ -1857,7 +1858,7 @@ const PATCHES={
   moscow:[[['#8a867c','#9a968c','#77736a'],100,1.2,3.4],[['#5a5044','#4a4238'],60,1.0,2.4],[['#eef1f3','#e2e7ea'],80,1.5,4.0]]
 };
 PATCHES.normandy=PATCHES.ardsummer;
-PATCHES.cassino=[[['#c2a53e','#d1b44a','#b5983a'],140,1.5,4.6],[['#6f8a2e','#7f9a35','#5e7a2a'],110,1.3,4.0],[['#8c8a80','#777469','#9a9588'],90,1.2,3.4],[['#7a5a3a','#8a6a44'],70,1.0,2.8]];
+PATCHES.cassino=[[['#c2a53e','#d1b44a','#b5983a'],140,1.5,4.6],[['#6f8a2e','#7f9a35','#5e7a2a'],110,1.3,4.0],[['#8c8a80','#777469','#9a9588'],90,1.2,3.4],[['#7a5a3a','#8a6a44'],70,1.0,2.8],[['#d83a2c','#f2c81a','#9a52c0','#f4f0e4','#4f78d8'],160,0.5,1.6]];
 PATCHES.lorraine=[[['#8a7a32','#9a8a3c','#7a6c2a'],150,1.4,4.4],[['#4a3b26','#54432b','#3d311f'],90,1.0,3.0],[['#a88a3a','#b89a46'],100,1.5,4.2],[['#5d7f2c','#6f9433'],60,1.2,3.4]];
 let _patchTex=null, _patchGeo=null;
 /* ---- pebbles and clods lying on roads and paths (the ground clutter keeps off them, so they were bare) ---- */
@@ -3458,120 +3459,96 @@ function buildLorraine(){
 /* ================= MONTE CASSINO · May 1944 =================
    800 x 800 studs (224 m square). South: olive groves, vineyards and farms (the Allied approach). The winding Rapido river (shallow, you wade it)
    with two stone bridges. North of it the ruined town of Cassino, and behind it the mountain with the ruined abbey on its shoulder. */
-const CAS_ZC=x=>44+5*Math.sin(x/24);                         // the river's centre line (z) at a given x
+// ---- Monte Cassino: a mountain pass. The path (switchbacks) runs from the Allied shelf in the south up to the abbey in the north; every shelf, path and clearing is flat, the mountains rise between them ----
+const CAS_PATH=[[0,90],[2,78],[-14,68],[-30,58],[-34,46],[-20,38],[2,34],[20,26],[24,10],[10,-2],[-8,-6],[-22,-16],[-30,-30],[-20,-42],[-6,-48],[0,-58],[0,-72]];
+const CAS_PTS=(()=>{ const o=[]; for(let i=0;i<CAS_PATH.length-1;i++){ const a=CAS_PATH[i], b=CAS_PATH[i+1], n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2.6)); for(let k=0;k<n;k++) o.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n]); } o.push(CAS_PATH[CAS_PATH.length-1].slice()); return o; })();
+const casPathD=(x,z)=>{ let m=1e9; for(const p of CAS_PTS){ const d=Math.hypot(x-p[0],z-p[1]); if(d<m) m=d; } return m; };
+const CAS_MEAD=[[-54,24,11],[52,40,11],[50,-22,11],[-56,-50,10],[54,-60,10]];                        // level clearings in the mountains: wildflower meadows
+const CAS_SP=[[-16,-58],[-8,-52],[0,-62],[8,-52],[16,-58],[-6,-68],[6,-68],[0,-48]];                  // German spawn pads
+const CAS_ZN=[[-30,58],[24,10],[-22,-16],[0,-84]];                                                  // the four objectives
+const CAS_FLAT=[...CAS_PTS.map(p=>[p[0],p[1],3.8]),...CAS_MEAD,...CAS_SP.map(p=>[p[0],p[1],5.5]),...CAS_ZN.map(p=>[p[0],p[1],9])];
 function buildCassino(){
   summerPine=true;
-  RIVER={zc:CAS_ZC,hw:5.5,xe:118,bridges:[-14,48]};
-  const stoneM=mat(0xb2a78e,{roughness:1}), stoneD=mat(0x8d836e,{roughness:1}), roadM=mat(0xb59e72,{roughness:1}), terra=mat(0xb4562c,{roughness:1}), terraD=mat(0x93431f,{roughness:1});
-  const vineM=mat(0x5e7a2a,{roughness:1}), postM=mat(0x5a4630,{roughness:1}), reedM=mat(0x8a8f3a,{roughness:1}), bankM=mat(0x7a6a46,{roughness:1}), waterM=new THREE.MeshStandardMaterial({color:0x4d6f86,roughness:0.22,metalness:0.25,transparent:true,opacity:0.86,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
-  const inRiv=(x,z,pad=0)=>Math.abs(z-CAS_ZC(x))<RIVER.hw+pad;
+  const stoneM=mat(0xb2a78e,{roughness:1}), stoneD=mat(0x8d836e,{roughness:1}), stoneW=mat(0xc9a98c,{roughness:1}), stoneG=mat(0x9a9d98,{roughness:1}), roadM=mat(0xb59e72,{roughness:1}), terra=mat(0xb4562c,{roughness:1}), terraD=mat(0x93431f,{roughness:1});
   const nearBld=(x,z,pad=3)=>roofZones.some(r=>x>r[0]-pad&&x<r[2]+pad&&z>r[1]-pad&&z<r[3]+pad);
-  const onRoad=(x,z)=>Math.abs(x+14)<5||Math.abs(x-48)<5||Math.abs(z+12)<5||(Math.abs(x-14)<5&&z<-8&&z>-58)||(Math.abs(z+56)<5&&x>12&&x<64)||(Math.abs(x-62)<5&&z<-52&&z>-68);
-  const free=(x,z,pad=3)=>Math.abs(x)<L-4&&Math.abs(z)<L-4&&!inRiv(x,z,2)&&!nearBld(x,z,pad)&&!onRoad(x,z);
-  // ---- roads (sand-coloured) ----
-  sBox(-14,0.01,0,6,0.01,2*L,roadM,false);                         // the south-north road over the first bridge
-  sBox(48,0.01,48,6,0.01,2*(L-48)+2,roadM,false);                  // the east road over the second bridge
-  sBox(0,0.012,-12,140,0.01,5,roadM,false);                        // the high street of Cassino
-  sBox(14,0.014,-32,5,0.01,48,roadM,false); sBox(38,0.014,-56,53,0.01,5,roadM,false); sBox(62,0.014,-62,5,0.01,12,roadM,false);   // the mountain road up to the abbey gate
-  // ---- the river: a ribbon that follows the centre line, muddy banks, bridges ----
-  { const pos=[], idx=[], pos2=[], idx2=[]; const XS=[]; for(let x=-L-6;x<=L+6;x+=4) XS.push(x);
-    XS.forEach((x,i)=>{ const zc=CAS_ZC(x); pos.push(x,0.07,zc-RIVER.hw,x,0.07,zc+RIVER.hw); pos2.push(x,0.025,zc-RIVER.hw-1.6,x,0.025,zc+RIVER.hw+1.6);
-      if(i){ const a=(i-1)*2; idx.push(a,a+1,a+2,a+1,a+3,a+2); idx2.push(a,a+1,a+2,a+1,a+3,a+2); } });
-    const mkR=(P,I,m,ro)=>{ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setIndex(I); g.computeVertexNormals();
-      const me=new THREE.Mesh(g,m); me.receiveShadow=true; me.raycast=()=>{}; me.renderOrder=ro; mapRoot.add(me); };
-    mkR(pos2,idx2,bankM,0); mkR(pos,idx,waterM,1); }
-  for(const bx of RIVER.bridges){ const zc=CAS_ZC(bx), w=6.4, len=RIVER.hw*2+4;
-    addGeo(new THREE.BoxGeometry(w,0.16,len),stoneM,bx,0.09,zc);                                                  // deck (flush with the road)
-    for(const sx of [-1,1]){ sBox(bx+sx*(w/2-0.2),0.0,zc,0.45,0.95,len,stoneM);                                  // low stone parapets
-      for(let u=-len/2+1;u<len/2;u+=3) addGeo(new THREE.BoxGeometry(0.6,0.14,1.0),stoneD,bx+sx*(w/2-0.2),1.02,zc+u,0,0,0); }
-    sBox(bx-w/2-0.6,0,zc-len/2-0.4,1.2,1.2,0.9,stoneD); sBox(bx+w/2+0.6,0,zc+len/2+0.4,1.2,1.2,0.9,stoneD); }
-  // the first bridge is half blown: a gap in the south parapet and rubble in the road
-  sandbags(-19,CAS_ZC(-14)+9,5); sandbags(-9,CAS_ZC(-14)-9,5); sandbags(43,CAS_ZC(48)+9,5); sandbags(53,CAS_ZC(48)-9,4);
-  for(let i=0;i<46;i++){ const x=-L+3+rnd()*(2*L-6), side=rnd()<.5?-1:1, z=CAS_ZC(x)+side*(RIVER.hw+0.6+rnd()*1.4); if(Math.abs(x+14)<5||Math.abs(x-48)<5) continue;       // reeds along the banks
-    for(let k=0;k<3;k++) addGeo(new THREE.CylinderGeometry(0.02,0.03,1.0+rnd()*0.7,4),reedM,x+(rnd()-.5)*0.7,0.5,z+(rnd()-.5)*0.7,(rnd()-.5)*0.3,0,(rnd()-.5)*0.3); }
-  for(let i=0;i<60;i++){ const x=-L+3+rnd()*(2*L-6), z=CAS_ZC(x)+(rnd()-.5)*(RIVER.hw*2-1); if(Math.abs(x+14)<4||Math.abs(x-48)<4) continue; addGeo(new THREE.DodecahedronGeometry(0.12+rnd()*0.22,0),stoneD,x,0.04,z); }   // stones in the shallows
-  // ---- the old town of Cassino (ruined, warm stone) ----
-  const terraceRoof=(x0,z0,x1,z1,H,flip)=>{ const w=x1-x0, d=z1-z0; addGeo(new THREE.BoxGeometry(w,0.14,d*0.46),terra,(x0+x1)/2,H+0.8,flip?z0+d*0.24:z1-d*0.24,flip?-0.5:0.5,0,0); addGeo(new THREE.BoxGeometry(w*0.4,0.12,d*0.3),terraD,x0+w*0.3,H+1.2,(z0+z1)/2,0,0,0.3); };
-  const B=[ [-44,-28,-34,-18,2,'plaster',{s:[4]}],[-31,-28,-20,-18,3,'brick',{s:[5],e:[6]}],[-8,-29,1,-18,2,'plaster',{s:[4],w:[5]}],[4,-28,12,-18,2,'brick',{s:[4]}],
-            [-44,-6,-34,4,2,'brick',{n:[4]}],[-31,-6,-21,3,2,'plaster',{n:[4],e:[5]}],[-8,-6,2,4,3,'brick',{n:[4],w:[5]}],[5,-7,13,2,2,'plaster',{n:[3]}],
-            [-31,9,-20,19,3,'brick',{e:[5],n:[4]}],[-8,10,3,19,2,'plaster',{w:[5],n:[4]}],[-48,-17,-45,-8,1,'plaster',{e:[3]}],[16,-26,24,-18,2,'plaster',{s:[3]}] ];
-  for(const b of B){ ruinedBuilding(b[0],b[1],b[2],b[3],b[4],b[5],b[6]); if(rnd()<0.8) terraceRoof(b[0],b[1],b[2],b[3],b[4]*3,rnd()<.5); }
-  // the church of Santa Maria and its bell tower (the north-west block of the square)
-  addGeo(new THREE.BoxGeometry(4.2,16,4.2),stoneM,-35.5,8,-26.5); addCollider(new THREE.Box3(new V3(-37.7,0,-28.7),new V3(-33.3,16,-24.3)));
-  addGeo(new THREE.BoxGeometry(3.4,0.5,3.4),stoneD,-35.5,16.2,-26.5); for(const [dx,dz] of [[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]]) addGeo(new THREE.BoxGeometry(0.5,2.2,0.5),stoneM,-35.5+dx,17.3,-26.5+dz);
-  // the town square: a fountain, a well and rubble
-  addGeo(new THREE.CylinderGeometry(1.6,1.8,0.7,14),stoneM,-14,0.35,-1); addCollider(new THREE.Box3(new V3(-15.7,0,-2.7),new V3(-12.3,0.8,0.7)));
-  addGeo(new THREE.CylinderGeometry(0.25,0.35,1.7,8),stoneD,-14,1.2,-1);
-  // ---- Rapido bank: the line the Germans left half finished, and wrecks on the road ----
-  sandbags(-30,26,5); sandbags(-6,28,5); sandbags(-20,30,4); sandbags(8,24,4);
-  barbedWire(-44,32,-24,32); barbedWire(-4,34,16,34); barbedWire(30,34,44,34);
-  for(const [x,z] of [[-22,30],[-4,36],[36,36],[22,30]]) hedgehog(x,z);
-  wreckTank(-16,CAS_ZC(-14)-14,0.4,false); wreckTank(26,24,2.0,true); wreckTruck(-26,-14,1.2); wreckTruck(54,66,0.6);
-  // ---- the abbey on the mountain (ruined) with its walls, tower and courtyard ----
-  ruinedBuilding(46,-90,76,-83,3,'brick',{s:[10,19]});                      // north range
-  ruinedBuilding(46,-69,76,-62,3,'brick',{n:[6,19],s:[12]});               // south range with the gate
-  ruinedBuilding(46,-83,52,-69,2,'brick',{e:[5]});                          // west range
-  ruinedBuilding(70,-83,76,-69,2,'brick',{w:[5,10]});                      // east range
-  addGeo(new THREE.BoxGeometry(5,18,5),stoneM,78,9,-64.5); addCollider(new THREE.Box3(new V3(75.5,0,-67),new V3(80.5,18,-62)));       // bell tower
-  addGeo(new THREE.CylinderGeometry(1.0,1.2,1.0,10),stoneD,67,0.5,-72); addCollider(new THREE.Box3(new V3(66,0,-73),new V3(68,1,-71)));   // the cloister well
-  for(const [x,z,w,d] of [[46,-60,12,0.9],[64,-60,14,0.9]]) sBox(x+w/2,0,z,w,1.5,d,stoneM);                    // broken outer wall (gate gap in the middle)
-  sBox(44,0,-76,0.9,1.5,30,stoneM); sBox(78,0,-78,0.9,1.5,22,stoneM);
-  sandbags(55,-57,5); sandbags(68,-57,5); sandbags(50,-52,4); sandbags(72,-52,4); sandbags(28,-50,5); sandbags(40,-50,4);
-  for(const [x,z] of [[48,-50],[62,-50],[30,-52],[76,-50]]) hedgehog(x,z);
-  barbedWire(20,-46,44,-46); barbedWire(52,-46,76,-46);
-  // dug-in positions on the slopes: low ruined stone sangars (cover) and cave-like bunker fronts
-  for(const [x,z,w] of [[30,-66,5],[38,-76,5]]){ sBox(x,0,z,w,1.1,0.8,stoneD); sBox(x-w/2,0,z+1.2,0.8,1.1,2.4,stoneD); sBox(x+w/2,0,z+1.2,0.8,1.1,2.4,stoneD); }
-  // ---- farms and olive groves in the south (the Allied approach) ----
-  ruinedBuilding(-36,66,-26,76,2,'plaster',{n:[4],e:[5]});                 // the olive farm
-  ruinedBuilding(34,70,44,78,2,'brick',{n:[4],w:[5]});
-  ruinedBuilding(70,60,77,66,1,'plaster',{w:[3]}); ruinedBuilding(-70,52,-62,59,1,'plaster',{e:[3]}); ruinedBuilding(-8,84,-1,90,1,'plaster',{n:[3]});
-  terraceRoof(-36,66,-26,76,6,false); terraceRoof(34,70,44,78,6,true);
+  const ok=(x,z,pad=3)=>Math.abs(x)<L-4&&Math.abs(z)<L-4&&!nearBld(x,z,pad)&&casPathD(x,z)>4.5&&!CAS_SP.some(q=>Math.hypot(x-q[0],z-q[1])<7)&&!CAS_ZN.some(q=>Math.hypot(x-q[0],z-q[1])<11);
+  const stoneAny=()=>[stoneM,stoneD,stoneW,stoneG][(rnd()*4)|0];
+  // ---- the mountain path: a dusty track that zig-zags up the pass ----
+  for(let i=0;i<CAS_PATH.length-1;i++){ const a=CAS_PATH[i], b=CAS_PATH[i+1], dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz);
+    addGeo(new THREE.BoxGeometry(len+1.6,0.01,5.4),roadM,(a[0]+b[0])/2,0.012,(a[1]+b[1])/2,0,-Math.atan2(dz,dx),0); }
+  // ---- helpers: a stone sangar (a low U-shaped wall; back=+1 opens towards +z), a dry-stone wall ----
+  const sangar=(x,z,w=5,back=1)=>{ const m=stoneAny(); sBox(x,0,z,w,1.2,0.8,m); sBox(x-w/2,0,z+back*1.2,0.8,1.2,2.4,m); sBox(x+w/2,0,z+back*1.2,0.8,1.2,2.4,m); sandbags(x-1.2,z+back*0.1,2.4); };
   function wall(ax,c,a0,a1,gaps){ const segs=[]; let a=a0; for(const [g0,g1] of gaps.slice().sort((p,q)=>p[0]-q[0])){ if(g0>a) segs.push([a,g0]); a=g1; } if(a1>a) segs.push([a,a1]);
-    for(const [s0,s1] of segs){ const Ln=s1-s0, mid=(s0+s1)/2; if(ax==='x') sBox(mid,0,c,Ln,1.1,0.6,stoneM); else sBox(c,0,mid,0.6,1.1,Ln,stoneM); } }
-  wall('x',96,-110,110,[[-20,-8],[44,52]]); wall('z',-54,58,96,[[74,80]]); wall('z',66,58,96,[[72,80]]);
+    for(const [s0,s1] of segs){ const Ln=s1-s0, mid=(s0+s1)/2, m=stoneAny(); if(ax==='x') sBox(mid,0,c,Ln,1.1,0.6,m); else sBox(c,0,mid,0.6,1.1,Ln,m); } }
+  const terraceRoof=(x0,z0,x1,z1,H,flip)=>{ const w=x1-x0, d=z1-z0; addGeo(new THREE.BoxGeometry(w,0.14,d*0.46),terra,(x0+x1)/2,H+0.8,flip?z0+d*0.24:z1-d*0.24,flip?-0.5:0.5,0,0); addGeo(new THREE.BoxGeometry(w*0.4,0.12,d*0.3),terraD,x0+w*0.3,H+1.2,(z0+z1)/2,0,0,0); };
+  // ---- the Allied shelf in the south: terrace walls, sangars, sandbags, a wrecked truck ----
+  wall('x',84,-34,34,[[-6,6]]); wall('x',70,8,40,[]); wall('x',48,-60,-40,[]);
+  sangar(14,80,6,1); sangar(-20,80,5,1); sangar(-22,52,5,1); sangar(-10,27,6,1); sangar(8,18,5,1);
+  sandbags(-26,48,5); sandbags(-16,60,4); sandbags(6,72,4);
+  ruinedBuilding(-47,50,-40,57,1,'plaster',{e:[3]}); terraceRoof(-47,50,-40,57,3,false);                    // a shepherd's hut by the first bunkers
+  ruinedBuilding(-44,64,-37,70,1,'brick',{n:[3]});
+  wreckTruck(5,70,0.9);
+  // ---- the ruined chapel (middle of the pass) ----
+  ruinedBuilding(31,3,42,15,2,'brick',{w:[7],s:[5]});                                                       // the nave
+  addGeo(new THREE.BoxGeometry(3,10,3),stoneM,43.6,5,4.5); addCollider(new THREE.Box3(new V3(42.1,0,3),new V3(45.1,10,6)));       // the bell gable
+  addGeo(new THREE.CylinderGeometry(1.0,1.2,0.9,10),stoneD,28,0.45,18); addCollider(new THREE.Box3(new V3(27,0,17),new V3(29,0.9,19)));    // a well
+  sangar(12,22,5,1); sangar(30,24,5,1); sandbags(16,12,4); sandbags(24,-4,4); hedgehog(26,26); hedgehog(14,16);
+  wall('z',46,16,34,[]);
+  // ---- the bunkers on the switchbacks ----
+  ruinedBuilding(-38,-23,-31,-16,1,'brick',{e:[3]}); ruinedBuilding(-14,-27,-8,-20,1,'brick',{w:[3]}); ruinedBuilding(2,-16,8,-10,1,'plaster',{s:[3]});
+  sangar(-16,-6,6,-1); sangar(-34,-34,5,-1); sangar(2,-30,5,-1); sangar(-14,-34,5,-1);
+  sandbags(-26,-8,4); sandbags(-24,-24,4); hedgehog(-12,-16); hedgehog(-28,-22);
+  barbedWire(-14,-38,6,-38);
+  // ---- German line and the abbey on the heights (north) ----
+  sangar(8,-44,6,-1); sangar(18,-48,5,-1); sangar(-26,-44,6,-1); sangar(-14,-46,5,-1);
+  sandbags(-9,-74,5); sandbags(9,-74,5); hedgehog(-5,-74); hedgehog(5,-74);
+  barbedWire(-18,-72,-5,-72); barbedWire(5,-72,18,-72);
+  ruinedBuilding(-18,-100,18,-93,3,'brick',{s:[8,22]});                                                    // the north range
+  ruinedBuilding(-18,-93,-12,-80,2,'brick',{e:[5]});                                                         // west range
+  ruinedBuilding(12,-93,18,-80,2,'brick',{w:[5]});                                                           // east range
+  sBox(-11,0,-78,14,2.0,0.9,stoneM); sBox(11,0,-78,14,2.0,0.9,stoneM);                                      // the outer wall with the gate gap in the middle
+  addGeo(new THREE.BoxGeometry(5,18,5),stoneM,-24,9,-96); addCollider(new THREE.Box3(new V3(-26.5,0,-98.5),new V3(-21.5,18,-93.5)));   // the bell tower
+  addGeo(new THREE.CylinderGeometry(1.0,1.2,1.0,10),stoneD,0,0.5,-86); addCollider(new THREE.Box3(new V3(-1,0,-87),new V3(1,1,-85)));   // the cloister well
+  sandbags(-6,-82,4); sandbags(6,-82,4); sandbags(0,-90,3);
+  // ---- shepherd huts and walls beside the mountain meadows ----
+  ruinedBuilding(-62,16,-56,22,1,'plaster',{e:[3]}); ruinedBuilding(58,46,64,52,1,'brick',{w:[3]}); ruinedBuilding(56,-26,62,-20,1,'plaster',{s:[3]}); ruinedBuilding(-62,-56,-56,-50,1,'brick',{e:[3]});
+  wall('x',34,-66,-44,[]); wall('z',64,28,50,[]); wall('x',-34,40,62,[]); wall('x',-66,-66,-46,[]);
+  // ---- trees: olive terraces behind the south walls, stone pines and dark pines on the slopes, cypresses beside the chapel ----
   const buildOlive=()=>{ const a=[[new THREE.CylinderGeometry(0.13,0.24,1.7,6),0x5a4a38,0,0.85,0]];
     a.push([new THREE.IcosahedronGeometry(1.25,1),0x7d8a5a,0,2.3,0]); a.push([new THREE.IcosahedronGeometry(0.9,1),0x6b7a4c,0.8,1.9,0.4]); a.push([new THREE.IcosahedronGeometry(0.85,1),0x8f9a66,-0.7,2.0,-0.5]); return a; };
   const buildCypress=()=>{ const a=[[new THREE.CylinderGeometry(0.1,0.16,1.0,6),0x4d3a28,0,0.5,0]];
     a.push([new THREE.ConeGeometry(0.75,4.4,7),0x2d4a2a,0,3.0,0]); a.push([new THREE.ConeGeometry(0.6,3.6,7),0x35552f,0,5.8,0]); a.push([new THREE.ConeGeometry(0.4,2.4,7),0x2a4527,0,8.0,0]); return a; };
   const buildUmbrella=()=>{ const a=[[new THREE.CylinderGeometry(0.18,0.3,4.4,7),0x5a4636,0,2.2,0]];
     a.push([new THREE.CylinderGeometry(3.0,2.4,0.9,10),0x3f6a2c,0,5.0,0]); a.push([new THREE.IcosahedronGeometry(1.8,1),0x4a7a32,0.6,5.3,0.3]); return a; };
-  // olive groves: staggered rows
-  for(const [x0,z0,x1,z1] of [[-110,66,-40,108],[56,60,108,108],[-110,-52,-52,-34],[60,-48,108,-10]]) for(let x=x0;x<x1;x+=6.5) for(let z=z0;z<z1;z+=6.5){ const px=x+((((z-z0)/6.5)|0)%2)*3.2+(rnd()-.5)*1.4, pz=z+(rnd()-.5)*1.4; if(free(px,pz,2.5)) addProp('olive',buildOlive,px,pz,rnd()*6,0.9+rnd()*0.4,0.35,2.6); }
-  // vineyards: rows of low green vines on posts, with gaps to run through
-  for(const [x0,z0,x1,z1] of [[-30,50,-8,64],[8,52,34,62],[60,-8,100,10],[-108,6,-60,26]]) for(let z=z0;z<z1;z+=3.4){ for(let x=x0;x<x1-6;x+=10){ if(!free(x+4,z,1.5)) continue; sBox(x,0,z,8,0.85,0.5,vineM); for(let u=0;u<=8;u+=2) addGeo(new THREE.BoxGeometry(0.1,1.1,0.1),postM,x+u,0.55,z); } }
-  // cypresses along the roads and the abbey approach, umbrella pines on the hills
-  for(let z=-60;z<=L-6;z+=11){ for(const sx of [-1,1]){ const x=-14+sx*5.2; if(inRiv(x,z,3)||nearBld(x,z,2)) continue; addProp('cypress',buildCypress,x,z+(rnd()-.5)*1.5,rnd()*6,0.95+rnd()*0.3,0.5,8); } }
-  for(let z=60;z<=L-6;z+=12){ for(const sx of [-1,1]){ const x=48+sx*5.2; if(inRiv(x,z,3)||nearBld(x,z,2)) continue; addProp('cypress',buildCypress,x,z,rnd()*6,1,0.5,8); } }
-  for(let i=0;i<14;i++){ const x=-100+rnd()*200, z=-48+rnd()*-60; if(!free(x,z,5)||nearBld(x,z,6)||Math.abs(x-14)<9) continue; addProp('umbrella',buildUmbrella,x,z,rnd()*6,1+rnd()*0.4,0.5,5.5); }
-  for(let i=0;i<30;i++){ const x=(rnd()-.5)*2*(L-8), z=-30+rnd()*120; if(!free(x,z,4)||z>56&&z<66) continue; addProp('olive',buildOlive,x,z,rnd()*6,1,0.35,2.6); }
-  // golden stubble and hay in the open fields between the olives
-  const hay=mat(0xd9b95a,{roughness:1});
-  for(let i=0;i<22;i++){ const x=(rnd()-.5)*2*(L-8), z=20+rnd()*80; if(!free(x,z,3)||Math.abs(x+14)<7) continue; addGeo(new THREE.CylinderGeometry(0.9,0.9,1.3,12),hay,x,0.65,z,Math.PI/2,rnd()*3,0); addCollider(new THREE.Box3(new V3(x-0.95,0,z-0.95),new V3(x+0.95,1.4,z+0.95))); }
-  // wild flowers: small clumps of red, yellow and purple
-  const fl=[mat(0xc7372b,{roughness:1}),mat(0xf0c419,{roughness:1}),mat(0x8a4bb0,{roughness:1}),mat(0xf2efe6,{roughness:1})];
-  for(let i=0;i<80;i++){ const x=(rnd()-.5)*2*(L-6), z=(rnd()-.5)*2*(L-6); if(!free(x,z,2)||z<-44) continue; const m=fl[(rnd()*4)|0];
-    for(let k=0;k<5;k++) addGeo(new THREE.SphereGeometry(0.07,5,4),m,x+(rnd()-.5)*0.9,0.14+rnd()*0.1,z+(rnd()-.5)*0.9); }
-  // ---- the battlefield is damaged: craters, wrecks, burning, shattered poles ----
-  for(let i=0;i<34;i++){ const x=(rnd()-.5)*2*(L-8), z=(rnd()-.5)*2*(L-8); if(!free(x,z,2)) continue; crater(x,z,1.0+rnd()*1.6); }
-  [[-14,16,2.4],[-20,-8,2],[0,-14,1.8],[-28,-12,2.2],[12,-10,1.8],[-14,60,2],[30,28,2.2],[-48,24,2],[58,-46,2],[-8,-56,2]].forEach(c=>crater(c[0],c[1],c[2]));
-  for(const [px,pz] of [[-8,-20],[-20,12],[0,36],[14,-40],[-40,40]]) brokenPole(px,pz);
-  // ---- on the mountains: boulders and rock outcrops, scrub, a few pines, and a marker at each summit ----
-  { const TC=TERR.cassino, ASPc=[[-16,-54],[0,-54],[16,-54],[-8,-46],[8,-46],[-24,-50],[0,-62],[16,-62]];
-    const buildBoulder=()=>{ const g=new THREE.DodecahedronGeometry(1.0,0); g.scale(1.3,0.85,1.1); const g2=new THREE.DodecahedronGeometry(0.7,0); g2.scale(1.1,0.8,1.0);
-      return [[g,0x8a877c,0,0.6,0],[g2,0x76736a,0.95,0.4,0.45]]; };
-    const buildScrub=()=>{ const g=new THREE.IcosahedronGeometry(0.6,0); g.scale(1.3,0.8,1.1); const g2=new THREE.IcosahedronGeometry(0.45,0); return [[g,0x5b7a3a,0,0.4,0],[g2,0x70894a,0.5,0.3,0.25]]; };
-    const buildFlag=()=>{ const g=new THREE.DodecahedronGeometry(0.9,0); g.scale(1.4,0.7,1.2);
-      return [[g,0x8a877c,0,0.3,0],[new THREE.DodecahedronGeometry(0.6,0),0x76736a,0.9,0.25,0.5],[new THREE.CylinderGeometry(0.05,0.08,6.4,6),0x4a3a2a,0,3.4,0],[new THREE.BoxGeometry(1.7,1.0,0.04),0xcfc8b0,0.9,5.9,0]]; };
-    const ok=(x,z)=>Math.abs(x)<L-3&&Math.abs(z)<L-3&&!nearBld(x,z,3)&&!onRoad(x,z)&&!inRiv(x,z,2)&&!ASPc.some(q=>Math.hypot(x-q[0],z-q[1])<6);
-    let nb=0, ns=0, nt=0;
-    for(let i=0;i<2600&&(nb<120||ns<200);i++){ const x=(rnd()*2-1)*(L-4), z=-24-rnd()*(L-28); const h=TC.cone(x,z); if(h<2.5||!ok(x,z)) continue;
-      const r=rnd();
-      if(r<0.22 && nb<120){ const big=h>9&&rnd()<0.3; addProp('boulder',buildBoulder,x,z,rnd()*6,big?2.2+rnd()*1.6:0.7+rnd()*1.1,big?3.4:1.6,big?2.6:1.2); nb++; }
-      else if(r<0.78 && ns<200){ addProp('scrub',buildScrub,x,z,rnd()*6,0.8+rnd()*0.9,0,0); ns++; }
-      else if(h<15 && nt<46){ addProp('umbrella',buildUmbrella,x,z,rnd()*6,0.8+rnd()*0.5,0.5,5.5); nt++; } }
-    for(const [x,z] of [[-84,-86],[100,-96]]) addProp('flag',buildFlag,x,z,0.4,1,1.4,1.2); }
+  for(const [x0,z0,x1,z1] of [[-42,72,-8,79],[10,72,40,79],[-62,40,-44,46],[-62,-32,-40,-24]]) for(let x=x0;x<x1;x+=6){ for(let z=z0;z<z1;z+=5.5){ const px=x+(rnd()-.5)*1.6, pz=z+(rnd()-.5)*1.4; if(ok(px,pz,2.5)) addProp('olive',buildOlive,px,pz,rnd()*6,0.9+rnd()*0.3,0.35,2.6); } }
+  for(let i=0;i<14;i++){ const a=CAS_PTS[(rnd()*CAS_PTS.length)|0]; const x=a[0]+(rnd()<.5?-1:1)*(6+rnd()*3), z=a[1]+(rnd()-.5)*4; if(ok(x,z,2)) addProp('cypress',buildCypress,x,z,rnd()*6,0.95+rnd()*0.3,0.5,8); }
+  for(let i=0;i<46;i++){ const x=(rnd()*2-1)*(L-6), z=(rnd()*2-1)*(L-6); if(ok(x,z,5)) addProp('umbrella',buildUmbrella,x,z,rnd()*6,0.9+rnd()*0.4,0.5,5.5); }
+  for(let i=0;i<260;i++){ const x=(rnd()*2-1)*(L-5), z=(rnd()*2-1)*(L-5); if(Math.abs(x)<18&&casPathD(x,z)<12) continue; if(ok(x,z,4)) pine(x,z); }
+  // ---- boulders and scrub on the slopes (several colours), cover beside the path, and a marker on two summits ----
+  const buildBoulder=()=>{ const g=new THREE.DodecahedronGeometry(1.0,0); g.scale(1.3,0.85,1.1); const g2=new THREE.DodecahedronGeometry(0.7,0); g2.scale(1.1,0.8,1.0);
+    return [[g,0x8a877c,0,0.6,0],[g2,0x76736a,0.95,0.4,0.45]]; };
+  const buildBoulderW=()=>{ const g=new THREE.DodecahedronGeometry(1.0,0); g.scale(1.2,0.85,1.2); const g2=new THREE.DodecahedronGeometry(0.7,0); g2.scale(1.1,0.8,1.0);
+    return [[g,0xb59a80,0,0.6,0],[g2,0x9c8a72,-0.9,0.4,0.4]]; };
+  const mkScrub=(c1,c2)=>()=>{ const g=new THREE.IcosahedronGeometry(0.6,0); g.scale(1.3,0.8,1.1); const g2=new THREE.IcosahedronGeometry(0.45,0); return [[g,c1,0,0.4,0],[g2,c2,0.5,0.3,0.25]]; };
+  const scrubs=[['scrubG',mkScrub(0x5b7a3a,0x70894a)],['scrubY',mkScrub(0xb8a23a,0xd2bf52)],['scrubR',mkScrub(0x9a5a34,0xb8703c)],['scrubL',mkScrub(0x7a9a4a,0x9ab85a)]];
+  const buildFlag=()=>{ const g=new THREE.DodecahedronGeometry(0.9,0); g.scale(1.4,0.7,1.2);
+    return [[g,0x8a877c,0,0.3,0],[new THREE.DodecahedronGeometry(0.6,0),0x76736a,0.9,0.25,0.5],[new THREE.CylinderGeometry(0.05,0.08,6.4,6),0x4a3a2a,0,3.4,0],[new THREE.BoxGeometry(1.7,1.0,0.04),0xcfc8b0,0.9,5.9,0]]; };
+  let nb=0, ns=0;
+  for(let i=0;i<3200&&(nb<150||ns<240);i++){ const x=(rnd()*2-1)*(L-4), z=(rnd()*2-1)*(L-4); if(!ok(x,z)) continue; const r=rnd();
+    if(r<0.3&&nb<150){ const big=rnd()<0.3; const w=rnd()<0.4; addProp(w?'boulderW':'boulder',w?buildBoulderW:buildBoulder,x,z,rnd()*6,big?2.2+rnd()*1.6:0.7+rnd()*1.1,big?3.4:1.6,big?2.6:1.2); nb++; }
+    else if(ns<240){ const s=scrubs[(rnd()*4)|0]; addProp(s[0],s[1],x,z,rnd()*6,0.8+rnd()*0.9,0,0); ns++; } }
+  for(let i=0;i<70;i++){ const a=CAS_PTS[(rnd()*CAS_PTS.length)|0], ang=rnd()*6.28, d=5.6+rnd()*4, x=a[0]+Math.cos(ang)*d, z=a[1]+Math.sin(ang)*d; if(ok(x,z,2)) addProp('boulder',buildBoulder,x,z,rnd()*6,1.0+rnd()*1.3,2.0,1.5); }
+  for(const [x,z] of [[-86,-60],[88,-40]]) addProp('flag',buildFlag,x,z,0.4,1,1.4,1.2);
+  // ---- colour: wildflower meadows in every clearing and along the path ----
+  const mkFl=c=>()=>{ const a=[[new THREE.IcosahedronGeometry(0.2,0),0x5e8a34,0,0.12,0]]; for(let k=0;k<6;k++){ const an=k*1.05+0.4, d=0.1+((k*37)%10)*0.045; a.push([new THREE.SphereGeometry(0.085,5,4),c,Math.cos(an)*d,0.26+((k*13)%5)*0.04,Math.sin(an)*d]); } return a; };
+  const fls=[['flR',0xd83a2c],['flY',0xf2c81a],['flP',0x9a52c0],['flW',0xf4f0e4],['flB',0x4f78d8],['flO',0xee8a2e]].map(f=>[f[0],mkFl(f[1])]);
+  for(const [mx,mz,mr] of CAS_MEAD) for(let i=0;i<46;i++){ const an=rnd()*6.28, d=Math.sqrt(rnd())*(mr-1), x=mx+Math.cos(an)*d, z=mz+Math.sin(an)*d, f=fls[(rnd()*6)|0]; if(nearBld(x,z,1)) continue; addProp(f[0],f[1],x,z,rnd()*6,0.9+rnd()*0.6,0,0); }
+  for(let i=0;i<110;i++){ const a=CAS_PTS[(rnd()*CAS_PTS.length)|0], ang=rnd()*6.28, d=3.4+rnd()*4.5, x=a[0]+Math.cos(ang)*d, z=a[1]+Math.sin(ang)*d; if(!ok(x,z,1.5)) continue; const f=fls[(rnd()*6)|0]; addProp(f[0],f[1],x,z,rnd()*6,0.8+rnd()*0.7,0,0); }
+  // ---- the battlefield is damaged: craters, burning, shattered poles ----
+  for(let i=0;i<22;i++){ const a=CAS_PTS[(rnd()*CAS_PTS.length)|0]; const x=a[0]+(rnd()-.5)*5, z=a[1]+(rnd()-.5)*5; if(nearBld(x,z,2)) continue; crater(x,z,1.0+rnd()*1.6); }
+  for(const [px,pz] of [[-18,50],[12,40],[-4,-26],[16,-54]]) brokenPole(px,pz);
   flushBatch(true);
-  addFire(26,0.4,24,1.6,true); addFire(-16,0.4,CAS_ZC(-14)-14,1.2,false); addFire(-26,0.4,-14,1.0,false);
+  addFire(28,0.4,19,1.4,true); addFire(-27,0.4,-24,1.0,false); addFire(6,0.4,-60,1.2,false); addFire(-10,0.4,72,1.0,false);
 }
 
 // ---- the shape of the land, different on every map ----
@@ -3585,13 +3562,10 @@ const TERR={
   lorraine:{on:true,openEdge:true,slope:0.62,pad:1.6,rise:6,amp:11,sc:56,lo:0.3,hi:0.7,ridge:false,pw:1,                // a wide valley with a winding floor, hills on both sides and a high ridge behind the fort
     mask:(x,z)=>0.1+0.9*sstep(12,34,Math.abs(z-(-14+9*Math.sin(x/30)))),
     cone:(x,z)=>7*sstep(-52,-74,z)*(0.65+0.35*Math.sin(x/17+1))},
-  cassino:{rock:true,openEdge:true,slope:0.62,amp:15,sc:52,lo:0.3,hi:0.74,ridge:false,pw:1.1,
-    edgeW:70,
-    mask:(x,z)=>0.2+0.22*sstep(40,72,x)*sstep(-26,-66,z)+0.2*sstep(-34,-64,x)*sstep(-24,-62,z),    // gentle rolling countryside, rugged ground in the two mountain corners
-    cone:(x,z)=>{ const a=Math.hypot((x+84)/66,(z+86)/64), b=Math.hypot((x-100)/58,(z+96)/56);      // Monte Cassino itself (north-west, about 30 m) and the eastern ridge (about 22 m) with the abbey between them
-      return 30*Math.pow(sstep(0,1,1-a),1.15)+22*sstep(0,1,1-b); },
-    flatR:[[-48,-32,8,22],[44,-92,80,-60]],              // the town and the abbey platform stay level
-    flat:[[0,90,16],[-16,-54,6],[0,-54,6],[16,-54,6],[-8,-46,5],[8,-46,5],[-24,-50,6],[0,-62,5],[16,-62,5]]}   // landing spots for the two armies
+  cassino:{rock:true,openEdge:true,slope:0.62,rise:10,amp:21,sc:44,lo:0.28,hi:0.7,ridge:false,pw:1,edgeW:70,
+    mask:(x,z)=>0.45+0.55*sstep(30,62,Math.abs(x)),                                         // rolling ground along the pass, steep rugged mountains on both sides
+    cone:(x,z)=>22*sstep(46,100,Math.abs(x))+16*sstep(-78,-110,z)+10*sstep(98,112,z),     // high ridges east and west, the massif behind the abbey, rock behind the Allied shelf
+    flat:CAS_FLAT}
 };
 TERR.ardsummer=TERR.ardennes;
 function vnoise(x,z,sd){
@@ -3880,7 +3854,7 @@ const MAPS={
   lorraine:{id:'lorraine',name:'Lorraine · September 1944',short:'LORRAINE',build:buildLorraine,snow:false,mode:'infantry',total:50,tex:grassTex,
     sky:0xb7c4cc,fog:[16,118],hemi:[0xe6e8e4,0x6b6238,1.35],sun:[0xffe6b8,1.8]},
   cassino:{id:'cassino',name:'Monte Cassino · May 1944',short:'CASSINO',build:buildCassino,snow:false,mode:'infantry',total:50,tex:grassTex,L:112,
-    sky:0x9fd0ee,fog:[24,165],hemi:[0xeaf2f6,0x6f7b45,1.5],sun:[0xfff1d0,2.1]},
+    sky:0xb4c6d2,fog:[12,105],hemi:[0xdfe9f0,0x6a7a4c,1.6],sun:[0xfff3d8,2.3]},
   duel:{id:'duel',name:'Duel · Stalingrad courtyard',short:'DUEL',build:buildDuel,snow:true,mode:'duel',total:0,tex:snowTex,
     sky:0x8c9096,fog:[12,110],hemi:[0xd6dce4,0x5a5048,1.35],sun:[0xffe2c4,1.5]}
 };
@@ -4403,7 +4377,7 @@ let atmo={tod:'day',wx:'clear'}, precip={speed:1,drift:1};
 let flareT=6, flareK=0;
 const flareSpr=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTexAI(),color:0xfff2c8,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,fog:false}));
 flareSpr.scale.setScalar(3); flareSpr.visible=false; scene.add(flareSpr);
-function warmHaze(sky,tod,wx,snowy){ if(snowy||tod==='night') return; sky.lerp(new THREE.Color(0xd2a574),wx==='precip'?0.07:0.17); }
+function warmHaze(sky,tod,wx,snowy){ if(snowy||tod==='night') return; if(currentMap==='cassino'){ sky.lerp(new THREE.Color(0xc4d2dc),0.3); return; } sky.lerp(new THREE.Color(0xd2a574),wx==='precip'?0.07:0.17); }
 const AT={tr:null,t:170,k:0,from:null,to:null,sky:null};      // AT.tr: a slow change of time/weather in progress
 function applyAtmosphere(tod,wx){
   AT.tr=null; AT.t=150+Math.random()*110;
@@ -4435,7 +4409,7 @@ function applyAtmosphere(tod,wx){
 }
 // ---- cheap colour grade: one CSS filter on the canvas (High and Medium; RAY has its own film grade; LOW and phones' Medium stay untouched so they keep their speed) ----
 const GRADES={ stalingrad:[1.10,0.86,1.0,0,-4], kursk:[1.06,1.06,1.02,0,0], berlin:[1.10,0.82,0.99,0,-3], seelow:[1.08,0.9,1.0,0,-2],
-  ardennes:[1.08,0.92,0.99,0,-4], normandy:[1.07,0.98,1.0,0.03,0], lorraine:[1.07,0.98,1.0,0.03,0], cassino:[1.08,1.04,1.03,0.07,3], moscow:[1.08,0.86,1.0,0,-4] };      // [contrast, saturation, brightness, sepia (warmth), hue shift deg (negative = cooler)]
+  ardennes:[1.08,0.92,0.99,0,-4], normandy:[1.07,0.98,1.0,0.03,0], lorraine:[1.07,0.98,1.0,0.03,0], cassino:[1.1,1.14,1.03,0,-3], moscow:[1.08,0.86,1.0,0,-4] };      // [contrast, saturation, brightness, sepia (warmth), hue shift deg (negative = cooler)]
 let GRADE_CSS='', _fltLast=null;
 function setFilter(f){ if(f!==_fltLast){ _fltLast=f; renderer.domElement.style.filter=f; } }
 function applyGrade(){
@@ -6920,7 +6894,7 @@ const SK_MODES={
   conquest:{name:'CONQUEST',short:'Conquest',desc:'Six zones to fight over. Capture them and hold them, drain the enemy\'s reinforcements. Fallen squad mates keep coming back while your reinforcements last.'},
   holdout:{name:'HOLDOUT',short:'Holdout',desc:'Defend one building against wave after wave of attackers. Survive as long as you can and beat your high score.'},
   domination:{name:'DOMINATION',short:'Domination',desc:'Six points to hold. Every few seconds each side scores a point for each one it holds. First side to 200 wins. Your squad comes back as often as it needs to.'},
-  frontline:{name:'FRONTLINES',short:'Frontlines',desc:'Turn-based. Zones in a row, one behind the other (four on a normal map, six on a big one), and each side starts out holding half of them: trenches, bunkers, villages and open ground. One side attacks the front zone for 5 minutes while the other defends. Take it in time and the front moves up and the roles swap. Retake a zone you lost and you get a 3-minute counterattack. Run out the clock and the defenders hold. Capture all four to win. Always 15 v 15. When the 20-minute match timer is over, the turn in progress is finished and the side holding more zones wins, or it is a stalemate.'}
+  frontline:{name:'FRONTLINES',short:'Frontlines',desc:'Turn-based. Zones in a row, one behind the other (four on a normal map, six on a big one), and each side starts out holding half of them: trenches, bunkers, villages and open ground. One side attacks the front zone for 5 minutes while the other defends. Take it in time and the front moves up and the roles swap. Retake a zone you lost and you get a 3-minute counterattack. Run out the clock and the defenders hold. Capture all four to win. Always 20 v 20. When the 40-minute match timer is over, the turn in progress is finished and the side holding more zones wins, or it is a stalemate.'}
 };
 // capture points per map [x, z, name]; the south is where you start
 const SK_MAPS={
@@ -6936,8 +6910,8 @@ const SK_MAPS={
           fl:[[-30,16,'Crest bunker'],[0,-12,'Command post'],[50,-24,'Ruined farmstead'],[10,-40,'Ruined barn']], hold:[-30,16,'Crest bunker']},
   moscow:{con:[[24,24.5,'Cottage'],[-6,-8,'Roadblock'],[-21,-35,'Factory hall']],
           fl:[[24,24.5,'Cottage'],[-6,-8,'Roadblock'],[20,-35,'Workshop'],[-24,-60,'Tram depot']], hold:[24,24.5,'Cottage']},
-  cassino:{con:[[-14,36,'Rapido bridge'],[-14,5,'Town square'],[62,-76,'Abbey courtyard']],
-           fl:[[-31,71,'Olive farm'],[-14,36,'Rapido bridge'],[-14,5,'Town square'],[62,-76,'Abbey courtyard']], hold:[-14,5,'Town square']},
+  cassino:{con:[[-30,58,'Terrace sangars'],[24,10,'Ruined chapel'],[0,-84,'Abbey ruins']],
+           fl:[[-30,58,'Terrace sangars'],[24,10,'Ruined chapel'],[-22,-16,'Mountain bunkers'],[0,-84,'Abbey ruins']], hold:[24,10,'Ruined chapel']},
   lorraine:{con:[[35,22,'Farmstead'],[20,-17,'Stone mill'],[-20,-54,'Ridge fort']],
             fl:[[35,22,'Farmstead'],[-37,7,'Orchard barn'],[20,-17,'Stone mill'],[-20,-54,'Ridge fort']], hold:[35,22,'Farmstead']},
   normandy:{con:[[-40,21.5,'Farmhouse'],[35,-31,'Village church'],[-23,-52,'Manor house']],
@@ -6947,7 +6921,7 @@ const SK_SPAWNS={
   berlin:[[-4,-44],[4,-44],[0,-50],[-6,-52],[6,-52],[-26,-38],[26,-38],[-36,-30],[36,-30],[-12,-30],[12,-32]],
   seelow:[[-40,-56],[-28,-60],[-16,-56],[-4,-62],[8,-58],[20,-60],[32,-56],[44,-58],[-50,-46],[52,-44],[0,-52]],
   ardennes:[[-44,-58],[-26,-60],[-8,-62],[10,-60],[28,-58],[46,-56],[-54,-44],[54,-42]],
-  cassino:[[-16,-54],[0,-54],[16,-54],[-8,-46],[8,-46],[-24,-50],[0,-62],[16,-62]],
+  cassino:CAS_SP,
   lorraine:[[-44,-72],[-26,-74],[-8,-74],[10,-74],[28,-72],[46,-72],[-62,-60],[62,-58]],
   normandy:[[-44,-72],[-26,-74],[-8,-74],[10,-74],[28,-72],[46,-72],[-62,-60],[62,-58]]
 };
@@ -7000,9 +6974,10 @@ function skPaint(p,t){
 }
 // every capture mode plays on six zones: the map's own named buildings plus extra field posts dropped into the biggest gaps
 const SK_EXTRA=['Supply dump','Water tower','Field post','Mortar pit','Cellar','Roadblock','Watch post','Ammo store'];
+const skExtra=()=>currentMap==='cassino'?['Goat track','Supply dump','Stone hut','Mortar pit','Watch post','Ammo store','Sangar','Field post']:SK_EXTRA;
 function skSix(list){
   const out=list.map(d=>d.slice()); let ex=0;
-  const open=(x,z)=>{ if(blocked(new V3(x,0,z),0.35,1.7)) return false; let n=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) n++; } return n<=2; };
+  const open=(x,z)=>{ if(hillY(x,z)>0.3) return false; if(blocked(new V3(x,0,z),0.35,1.7)) return false; let n=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) n++; } return n<=2; };
   while(out.length<6){
     let gi=0, gd=-1; for(let i=0;i<out.length-1;i++){ const d=Math.hypot(out[i][0]-out[i+1][0],out[i][1]-out[i+1][1]); if(d>gd){ gd=d; gi=i; } }
     const a=out[gi], b=out[gi+1], mx=(a[0]+b[0])/2, mz=(a[1]+b[1])/2;
@@ -7013,7 +6988,7 @@ function skSix(list){
       const sc=Math.hypot(dx,dz)-Math.min(near,26)*0.4; if(sc<bs && open(x,z)){ bs=sc; best=[x,z]; }
     }
     if(!best) best=[mx+(ex%2?-1:1)*18,mz];
-    out.splice(gi+1,0,[+best[0].toFixed(1),+best[1].toFixed(1),SK_EXTRA[ex%SK_EXTRA.length],0]); ex++;
+    out.splice(gi+1,0,[+best[0].toFixed(1),+best[1].toFixed(1),skExtra()[ex%8],0]); ex++;
   }
   return out;
 }
@@ -7029,7 +7004,7 @@ function skFront(list0,n){
     if(best) sel.push(best);
   }
   sel.push(last);
-  const open=(x,z)=>{ if(blocked(new V3(x,0,z),0.35,1.7)) return false; let c=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) c++; } return c<=2; };
+  const open=(x,z)=>{ if(hillY(x,z)>0.3) return false; if(blocked(new V3(x,0,z),0.35,1.7)) return false; let c=0; for(let k=0;k<8;k++){ const a=k*0.785; if(blocked(new V3(x+Math.cos(a)*6,0,z+Math.sin(a)*6),0.35,1.7)) c++; } return c<=2; };
   let ex=0;
   while(sel.length<n){
     let gi=0, gd=-1; for(let i=0;i<sel.length-1;i++){ const d=T(sel[i+1])-T(sel[i]); if(d>gd){ gd=d; gi=i; } }
@@ -7039,7 +7014,7 @@ function skFront(list0,n){
       if(Math.abs(T([x,z])-T(a))<G*0.9 || Math.abs(T(b)-T([x,z]))<G*0.9) continue;
       const sc=Math.abs(dx)*0.8+Math.abs(dz)*0.5; if(sc<bs && open(x,z)){ bs=sc; best=[x,z]; } }
     if(!best) best=[mx,-tm];
-    sel.splice(gi+1,0,[+best[0].toFixed(1),+best[1].toFixed(1),SK_EXTRA[ex%SK_EXTRA.length],0]); ex++;
+    sel.splice(gi+1,0,[+best[0].toFixed(1),+best[1].toFixed(1),skExtra()[ex%8],0]); ex++;
   }
   return sel;
 }
@@ -7115,7 +7090,7 @@ function skirmBegin(){
   squadMode='free'; squadCmd.mode=null; squadCmd.zone=null; updateSquadLabel();
 }
 // ----- Frontlines: turn-based attack / defence along a line of buildings -----
-const FL_PHASE=300, FL_COUNTER=180, FL_MATCH=1200;      // 5-minute attack turns, a 3-minute counterattack when a side retakes a zone it lost, and a global match timer
+const FL_PHASE=300, FL_COUNTER=180, FL_MATCH=2400;      // 5-minute attack turns, a 3-minute counterattack when a side retakes a zone it lost, and a global match timer
 function flTarget(){ const P=skirm.pts; return skirm.fl.atk==='ally' ? P.find(p=>p.owner!=='ally') : [...P].reverse().find(p=>p.owner!=='enemy'); }
 let phaseTimers=[];
 function showPhaseBanner(text){
@@ -7213,7 +7188,7 @@ function skirmAnchor(m){
 }
 
 // ----- per-frame logic (host or solo) -----
-const RESPAWN_S=20;      // seconds everyone waits after dying in the map modes: you, your squad mates and the enemy's replacements
+const RESPAWN_S=10;      // seconds everyone waits after dying in the map modes: you, your squad mates and the enemy's replacements
 const LIMITED=false;     // false = respawns and reinforcements like before; true = every side fights with TROOPS men and nobody comes back
 const TROOPS=15;     // every side fights with exactly this many men in a match: nobody comes back once they are lost
 function skTroops(){
@@ -7264,7 +7239,7 @@ function skirmUpdate(dt,t){
   // --- squad mates come back ---
   for(let i=skirm.allyQ.length-1;i>=0;i--){ const q=skirm.allyQ[i]; q.t-=dt;
     if(q.t<=0){ skirm.allyQ.splice(i,1); if(skirm.tk.ally>0) skReviveAlly(q); } }
-  for(let i=skirm.eQ.length-1;i>=0;i--){ skirm.eQ[i].t-=dt; if(skirm.eQ[i].t<=0) skirm.eQ.splice(i,1); }       // the enemy's replacements are on their way for 20 s too
+  for(let i=skirm.eQ.length-1;i>=0;i--){ skirm.eQ[i].t-=dt; if(skirm.eQ[i].t<=0) skirm.eQ.splice(i,1); }       // the enemy's replacements are on their way for 10 s too
   // --- player respawn ---
   if(playerDead && state==='dead' && !isCoop()){ skirm.respT-=dt; if(skirm.respT<=0) skirmRespawn(); }
   // --- enemy reinforcements ---
@@ -7286,7 +7261,7 @@ function skirmUpdate(dt,t){
     p.owner=(p.e>0&&p.f===0)?'enemy':'ally'; p.prog=(p.owner==='enemy'?-1:1)*Math.max(0.05,H.integ);
   } else {
     const can = LIMITED ? (skirm.eMade||0)<TROOPS : (skirm.mode==='frontline' || skirm.tk.enemy>alive);
-    if(can && alive+skirm.eQ.length<(skirm.mode==='frontline'?15:capBase) && skirm.spawnT<=0){ skSpawnEnemy(); skirm.spawnT=(currentMap==='seelow'?0.6:1.0)+Math.random()*1.1; }
+    if(can && alive+skirm.eQ.length<(skirm.mode==='frontline'?20:capBase) && skirm.spawnT<=0){ skSpawnEnemy(); skirm.spawnT=(currentMap==='seelow'?0.6:1.0)+Math.random()*1.1; }
     if(skirm.mode==='conquest'){
       if(!LIMITED){ skirm.bleedT-=dt;
         if(skirm.bleedT<=0){ skirm.bleedT=5; const a=P.filter(p=>p.owner==='ally').length, e=P.filter(p=>p.owner==='enemy').length;
@@ -10217,7 +10192,7 @@ function buildSounds(){
 // Apple devices (Safari's audio engine) and phones get a much lighter sound setup so the audio never falls behind
 const LITE_AUDIO = IS_TOUCH || /Mac|iPhone|iPad|iPod/.test(navigator.platform||'') || /Safari/.test(navigator.userAgent) && !/Chrome|Chromium|Edg/.test(navigator.userAgent);
 let voices=0; const MAX_VOICES = LITE_AUDIO ? 14 : 28;
-const ECHO={cassino:0.3,lorraine:0.15,normandy:0.2,ardennes:0.2,ardsummer:0.2,berlin:0.5,stalingrad:0.42,moscow:0.32,duel:0.38,seelow:0.14,kursk:0.1};
+const ECHO={cassino:0.45,lorraine:0.15,normandy:0.2,ardennes:0.2,ardsummer:0.2,berlin:0.5,stalingrad:0.42,moscow:0.32,duel:0.38,seelow:0.14,kursk:0.1};
 function play(buf,vol=1,rate=1,delay=0,ech=0){
   if(!actx || !buf || vol<0.01) return;
   if(voices>=MAX_VOICES && delay===0 && vol<0.6) return;      // too many sounds at once: skip quiet far-away ones
@@ -10927,7 +10902,7 @@ const MAP_INFO={
   kursk:{date:'Eastern Front · Summer 1943',place:'The Kursk salient',text:'Open wheat fields cut by trenches and a village. Crouch in the wheat to hide from the enemy. Dig your own trenches before the battle starts.'},
   berlin:{date:'Eastern Front · April 1945',place:'Berlin, the Reichstag',text:'Street fighting through the ruins around the Reichstag, with rubble, barricades and cellars.'},
   seelow:{date:'Eastern Front · April 1945',place:'The Seelow Heights, above the Oder',text:'A muddy ridge. Dig your trench line before the enemy arrives, then hold the slope.'},
-  cassino:{date:'Italian Front · May 1944',place:'Monte Cassino and the Rapido valley',text:'Olive groves and vineyards roll down to the Rapido, a shallow river you can wade (slowly) or cross by two stone bridges. Beyond it lies the ruined town of Cassino, with real mountains behind it: the high ridge in the north-west and a lower one in the east, with the shattered abbey between them. You can climb both for the high ground.'},
+  cassino:{date:'Italian Front · May 1944',place:'The mountains above Cassino',text:'A cold mist hangs in a rocky mountain pass. The Allies come up from a shelf in the south; the Germans hold the heights in the north, with the shattered abbey at their back. A dusty path zig-zags up between stone sangars, dry-stone walls and small bunkers, past a ruined chapel, and the slopes on both sides are steep: climb them for the high ground, or cross the wildflower meadows tucked in the mountains.'},
   lorraine:{date:'Western Front · September 1944',place:'The Lorraine farmland, autumn',text:'Rolling autumn fields with waist-high stone walls, orchards, hay bales and a line of poplars along the farm track. The ground is open: cross it from wall to wall, hay bale to hay bale, and take the farmstead, the barn, the mill and the ridge fort.'},
   ardsummer:{date:'Western Front · Summer',place:'The Ardennes forest',text:'A deep green summer forest around a winding logging track, a lodge and a shattered sawmill. Warm light, a hazy distance and dense trees to creep through.'},
   normandy:{date:'Western Front · June 1944',place:'A Normandy village, the bocage',text:'Small green fields walled in by thick hedgerows, sunken lanes and old stone farm buildings. Creep along the hedges, fight for the farmhouse, the barn, the church and the manor, and dig in wherever you like.'},
@@ -11027,13 +11002,13 @@ function showBriefing(id){
     : mode==='mixed' ? `Part 1 in your ${tankName} (WASD drive · mouse aims · click cannon · Space MG). Part 2 on foot with the weapon you pick below.` : '';
   renderWeaponButtons(); renderSquadPick(mode); renderClassPick(); renderModePick(id);
 }
-let squadBeforeFL=null;       // Frontlines is always 15 v 15; remember the squad size you picked for the other modes
+let squadBeforeFL=null;       // Frontlines is always 20 v 20; remember the squad size you picked for the other modes
 function renderSquadPick(mode){
   const el=$('squadPick'); if(mode==='tank'){ el.innerHTML=''; return; }
   const fl=menuFlow==='maps' && skirm.sel==='frontline';
   if(fl){ if(squadBeforeFL===null) squadBeforeFL=SQUAD_MATES;
-    if(SQUAD_MATES!==14){ SQUAD_MATES=14; buildForm(14); spawnWorld(selSide,selWeapon,true); }
-    el.innerHTML='<span style="opacity:.75;margin-right:8px">TEAMS:</span><b style="color:#ffd75e;letter-spacing:2px">15 v 15</b>'; return; }
+    if(SQUAD_MATES!==19){ SQUAD_MATES=19; buildForm(19); spawnWorld(selSide,selWeapon,true); }
+    el.innerHTML='<span style="opacity:.75;margin-right:8px">TEAMS:</span><b style="color:#ffd75e;letter-spacing:2px">20 v 20</b>'; return; }
   if(squadBeforeFL!==null){ SQUAD_MATES=squadBeforeFL; squadBeforeFL=null; buildForm(SQUAD_MATES); spawnWorld(selSide,selWeapon,true); }
   el.innerHTML='<span style="opacity:.75;margin-right:8px">SQUAD:</span>'+SQUAD_OPTIONS.map(n=>`<button class="sq${n===SQUAD_MATES?' sel':''}" data-n="${n}">${n} teammates</button>`).join('')+
     (SQUAD_MATES>=20?'<div style="font-size:11px;opacity:.6;margin-top:4px">20 teammates looks great but can lag on phones</div>':'');

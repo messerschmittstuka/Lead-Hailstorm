@@ -461,7 +461,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.77</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.78</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -1553,7 +1553,7 @@ function grassChunk(cx,cz){
       _grp.set(x+(rnd()-.5)*0.6,gy,z+(rnd()-.5)*0.6); _gre.set((rnd()-.2)*0.9,rnd()*6.283,(rnd()-.5)*0.5);
       _grq.setFromEuler(_gre); const w=st.w[0]+rnd()*(st.w[1]-st.w[0]), h=(st.h[0]+rnd()*(st.h[1]-st.h[0]))*tall; _grs.set(w,h,h);
       _grm.compose(_grp,_grq,_grs); const e=_grm.elements; for(let q=0;q<16;q++) out.push(e[q]);
-      const sh=rnd(); _grc.set(st.pal[(rnd()*st.pal.length)|0]); _grc.offsetHSL((sh-.5)*0.03,(sh-.5)*0.12,(sh-.5)*0.14); out.push(_grc.r,_grc.g,_grc.b,rnd());
+      const sh=rnd(); _grc.set(st.pal[(rnd()*st.pal.length)|0]); _grc.offsetHSL((sh-.5)*0.03,(sh-.5)*0.12-0.12,(sh-.5)*0.14-0.02); out.push(_grc.r,_grc.g,_grc.b,rnd());
     }
   }
   c={cx,cz,d:new Float32Array(out)}; GRS.cache.set(key,c); return c;
@@ -4592,7 +4592,7 @@ function applyGrade(){
     const calc=(tod,wx)=>{ const g=(GRADES[currentMap]||[1.05,1,1,0,0]).slice();
       if(tod==='night'){ g[2]*=1.06; g[1]*=0.85; g[4]-=6; } else if(tod==='dusk'){ g[3]+=0.06; g[4]+=4; } else if(tod==='dawn'){ g[3]+=0.04; g[4]-=2; }
       if(wx==='precip'){ g[1]*=0.88; g[0]*=1.02; }
-      if(!MAPS[currentMap].snow && tod!=='night' && MAPS[currentMap].mode!=='tank'){ g[1]*=0.84; g[2]*=0.97; g[0]*=1.03; g[3]*=0.5; }      // muted, overcast colour like the reference
+      if(!MAPS[currentMap].snow && tod!=='night' && MAPS[currentMap].mode!=='tank'){ g[1]*=0.7; g[2]*=0.95; g[0]*=1.05; g[3]*=0.4; }      // muted, overcast colour like the reference
       return g; };
     let g=calc(atmo.tod,atmo.wx);
     if(AT.tr&&AT.from&&AT.to){ const a=calc(AT.from.tod,AT.from.wx), b=calc(AT.to.tod,AT.to.wx); g=a.map((v,i)=>v+(b[i]-v)*AT.k); }
@@ -7786,10 +7786,9 @@ function skReviveAlly(q){
   m.home=m.pos.clone(); m.anchor=m.home.clone(); m.anchorT=Math.random()*2;
   scene.add(m.root); shootables.push(m.root); mates.push(m); stat(m);
 }
-// "THE UNITED STATES IS VICTORIOUS" - names the side that won the match, whether or not that was you
+// the end-of-match headline: just VICTORY or DEFEAT for you (no "X is victorious" line)
 function victorLine(win){
-  const k=win?selSide:enemyOf(selSide), t=(SIDES[k]&&SIDES[k].title)||'';
-  return ((k==='usa'||k==='soviet')?'THE ':'')+t+' IS VICTORIOUS';
+  return win?'VICTORY':'DEFEAT';
 }
 // the same line, one letter at a time (pure CSS animation delays, so nothing to clean up)
 function victorHTML(win,d0){
@@ -13745,9 +13744,9 @@ function rtxSetup(w,h){
       uniforms:{tAO:{value:null},tBn:{value:null},tE:{value:null},uBounce:{value:1},uProbe:{value:0},tC:{value:null},tD:{value:null},tB:{value:null},uP:{value:new THREE.Matrix4()},uPi:{value:new THREE.Matrix4()},uMW:{value:new THREE.Matrix4()},uPx:{value:new THREE.Vector2()},
         uSun:{value:new V3(0,1,0)},uUp:{value:new V3(0,1,0)},uHor:{value:new THREE.Color(0xcfe0ee)},uTop:{value:new THREE.Color(0x4a86d0)},uAO:{value:1},
         uT:{value:0},uAsp:{value:1},uAds:{value:0},uHurt:{value:0},uHeat:{value:[0,1,2,3,4,5].map(()=>new THREE.Vector4())},uMB:{value:new THREE.Vector2()},uLens:{value:0},uBreath:{value:0},uFlash:{value:0},uShock:{value:new THREE.Vector4()},
-        uWet:{value:0},uSpark:{value:0},uFog:{value:0.4},uSunUV:{value:new V3(0.5,0.5,0)},uSunCol:{value:new THREE.Color(1,1,1)},uGod:{value:0},uBloom:{value:0.5}},
+        uWet:{value:0},uSpark:{value:0},uFog:{value:0.4},uSunUV:{value:new V3(0.5,0.5,0)},uSunCol:{value:new THREE.Color(1,1,1)},uGod:{value:0},uBloom:{value:0.5},uDull:{value:0.88}},
       vertexShader:vs,
-      fragmentShader:`varying vec2 vUv; uniform sampler2D tC,tD,tB,tAO,tBn; uniform samplerCube tE; uniform float uBounce,uProbe; uniform mat4 uP,uPi,uMW; uniform vec2 uPx; uniform vec3 uSun,uUp,uHor,uTop,uSunUV,uSunCol; uniform float uAO,uT,uAsp,uAds,uHurt,uWet,uSpark,uFog,uGod,uBloom,uLens,uBreath,uFlash; uniform vec2 uMB; uniform vec4 uHeat[6]; uniform vec4 uShock;
+      fragmentShader:`varying vec2 vUv; uniform sampler2D tC,tD,tB,tAO,tBn; uniform samplerCube tE; uniform float uBounce,uProbe; uniform mat4 uP,uPi,uMW; uniform vec2 uPx; uniform vec3 uSun,uUp,uHor,uTop,uSunUV,uSunCol; uniform float uAO,uT,uAsp,uAds,uHurt,uWet,uSpark,uFog,uGod,uBloom,uDull,uLens,uBreath,uFlash; uniform vec2 uMB; uniform vec4 uHeat[6]; uniform vec4 uShock;
         float ign(vec2 p){ return fract(52.9829189*fract(dot(p,vec2(0.06711056,0.00583715)))); }
         float h12(vec2 p){ vec3 q=fract(vec3(p.xyx)*0.1031); q+=dot(q,q.yzx+33.33); return fract((q.x+q.y)*q.z); }
         float vn(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(h12(i),h12(i+vec2(1.0,0.0)),f.x),mix(h12(i+vec2(0.0,1.0)),h12(i+vec2(1.0,1.0)),f.x),f.y); }
@@ -13851,7 +13850,7 @@ function rtxSetup(w,h){
           c+=vec3(0.45,0.5,0.7)*uFlash;
           // 8) glow, film colours and a little grain
           c+=texture2D(tB,uv).rgb*uBloom;
-          float l=luma(c); c=mix(vec3(l),c,0.88);
+          float l=luma(c); c=mix(vec3(l),c,uDull);
           c*=mix(vec3(0.95,1.0,1.07),vec3(1.06,1.02,0.93),smoothstep(0.05,0.9,l));
           c+=(h12(gl_FragCoord.xy+fract(uT)*91.7)-0.5)*0.03*(1.0-clamp(l,0.0,1.0));
           gl_FragColor=vec4(c,1.0);
@@ -13934,7 +13933,7 @@ function renderMain(){
     const sk=RTX.shock;
     if(sk){ sk.t+=dtf; if(sk.t>1.1) RTX.shock=null; else { const dd=Math.max(2,sk.p.distanceTo(camera.position)); if(rtxScreen(sk.p,_rv3b)) u.uShock.value.set(_rv3b.x,_rv3b.y,sk.t*0.8,Math.min(1.2,30/(dd+10))*(1-sk.t/1.1)); else u.uShock.value.set(0,0,0,0); } }
     else u.uShock.value.set(0,0,0,0);
-    u.uBloom.value=0.55;
+    u.uBloom.value=0.55; { const mp=MAPS[currentMap]; u.uDull.value=(mp && !mp.snow && mp.mode!=='tank' && atmo.tod!=='night')?0.7:0.88; }      // a drained, war-torn palette on the green and brown maps
     RTX.quad.material=RTX.mat; renderer.render(RTX.scn,RTX.cam);
   }catch(e){ RTX.fail=true; try{ renderer.setRenderTarget(null); }catch(_){} console.warn('[look] ray pass off',e); renderer.render(scene,camera); }
 }

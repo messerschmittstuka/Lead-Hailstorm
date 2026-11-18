@@ -461,7 +461,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.76</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.77</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -10552,7 +10552,8 @@ function playBoltSample(vol,shotOnly){
   src.connect(hp); hp.connect(ls); ls.connect(hs); hs.connect(g); g.connect(master);
   const ech=ECHO[currentMap]||0.2; let eg=null; if(echoIn){ eg=actx.createGain(); eg.gain.value=vol*ech; g.connect(eg); eg.connect(echoIn); }
   src.onended=()=>{ src.disconnect(); hp.disconnect(); ls.disconnect(); hs.disconnect(); g.disconnect(); if(eg) eg.disconnect(); };
-  const c=BOLT_CLIPS[(Math.random()*BOLT_CLIPS.length)|0]; const fe=shotOnly?0.3:0.45, fz=shotOnly?0.42:0.95; g.gain.setValueAtTime(vol,actx.currentTime+fe); g.gain.linearRampToValueAtTime(0,actx.currentTime+fz);      // after the last round, cut the recording before its bolt is worked src.start(0,c[0],Math.min(c[1],0.95));   // only the shot and a short tail from the recording; the bolt itself is played from the steel sounds   // bolt.mp3 holds two different shots, each followed by its bolt being worked; pick one
+  const c=BOLT_CLIPS[(Math.random()*BOLT_CLIPS.length)|0]; const fe=shotOnly?0.3:0.45, fz=shotOnly?0.42:0.95; g.gain.setValueAtTime(vol,actx.currentTime+fe); g.gain.linearRampToValueAtTime(0,actx.currentTime+fz);      // after the last round, cut the recording before its bolt is worked
+  src.start(0,c[0],Math.min(c[1],0.95));   // only the shot and a short tail from the recording; the bolt itself is played from the steel sounds   // bolt.mp3 holds two different shots, each followed by its bolt being worked; pick one
 }
 function initAudio(){
   setTimeout(loadBoltSound,0);

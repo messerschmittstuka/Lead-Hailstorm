@@ -461,7 +461,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.69</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.72</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -4669,7 +4669,7 @@ function outSpot(v){
   const bad=(x,z)=>insideBuilding(x,z) || blocked(new V3(x,0,z),0.35,1.7);
   if(!bad(v.x,v.z)) return v;
   for(let r=1.5;r<=60;r+=1.5) for(let k=0,n=Math.max(8,Math.round(r*2.2));k<n;k++){ const a=k/n*6.2832, x=v.x+Math.cos(a)*r, z=v.z+Math.sin(a)*r;
-    if(Math.abs(x)<L+25 && Math.abs(z)<L+25 && !bad(x,z)){ v.x=x; v.z=z; return v; } }
+    if(Math.abs(x)<L-1.5 && Math.abs(z)<L-1.5 && !bad(x,z)){ v.x=x; v.z=z; return v; } }      // free ground inside the edge walls only, never out behind them
   return v;
 }
 function pickShellTarget(){
@@ -6411,7 +6411,7 @@ function spawnReinforcement(){
   const enemySide = enemyOf(selSide), E=SIDES[enemySide];
   const SP=reinforcementSpawns();
   const far=SP.filter(p=>Math.hypot(p[0]-player.pos.x,p[1]-player.pos.z)>28);
-  const p=(far.length?far:SP)[(Math.random()*(far.length||SP.length))|0];
+  const p=inField((far.length?far:SP)[(Math.random()*(far.length||SP.length))|0]);
   const e=makeSoldier(enemySide,E.weapons[(Math.random()*2)|0],null);
   e.pos.set(p[0]+(Math.random()-.5)*3,0,p[1]+(Math.random()-.5)*3); outSpot(e.pos); e.heading=spawnYaw+Math.PI;
   initAI(e,'enemy','advance');
@@ -7237,7 +7237,6 @@ const STUD=0.28; let distTimer=0;
 function showKillDist(s){
   if(!s||!s.pos) return; const m=Math.hypot(s.pos.x-player.pos.x,s.pos.z-player.pos.z), st=Math.round(m);
   if(st>mstats.longest) mstats.longest=st;
-  const e=$('distPop'); e.textContent='Dist: '+st+' m'; e.classList.remove('show','far'); void e.offsetWidth; if(st>=42) e.classList.add('far'); e.classList.add('show');
 }
 function resolveShot(tr,W,dmgBase){
   const s=tr.soldier, ps=stat(playerTarget);
@@ -7569,8 +7568,10 @@ const skActive=()=>skirm.pts.find(p=>p.owner!=='ally');           // frontline: 
 function skEnemySpawn(){
   const SP=builtBig?BIG_SPAWNS():(SK_SPAWNS[currentMap]||WAVE_SPAWNS);
   const far=SP.filter(p=>Math.hypot(p[0]-player.pos.x,p[1]-player.pos.z)>26 && !skirm.pts.some(q=>q.owner==='ally'&&Math.hypot(p[0]-q.x,p[1]-q.z)<q.r+4));
-  return (far.length?far:SP)[(Math.random()*(far.length||SP.length))|0];
+  return inField((far.length?far:SP)[(Math.random()*(far.length||SP.length))|0]);
 }
+// keep a spawn point a few metres inside the invisible walls at the edge of the map (some maps listed points right on top of them)
+function inField(p,m=5){ const lim=L-m; return [Math.max(-lim,Math.min(lim,p[0])),Math.max(-lim,Math.min(lim,p[1]))]; }
 function skEnemyTarget(){
   const P=skirm.pts; if(!P.length) return null;
   if(skirm.mode==='holdout') return P[0];
@@ -7584,7 +7585,7 @@ function skFlSpot(z,inner,outer,towardUs){
   for(let k=0;k<14;k++){
     const base=towardUs?Math.atan2(SPAWN.z-z.z,SPAWN.x-z.x):Math.random()*6.283, a=base+(Math.random()-.5)*(towardUs?2.2:6.283), d=z.r*(inner+Math.random()*(outer-inner));
     const x=z.x+Math.cos(a)*d, zz=z.z+Math.sin(a)*d, v=new V3(x,0,zz);
-    if(!blocked(v,0.4,1.7) && !insideBuilding(x,zz) && !(typeof skWetOrBridge==='function' && skWetOrBridge(x,zz))) return v;
+    if(Math.abs(x)<L-2 && Math.abs(zz)<L-2 && !blocked(v,0.4,1.7) && !insideBuilding(x,zz) && !(typeof skWetOrBridge==='function' && skWetOrBridge(x,zz))) return v;
   }
   return null;
 }
@@ -7843,7 +7844,9 @@ function renderModePick(id){
   const opts=[['conquest','CONQUEST'],['domination','DOMINATION'],['holdout','HOLDOUT'],['frontline','FRONTLINES']];
   el.innerHTML = mapsFlow ? '<span style="opacity:.75;margin-right:8px">MODE:</span>'+opts.map(([k,n])=>`<button class="sq${k===skirm.sel?' sel':''}" data-m="${k}">${n}</button>`).join('')
     +`<div style="font-size:11px;opacity:.7;margin-top:4px;max-width:680px;margin-left:auto;margin-right:auto">${SK_MODES[skirm.sel].desc}</div>` : '';
-  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ skirm.sel=b.dataset.m; showBriefing(id); });
+  if(mapsFlow && randomPick) el.innerHTML='<div style="margin-bottom:6px"><b style="color:#b58f45;letter-spacing:2px">RANDOM PICK</b> · '+MAPS[id].short+' · '+SK_MODES[skirm.sel].name.toUpperCase()+' · '+SIDES[selSide].title+' <button class="sq" id="reRoll">RE-ROLL</button></div>'+el.innerHTML;
+  el.querySelectorAll('button[data-m]').forEach(b=>b.onclick=()=>{ skirm.sel=b.dataset.m; showBriefing(id); });
+  { const rr=el.querySelector('#reRoll'); if(rr) rr.onclick=rollRandom; }
   const sk=skirm.sel!=='campaign';
   $('weapons').style.display=(tk&&!sk)?'none':'flex'; $('classPick').style.display=(tk&&!sk)?'none':'block';
   $('coopBtn').style.display=(tk&&!sk)?'none':''; $('csOpen').style.display=(tk&&!sk)?'none':'';
@@ -10412,6 +10415,15 @@ function keyRefTick(){
   const on=!IS_TOUCH && state==='playing' && !air.on && !mounted && !isTankMap() && !isDuel() && !coopGuest();
   if(!on){ if(keyRef.sig!=='off'){ keyRef.el.style.display='none'; keyRef.sig='off'; } return; }
   const sig=selClass+'|on'; if(sig===keyRef.sig) return; keyRef.sig=sig;
+  { const kh=$('keyHints'); if(kh){ const r=[['Mouse1','Shoot'],['Mouse2','Aim'],['R','Reload'],['V','Melee'],['H','Perspective']];
+      if(selClass==='medic') r.push(['T (hold)','Heal / Revive'],['G','Smoke grenade']);
+      else if(selClass==='engineer') r.push(['Z','Cycle build item'],['T','Place build'],['G','Throw']);
+      else if(selClass==='officer') r.push(['T','Call strike'],['B','Binoculars'],['G','Throw']);
+      else if(selClass==='sniper') r.push(['B','Binoculars'],['G','Throw']);
+      else r.push(['G','Throw']);
+      r.push(['Tab','Scoreboard'],['Shift','Sprint'],['C','Crouch'],['C (hold)','Squad commands'],['X','Dig (hold)'],['Esc','Pause']);
+      kh.innerHTML=r.map(([k,t])=>'<div><i>['+k+']</i> '+t+'</div>').join(''); } }
+  keyRef.el.style.display='none'; return;      // the old right-hand class panel: its keys now live in the list above
   const cls=CLASSES[selClass]?CLASSES[selClass].name.toUpperCase():'';
   keyRef.el.innerHTML='<div style="text-align:right;color:#ffd23a;margin-bottom:6px;letter-spacing:1px">'+cls+'</div>'+keyRefRows().map(([k,t])=>'<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:3px 0;background:rgba(0,0,0,.35);padding:2px 6px;border-radius:4px"><span>'+t+'</span><span style="min-width:26px;text-align:center;padding:1px 6px;border:2px solid #fff;border-radius:5px;background:rgba(0,0,0,.5)">'+k+'</span></div>').join('');
   keyRef.el.style.display='block';
@@ -10494,7 +10506,7 @@ function loadBoltSound(){
   if(BOLTSND||boltLoading||!actx) return; boltLoading=true;
   try{ fetch('bolt.mp3').then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); }).then(b=>new Promise((ok,no)=>actx.decodeAudioData(b,ok,no))).then(buf=>{ BOLTSND=buf; }).catch(()=>{ boltLoading=false; }); }catch(e){ boltLoading=false; }
 }
-function playBoltSample(vol){
+function playBoltSample(vol,shotOnly){
   const src=actx.createBufferSource(); src.buffer=BOLTSND; const g=actx.createGain(); g.gain.value=vol;
   // lighter, crisper tone: cut the booming low end and add a little bright air to the clicks of the bolt
   const hp=actx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=160; hp.Q.value=0.6;
@@ -10503,7 +10515,7 @@ function playBoltSample(vol){
   src.connect(hp); hp.connect(ls); ls.connect(hs); hs.connect(g); g.connect(master);
   const ech=ECHO[currentMap]||0.2; let eg=null; if(echoIn){ eg=actx.createGain(); eg.gain.value=vol*ech; g.connect(eg); eg.connect(echoIn); }
   src.onended=()=>{ src.disconnect(); hp.disconnect(); ls.disconnect(); hs.disconnect(); g.disconnect(); if(eg) eg.disconnect(); };
-  const c=BOLT_CLIPS[(Math.random()*BOLT_CLIPS.length)|0]; g.gain.setValueAtTime(vol,actx.currentTime+0.45); g.gain.linearRampToValueAtTime(0,actx.currentTime+0.95); src.start(0,c[0],Math.min(c[1],0.95));   // only the shot and a short tail from the recording; the bolt itself is played from the steel sounds   // bolt.mp3 holds two different shots, each followed by its bolt being worked; pick one
+  const c=BOLT_CLIPS[(Math.random()*BOLT_CLIPS.length)|0]; const fe=shotOnly?0.3:0.45, fz=shotOnly?0.42:0.95; g.gain.setValueAtTime(vol,actx.currentTime+fe); g.gain.linearRampToValueAtTime(0,actx.currentTime+fz);      // after the last round, cut the recording before its bolt is worked src.start(0,c[0],Math.min(c[1],0.95));   // only the shot and a short tail from the recording; the bolt itself is played from the steel sounds   // bolt.mp3 holds two different shots, each followed by its bolt being worked; pick one
 }
 function initAudio(){
   setTimeout(loadBoltSound,0);
@@ -11163,13 +11175,16 @@ function fire(){
   const W=WEAPONS[gun.type];
   if(gun.reloading>0 || gun.cooldown>0 || gun.sprintT>0.5 || throwT>0 || meleeAnim>0.05) return;
   if(gun.ammo<=0){ sndClick(0,1500,0.3); gun.cooldown=0.25; if(W.rocket) showMsg('PANZERFAUST SPENT · GRENADES AND MELEE ONLY',1.8); else startReload(); return; }
-  playerShotAt=performance.now(); gun.ammo--; gun.cooldown=W.rate; if(W.bolt) gun.bolt=W.rate;
+  playerShotAt=performance.now(); gun.ammo--; gun.cooldown=W.rate;
+  const lastRound=!!W.bolt && gun.ammo<=0;      // the magazine is empty: no point cycling the bolt, the reload opens it to load the next clip
+  if(W.bolt && !lastRound) gun.bolt=W.rate;
+  if(lastRound){ gun.cooldown=0.5; gun.autoRl=0.45; }
   const bip=!!W.bipod && player.crouch && Math.hypot(player.vel.x,player.vel.z)<0.6;     // MG / PTRD with the bipod down
   const r=W.recoil*(1-gun.ads*0.5)*(player.crouch?0.7:1)*(bip?0.3:1)*(1-0.5*peri);   // resting on the sandbags steadies the gun
   recoilKick(W,(1-gun.ads*0.35)*(player.crouch?0.8:1)*(bip?0.4:1)*(1-0.5*peri));      // view and gun kick, aim stays put
   if(W.rocket){ firePzf(W); return; }
   const sample=!!(W.bolt && BOLTSND && gun.type!=='ptrd' && gun.type!=='s25');
-  gun.kick=1; gun.flash=0.05; RS.gunHeat=Math.min(1,RS.gunHeat+0.1); if(sample){ playBoltSample(0.95); const sp=shotSpace(); if(sp!=='room') playLP(SB.tailRoll,sp==='close'?0.2:0.36,0.95+Math.random()*0.1,0.06,1300); else playLP(SB.rifle,0.2,0.98,0.012,2400); } else sndShotPlayer(gun.type,W); alertByGunshot(player.pos);
+  gun.kick=1; gun.flash=0.05; RS.gunHeat=Math.min(1,RS.gunHeat+0.1); if(sample){ playBoltSample(0.95,lastRound); const sp=shotSpace(); if(sp!=='room') playLP(SB.tailRoll,sp==='close'?0.2:0.36,0.95+Math.random()*0.1,0.06,1300); else playLP(SB.rifle,0.2,0.98,0.012,2400); } else sndShotPlayer(gun.type,W); alertByGunshot(player.pos);
   ejectCasing(W.bolt?0.62:0);
   { // a little powder smoke hangs in front of the muzzle and drifts off; a gun on its bipod kicks dust off the ground in front
     const fx=-Math.sin(player.yaw), fz=-Math.cos(player.yaw), rx=Math.cos(player.yaw), rz=-Math.sin(player.yaw), h=0.16*(1-gun.ads), big=W.bolt||W.heavy;
@@ -11177,7 +11192,7 @@ function fire(){
       spawnPuff(_msP,0xc9c4ba,big?0.85:0.6,big?1.9:1.2,false,0.32,WIND.x*0.5+fx*0.6,WIND.z*0.5+fz*0.6,big?0.26:0.15); }
     if(bip && Math.random()<(W.bolt?1:0.45)) spawnDust(player.pos.x+fx*1.5,0.1,player.pos.z+fz*1.5,1.1,1.5,0.28,0.3);
   }
-  if(W.bolt){ play(SB.boltUp,0.7,1,0.42); play(SB.boltBack,0.85,1,0.62); play(SB.boltFwd,0.85,1,0.97); play(SB.boltUp,0.5,0.85,1.07); }      // the bolt is always worked with the metallic sounds
+  if(W.bolt && !lastRound){ play(SB.boltUp,0.7,1,0.42); play(SB.boltBack,0.85,1,0.62); play(SB.boltFwd,0.85,1,0.97); play(SB.boltUp,0.5,0.85,1.07); }      // the bolt is always worked with the metallic sounds
   // bullet
   const hs=Math.hypot(player.vel.x,player.vel.z);
   const spread=0;      // every shot goes exactly where the crosshair is
@@ -11216,7 +11231,7 @@ function startReload(){
   if(pdown.on) return;
   const W=WEAPONS[gun.type];
   if(W.rocket || gun.reloading>0 || gun.ammo>=W.mag) return;
-  gun.reloading=W.reload; gun.bolt=0; gun.rlEv=0;
+  gun.reloading=W.reload; gun.bolt=0; gun.rlEv=0; gun.autoRl=0;
 }
 // reload choreography per kind of feed: [time 0-1, sound]
 const RELOAD_EVENTS={
@@ -11471,11 +11486,26 @@ $('statsBtn').onclick=showStats; $('statsBack').onclick=()=>$('toMenu').onclick(
 function showMapList(){
   menuFlow='maps'; if(skirm.sel==='campaign') skirm.sel='frontline';
   hideMenus(); state='menu'; $('mapList').style.display='flex';
-  const box=$('mapCards'); box.innerHTML='';
+  const box=$('mapCards'); box.innerHTML=''; randomPick=false;
+  { const c=document.createElement('div'); c.className='mcard'; c.style.borderColor='#b58f45';      // RANDOM: a surprise map, mode and side
+    c.innerHTML=`<div class="mnum">?</div><div class="mbody"><b>RANDOM</b><span>A random map, mode and side</span><small>You still choose your class on the briefing, and can re-roll there</small></div>`;
+    c.onclick=rollRandom; box.appendChild(c); }
   MAP_MENU.forEach(id=>{ const I=MAP_INFO[id], sd=sidesFor(id).map(k=>SIDES[k].title).join(' or '), c=document.createElement('div'); c.className='mcard';
     c.innerHTML=`<div class="mnum">${MAP_MENU.indexOf(id)+1}</div><div class="mbody"><b>${MAPS[id].short}${id==='remagen'?' <span class="mdone" style="color:#8fd0ff">NEW</span>':''}</b><span>${I.date} · ${I.place}</span><small>${sd}</small></div>`;
     c.onclick=()=>showSidePick(MAPS[id].short,'CHOOSE YOUR SIDE',sidesFor(id),()=>{ menuFlow='maps'; if(skirm.sel==='campaign') skirm.sel='frontline'; showBriefing(id); },showMapList);
     box.appendChild(c); });
+}
+// RANDOM in the Maps menu: roll a map, a mode and a side, then show the briefing for it (re-roll from there)
+let randomPick=false;
+function rollRandom(){
+  const prev=currentMap+'|'+skirm.sel+'|'+selSide; let id,mode,sd;
+  for(let k=0;k<8;k++){      // try not to hand you exactly the same roll twice in a row
+    id=MAP_MENU[(Math.random()*MAP_MENU.length)|0]; const sides=sidesFor(id); sd=sides[(Math.random()*sides.length)|0];
+    const modes=Object.keys(SK_MODES).filter(m=>m!=='campaign'); mode=modes[(Math.random()*modes.length)|0];
+    if(id+'|'+mode+'|'+sd!==prev) break; }
+  menuFlow='maps'; skirm.sel=mode; selSide=sd; selWeapon=SIDES[sd].weapons[0];
+  renderWeaponButtons(); setSpawn(); spawnWorld(selSide,selWeapon,true);
+  randomPick=true; showBriefing(id);
 }
 function hideMenus(){ for(const id of ['menu','missions','sidePick','mapList','statsMenu','briefing','debrief','duelMenu','duelOver','coopMenu','classScreen']) $(id).style.display='none'; csStop(); }
 function previewMap(id){
@@ -13488,6 +13518,7 @@ function updatePlayer(dt){
 
   // ===== weapon state =====
   gun.cooldown=Math.max(0,gun.cooldown-dt);
+  if(gun.autoRl>0){ gun.autoRl-=dt; if(gun.autoRl<=0 && gun.ammo<=0 && gun.reloading<=0) startReload(); }      // a moment after the last shot he goes straight to the reload
   if((mouseDown||touch.fire) && W.auto) fire();
   autoShootTick(dt,W);
   if(gun.reloading>0){

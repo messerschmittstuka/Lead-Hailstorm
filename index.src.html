@@ -64,7 +64,7 @@
   #side{position:absolute;left:30px;top:24px;font-size:15px;letter-spacing:2px;text-shadow:0 2px 3px #000}
   #msg{position:absolute;top:max(22%,150px);width:100%;text-align:center;font-size:22px;letter-spacing:2px;text-shadow:0 2px 4px #000;opacity:0;transition:opacity .3s}
   #reloadTxt{position:absolute;top:58%;width:100%;text-align:center;font-size:16px;opacity:0;text-shadow:0 2px 3px #000}
-  #vig{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 38%,rgba(120,8,8,.5) 72%,rgba(170,0,0,.92) 100%)}
+  #vig{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at center,rgba(150,10,10,.16) 0%,rgba(130,8,8,.3) 40%,rgba(120,8,8,.55) 72%,rgba(170,0,0,.92) 100%)}
   #dmgdir{position:absolute;left:50%;top:50%;width:260px;height:260px;opacity:0;transform:translate(-50%,-50%);
     border-radius:50%;border-top:10px solid rgba(255,90,60,.8);box-sizing:border-box}
   #waveInfo{position:absolute;right:30px;top:24px;font-size:15px;letter-spacing:2px;text-shadow:0 2px 3px #000}
@@ -461,7 +461,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.72</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v1.76</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -1501,6 +1501,8 @@ const GRASS_STYLE={
   kursk:{dens:0.95,h:[0.55,1.12],w:[0.1,0.2],pal:['#6a8f2c','#7ba536','#92b83f','#55772a','#a4c24a','#86a638','#659a36','#b4bf58','#8fc03c']},
   seelow:{dens:0.5,h:[0.35,0.75],w:[0.08,0.16],pal:['#6b6a3a','#7d7a42','#8d8650','#5a5a32','#73703c','#8a8a4a']},
   ardsummer:{dens:0.85,h:[0.45,0.95],w:[0.09,0.18],pal:['#5a8a2f','#6a9e37','#7aae40','#4a7a2a','#8cb84a','#659a36','#93c23e']},
+  normandy:{dens:0.8,h:[0.5,1.05],w:[0.1,0.19],pal:['#4e6b2a','#5b7a31','#46602a','#62803a','#3f5a26','#6b8040','#55702f']},
+  lorraine:{dens:0.8,h:[0.5,1.05],w:[0.1,0.19],pal:['#4e6b2a','#5b7a31','#46602a','#62803a','#3f5a26','#6b8040','#55702f']},
   berlin:{dens:0.26,h:[0.3,0.6],w:[0.07,0.13],pal:['#6c7048','#7f8350','#5b5f3e','#767a4a','#6a7a40']}
 };
 function clearGrass(){ GRS.on=false; GRS.mesh=null; for(const c of [...grassGroup.children]){ grassGroup.remove(c); if(c.dispose) c.dispose(); } }
@@ -4546,6 +4548,9 @@ const flareSpr=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTexAI(),color
 flareSpr.scale.setScalar(3); flareSpr.visible=false; scene.add(flareSpr);
 function warmHaze(sky,tod,wx,snowy){ if(snowy||tod==='night'||currentMap==='remagen') return; if(currentMap==='cassino'){ sky.lerp(new THREE.Color(0xc4d2dc),0.3); return; } sky.lerp(new THREE.Color(0xd2a574),wx==='precip'?0.07:0.17); }
 const AT={tr:null,t:170,k:0,from:null,to:null,sky:null};      // AT.tr: a slow change of time/weather in progress
+// the reference look: an overcast, green-grey haze that swallows the far trees, so depth comes from fog rather than detail (kept off snow and at night, which have their own look)
+const REF_SKY=new THREE.Color(0x7f8a82);
+function refLook(sky,fog,tod){ const m=MAPS[currentMap]; if(!m || m.snow || tod==='night' || m.mode==='tank') return fog; sky.lerp(REF_SKY,0.3); return [Math.max(4,fog[0]*0.7),fog[1]>=80?fog[1]*0.76:fog[1]*0.92]; }
 function applyAtmosphere(tod,wx){
   AT.tr=null; AT.t=150+Math.random()*110;
   if(wx==='fog') wx='clear';          // thick fog was removed
@@ -4560,6 +4565,7 @@ function applyAtmosphere(tod,wx){
   if(builtBig){ near*=1.2; far*=1.45; }
   if(wx==='fog'){ near=2; far=Math.min(far,46); } else if(wx==='precip'){ far*=0.72; }
   if(tod==='night') far=Math.min(far,80);
+  { const rl=refLook(sky,[near,far],tod); near=rl[0]; far=rl[1]; scene.background.copy(sky); scene.fog.color.copy(sky); }
   scene.fog.near=near; scene.fog.far=far;
   hemi.color.setHex(tod==='night'?0x8494c0:Mp.hemi[0]); hemi.groundColor.setHex(Mp.hemi[1]);
   hemi.intensity=Mp.hemi[2]*T.hemiK*(wx==='clear'?1:0.85); hemi.userData.base=hemi.intensity;
@@ -4585,7 +4591,9 @@ function applyGrade(){
     if(!(gfx==='high'||(gfx==='medium'&&!IS_TOUCH)) || (typeof air!=='undefined'&&air&&air.on)){ GRADE_CSS=''; setFilter(''); return; }
     const calc=(tod,wx)=>{ const g=(GRADES[currentMap]||[1.05,1,1,0,0]).slice();
       if(tod==='night'){ g[2]*=1.06; g[1]*=0.85; g[4]-=6; } else if(tod==='dusk'){ g[3]+=0.06; g[4]+=4; } else if(tod==='dawn'){ g[3]+=0.04; g[4]-=2; }
-      if(wx==='precip'){ g[1]*=0.88; g[0]*=1.02; } return g; };
+      if(wx==='precip'){ g[1]*=0.88; g[0]*=1.02; }
+      if(!MAPS[currentMap].snow && tod!=='night' && MAPS[currentMap].mode!=='tank'){ g[1]*=0.84; g[2]*=0.97; g[0]*=1.03; g[3]*=0.5; }      // muted, overcast colour like the reference
+      return g; };
     let g=calc(atmo.tod,atmo.wx);
     if(AT.tr&&AT.from&&AT.to){ const a=calc(AT.from.tod,AT.from.wx), b=calc(AT.to.tod,AT.to.wx); g=a.map((v,i)=>v+(b[i]-v)*AT.k); }
     GRADE_CSS='contrast('+g[0].toFixed(3)+') saturate('+g[1].toFixed(3)+') brightness('+g[2].toFixed(3)+')'+(g[3]>0?' sepia('+g[3].toFixed(3)+')':'')+(g[4]?' hue-rotate('+g[4].toFixed(1)+'deg)':'');
@@ -4600,6 +4608,7 @@ function atmoParams(tod,wx){
   if(wx==='precip') sky.lerp(new THREE.Color(tod==='night'?0x181c24:0x6c7178),0.35);
   warmHaze(sky,tod,wx,snowy);
   let near=Mp.fog[0], far=Mp.fog[1]; if(builtBig){ near*=1.2; far*=1.45; } if(wx==='precip') far*=0.72; if(tod==='night') far=Math.min(far,80);
+  { const rl=refLook(sky,[near,far],tod); near=rl[0]; far=rl[1]; }
   return {sky,near,far,hemiC:new THREE.Color(tod==='night'?0x8494c0:Mp.hemi[0]),hemiI:Mp.hemi[2]*T.hemiK*(wx==='clear'?1:0.85),
     sunC:new THREE.Color(T.sun||Mp.sun[0]),sunI:Mp.sun[1]*T.sunK*(wx==='clear'?1:0.5),
     snOp:snowy?(wx==='precip'?0.95:0.8):(wx==='precip'?0.95:0), snSz:snowy?(wx==='precip'?0.1:0.07):0.045,
@@ -6051,7 +6060,29 @@ function explosionBlocked(a,b){
 const LATE=[];
 function later(sec,fn){ if(!(sec>0.012)){ try{ fn(); }catch(e){} return; } if(LATE.length>60) LATE.shift(); LATE.push({t:sec,fn}); }
 function lateTick(dt){ for(let i=LATE.length-1;i>=0;i--){ const e=LATE[i]; e.t-=dt; if(e.t<=0){ LATE.splice(i,1); try{ e.fn(); }catch(err){} } } }
-function lateClear(){ LATE.length=0; }
+function lateClear(){ LATE.length=0; BQ.length=0; PB.length=0; for(const b of BST) freeTracer({ln:b.ln}); BST.length=0; }
+// ---- bullets take time to arrive: m/s in game metres (a little under real speeds, the maps are small) ----
+const BQ=[], PB=[], BST=[];      // AI hits waiting to land, the player's bullets in flight, visible streaks
+const BUL_NEAR=16;               // closer than this a bullet lands the same frame
+function bulSpeed(W){ return W.pistol?250:(W.auto&&!W.bipod&&(W.dmg||50)<30)?300:W.bolt?640:W.bipod?540:W.heavy?700:520; }
+function bq(sec,fn){ if(!(sec>0.016)){ try{ fn(); }catch(e){} return; } if(BQ.length>220){ const o=BQ.shift(); try{ o.fn(); }catch(e){} } BQ.push({t:sec,fn}); }
+function bStreak(o,d,len,v){ if(BST.length>70){ const x=BST.shift(); freeTracer({ln:x.ln}); }
+  let ln=tracerPool.pop(); if(!ln){ const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3)); ln=new THREE.Line(g,tracerMat); ln.frustumCulled=false; }
+  ln.visible=true; scene.add(ln); BST.push({ln,o:o.clone(),d:d.clone(),v,tr:0,max:len}); }
+function bulletsTick(dt){
+  for(let i=BQ.length-1;i>=0;i--){ const e=BQ[i]; e.t-=dt; if(e.t<=0){ BQ.splice(i,1); try{ e.fn(); }catch(err){} } }
+  for(let i=BST.length-1;i>=0;i--){ const b=BST[i]; b.tr+=b.v*dt;
+    if(b.tr>=b.max+6){ BST.splice(i,1); freeTracer({ln:b.ln}); continue; }
+    const head=Math.min(b.tr,b.max), tail=Math.max(0,head-7), pa=b.ln.geometry.attributes.position, r=pa.array;
+    r[0]=b.o.x+b.d.x*tail; r[1]=b.o.y+b.d.y*tail; r[2]=b.o.z+b.d.z*tail; r[3]=b.o.x+b.d.x*head; r[4]=b.o.y+b.d.y*head; r[5]=b.o.z+b.d.z*head; pa.needsUpdate=true; }
+  // the player's rounds are traced a step at a time, so a man who moves out of the way is missed and one running across is hit only if you led him
+  for(let i=PB.length-1;i>=0;i--){ const b=PB[i];
+    const step=Math.min(b.v*dt,b.max-b.trav); b.cur.copy(b.o).addScaledVector(b.d,b.trav);
+    let tr=null; try{ tr=bulletTrace(b.cur,b.d,step,null); }catch(e){ PB.splice(i,1); continue; }
+    if(tr && tr.point){ PB.splice(i,1); tr.dist+=b.trav; try{ resolveShot(tr,b.W,b.dmg); if(b.W.pierce && tr.soldier){ const d2=b.d.clone(), o2=tr.point.clone().addScaledVector(d2,0.7), tr2=bulletTrace(o2,d2,120,tr.soldier); if(tr2.soldier) resolveShot(tr2,b.W,b.W.dmg); } }catch(e){} continue; }
+    b.trav+=step; if(b.trav>=b.max-0.01) PB.splice(i,1); }
+}
+function playerBullet(o,d,W,dmg,max){ if(PB.length>60) PB.shift(); PB.push({o:o.clone(),d:d.clone(),cur:new V3(),v:bulSpeed(W),trav:0,max,W,dmg}); }
 const SND_SPEED=343;
 // ---- camera shake: a quick jolt from the pressure wave, then a smooth rumble that dies away (no frame-by-frame random jitter) ----
 const SHK={ph:Math.random()*50,j:0};
@@ -6290,21 +6321,27 @@ function aiFire(s){
     else landed = tr.soldier===t;
     if(landed && (t.isPlayer || t.isPartner)) end=tp;
   }
-  if(!landed){
-    if(tr.soldier && tr.soldier.team!==s.team){ damageSoldier(tr.soldier,hitDamage(s.team,W).dmg,s); landed=true; if(ss) ss.hits++; } // stray hit
-    bulletImpact(tr);
-    if(s.team==='enemy' && nearMiss(muzzle,dir,tr.point?tr.dist:dist+25)) sndBulletPass(muzzle,W.heavy);   // close call: whizz + suppression
-  }
-  spawnTracer(muzzle,end,0.05);
+  const bv=bulSpeed(W), flyLen=muzzle.distanceTo(end), flyT=flyLen>BUL_NEAR?flyLen/bv:0;     // the round takes time to get there; the outcome is already decided
+  const lbl=tr.point?tr.dist:dist+25;
+  const land=()=>{
+    let ok=landed;
+    if(!ok){
+      if(tr.soldier && tr.soldier.team!==s.team && !tr.soldier.dead){ damageSoldier(tr.soldier,hitDamage(s.team,W).dmg,s); ok=true; if(ss) ss.hits++; } // stray hit
+      bulletImpact(tr);
+    }
+    if(hit && landed && t.isPartner){ const {dmg,head}=hitDamage(s.team,W); coopSend({t:'hurt',d:dmg,h:head?1:0,f:arr(s.pos)}); }
+    else if(hit && landed && (t.isPlayer || tr.soldier===t)){
+      if(!t.isPlayer && t.dead) return;
+      const {dmg,head}=hitDamage(s.team,W); if(ss) ss.hits++; if(t.isPlayer) lastAttackerS=s;
+      if(t.isPlayer){ if(head && protectT<=0) lastHeadshot=true; damagePlayer(dmg,s.pos); } else damageSoldier(t,dmg,s);
+    }
+  };
+  suppressSeg(muzzle,dir,lbl,s.team,0.16);
+  if(!landed && s.team==='enemy'){ const mp=muzzle.clone(), md=dir.clone(), toC=camera.position.clone().sub(mp), al=Math.max(0,toC.dot(md)); bq(al>BUL_NEAR?al/bv:0,()=>{ if(nearMiss(mp,md,lbl)) sndBulletPass(mp,W.heavy); }); }   // the whizz arrives as the round goes past you
+  if(flyT>0){ bStreak(muzzle,dir,flyLen,bv); bq(flyT,land); } else { spawnTracer(muzzle,end,0.05); land(); }
   s.aimHold=1.4; s.flashT=0.05; s.muzzleFlash.visible=true; s.muzzleFlash.material.rotation=Math.random()*3; shotFlash(muzzle);
-  const cd=muzzle.distanceTo(camera.position);
   sndShotAt(muzzle,W.heavy,1,s.weapon);
   coopShot(muzzle,end,W.heavy,s.team);
-  if(hit && landed && t.isPartner){ const {dmg,head}=hitDamage(s.team,W); coopSend({t:'hurt',d:dmg,h:head?1:0,f:arr(s.pos)}); }
-  else if(hit && landed && (t.isPlayer || tr.soldier===t)){
-    const {dmg,head}=hitDamage(s.team,W); if(ss) ss.hits++; if(t.isPlayer) lastAttackerS=s;
-    if(t.isPlayer){ if(head && protectT<=0) lastHeadshot=true; damagePlayer(dmg,s.pos); } else damageSoldier(t,dmg,s);
-  }
 }
 let protectT=0; const PROTECT_TIME=5;
 function startProtection(){ protectT=PROTECT_TIME; }
@@ -10033,7 +10070,7 @@ function buildViewmodel(side,type){
   const p1=new THREE.Mesh(new THREE.PlaneGeometry(0.22,0.22),fm);
   const p2=new THREE.Mesh(new THREE.PlaneGeometry(0.12,0.35),fm); p2.rotation.y=Math.PI/2; p2.position.z=-0.1;
   const p3=new THREE.Mesh(new THREE.PlaneGeometry(0.35,0.12),fm); p3.rotation.x=Math.PI/2; p3.position.z=-0.1;
-  vmFlash.add(p1,p2,p3); vmFlash.visible=false; vmWeapon.userData.muzzle.add(vmFlash);
+  vmFlash.add(p1,p2,p3); vmFlash.scale.setScalar(0.7); fm.color.setHex(0xffb060); vmFlash.visible=false; vmWeapon.userData.muzzle.add(vmFlash);
 }
 
 /* ================= EFFECTS ================= */
@@ -11204,7 +11241,9 @@ function fire(){
   if(isDuel()){ const end=tr.point?tr.point:ray.ray.origin.clone().addScaledVector(ray.ray.direction,200); duelSend({t:'fire',e:arr(end),w:W.heavy?1:0}); }
   if(isCoop()){ const end=tr.point?tr.point:ray.ray.origin.clone().addScaledVector(ray.ray.direction,200);
     if(coopHost()) coopShot(camera.position.clone().add(new V3(0,-0.15,0)),end,W.heavy,'ally'); else coopSend({t:'gfire',e:arr(end),w:W.heavy?1:0}); }
-  resolveShot(tr,W,(W.dmg ?? (W.bolt?100:50)));
+  const pdmg=(W.dmg ?? (W.bolt?100:50));
+  if(tr.dist>BUL_NEAR && !isDuel()){ playerBullet(ray.ray.origin,ray.ray.direction,W,pdmg,tr.point?tr.dist+1.5:200); return; }      // far enough that it takes a moment to arrive
+  resolveShot(tr,W,pdmg);
   if(W.pierce && s && tr.point){ const d2=ray.ray.direction.clone(), o2=tr.point.clone().addScaledVector(d2,0.7), tr2=bulletTrace(o2,d2,120,s); if(tr2.soldier) resolveShot(tr2,W,W.dmg); }
 }
 // ---- auto shoot (pause menu toggle): fires by itself when the crosshair is on an enemy that is inside this weapon's auto range ----
@@ -12109,11 +12148,21 @@ function buildBodySounds(){
       d[i]=thump+flesh+slap+gear; } });
   SB.drip=[0,1,2].map(()=>synth(0.12,(d,sr,n)=>{ let ph=0; const f0=1500+Math.random()*900; for(let i=0;i<n;i++){ const t=i/sr; ph+=2*Math.PI*(f0*(0.55+0.45*Math.exp(-t*70)))/sr; d[i]=Math.sin(ph)*Math.exp(-t*55)*0.8+(Math.random()*2-1)*Math.exp(-t*400)*0.25; } }));      // a water drop falling from a roof
   // metal rattle of a bolt-action rifle and its kit while you run: sling swivels, the bolt handle and ammo pouches knocking (three takes)
-  SB.rattle=[
-    mech(0.14,[{k:'tick',t:0,a:0.5,f:3300,dec:320,bf:1300,ba:0.12,bd:300},{k:'tick',t:0.022,a:0.35,f:4400,dec:380,bf:1500,ba:0.1,bd:320},{k:'tick',t:0.05,a:0.45,f:3000,dec:300,bf:1200,ba:0.1,bd:300},{k:'rasp',t:0.005,len:0.07,f0:2200,f1:3600,a:0.1,am:300}]),
-    mech(0.14,[{k:'tick',t:0,a:0.4,f:3800,dec:360,bf:1400,ba:0.1,bd:320},{k:'tick',t:0.03,a:0.5,f:3100,dec:300,bf:1200,ba:0.12,bd:300},{k:'tick',t:0.062,a:0.3,f:4600,dec:400,bf:1600,ba:0.08,bd:340},{k:'rasp',t:0.01,len:0.06,f0:2600,f1:3200,a:0.09,am:340}]),
-    mech(0.14,[{k:'tick',t:0,a:0.45,f:2900,dec:300,bf:1100,ba:0.14,bd:280},{k:'tick',t:0.018,a:0.4,f:4100,dec:360,bf:1500,ba:0.1,bd:320},{k:'tick',t:0.041,a:0.35,f:3500,dec:340,bf:1300,ba:0.1,bd:300},{k:'tick',t:0.07,a:0.25,f:4800,dec:420,bf:1700,ba:0.08,bd:360}])
-  ];
+  // the rifle rattling as you move: loose steel parts (sling swivels, bolt handle, buckles) clinking against each other
+  const metalRattle=()=>synth(0.22,(d,sr,n)=>{
+    // a loose-metal clink, not a bell: a noise burst rings a handful of random high resonances that die within ~10-20 ms,
+    // and each knock bounces 1-3 times in quick succession like a loose swivel or buckle
+    const knock=(t0,a)=>{ const s0=Math.floor(t0*sr), R=[];
+      for(let k=0;k<6;k++){ const f=2200+Math.random()*6500, dec=140+Math.random()*160, w=2*Math.PI*f/sr, r=Math.exp(-dec/sr); R.push({b1:2*r*Math.cos(w),b2:-r*r,y1:0,y2:0,g:(0.4+Math.random()*0.6)*(1-w/Math.PI*0.6)}); }
+      const L=Math.floor(0.045*sr), ex=Math.floor(0.0012*sr);
+      for(let i=0;i<L&&s0+i<n;i++){ const x=i<ex?(Math.random()*2-1):0; let v=0;
+        for(const q of R){ const y=x*q.g+q.b1*q.y1+q.b2*q.y2; q.y2=q.y1; q.y1=y; v+=y; }
+        d[s0+i]+=a*(v*0.12+(i<ex*3?(Math.random()*2-1)*0.5:0)); } };
+    const hits=2+((Math.random()*3)|0);
+    for(let h=0;h<hits;h++){ const t0=h===0?0:0.02+Math.random()*0.12, a=h===0?1:0.4+Math.random()*0.5;
+      knock(t0,a); const b=(Math.random()*3)|0; for(let j=1;j<=b;j++) knock(t0+j*(0.006+Math.random()*0.012),a*Math.pow(0.45,j)); }
+  });
+  SB.rattle=[metalRattle(),metalRattle(),metalRattle(),metalRattle()];
   SB.hitBody=[hitBody(),hitBody(),hitBody()]; SB.hitHead=[hitHead(),hitHead(),hitHead()]; SB.hitKill=[hitKill(),hitKill(),hitKill()];
   // kill confirm (three takes): sharp click, low punch, damped metallic tock; about a quarter of a second
   const killConf=()=>synth(0.26,(d,sr,n)=>{ let prev=0; const hz=520+Math.random()*60;
@@ -12405,7 +12454,7 @@ function liveHud(dt){
 const _zmV=new THREE.Vector3();
 // ---------- screen effects + body sounds, every frame ----------
 function updateImmersion(dt,t){
-  lateTick(dt);
+  lateTick(dt); bulletsTick(dt);
   try{ liveHud(dt); }catch(e){}
   updateCasings(dt); updateImpacts(dt);
   try{ trkTick(dt); ptTick(dt,t); atmoTick(dt); }catch(e){ console.warn('[live world]',e); }
@@ -12803,8 +12852,8 @@ function sndStepNew(sprint){
   const vol=(player.crouch?0.17:sprint?0.48:0.32)*(g==='wood'?0.85:g==='snow'?0.9:1);
   play(set[(Math.random()*set.length)|0],vol,(stepSide>0?1.03:0.97)*(0.95+Math.random()*0.1));
   if(sprint && SB.gear && Math.random()<(g==='snow'?0.5:0.9)) play(SB.gear[(Math.random()*3)|0],g==='snow'?0.12:0.26,0.9+Math.random()*0.2);
-  try{ if(sprint && SB.rattle && WEAPONS[gun.type]) play(SB.rattle[(Math.random()*3)|0],(WEAPONS[gun.type].bolt?0.55:0.4)+Math.random()*0.12,0.92+Math.random()*0.16,0.02+Math.random()*0.03,0.1); }catch(e){}      // bolt-action rifles clink and rattle as you run
-  try{ if(!sprint && !player.crouch && SB.rattle && WEAPONS[gun.type] && Math.random()<(WEAPONS[gun.type].bolt?0.9:0.6)) play(SB.rattle[(Math.random()*3)|0],(WEAPONS[gun.type].bolt?0.26:0.16)+Math.random()*0.06,0.98+Math.random()*0.2,0.03+Math.random()*0.04,0.05); }catch(e){}      // a softer, sparser rattle when walking
+  try{ if(sprint && SB.rattle && WEAPONS[gun.type]) play(SB.rattle[(Math.random()*SB.rattle.length)|0],(WEAPONS[gun.type].bolt?0.55:0.4)+Math.random()*0.12,0.92+Math.random()*0.16,0.02+Math.random()*0.03,0.1); }catch(e){}      // bolt-action rifles clink and rattle as you run
+  try{ if(!sprint && !player.crouch && SB.rattle && WEAPONS[gun.type] && Math.random()<(WEAPONS[gun.type].bolt?0.9:0.6)) play(SB.rattle[(Math.random()*SB.rattle.length)|0],(WEAPONS[gun.type].bolt?0.26:0.16)+Math.random()*0.06,0.98+Math.random()*0.2,0.03+Math.random()*0.04,0.05); }catch(e){}      // a softer, sparser rattle when walking
 }
 
 /* ================= GRAPHICS SETTING ================= */

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="build" content="5eb55dd8">
+<meta name="build" content="acab82a3">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
@@ -450,41 +450,51 @@
   body.touch #roleBanner{top:calc(18*var(--u))} body.touch #killMsg{bottom:calc(27*var(--u));font-size:calc(2.6*var(--u))}
 body:not(.touch) #side{display:none!important}
 
-  /* ===== WW2 field-kit HUD: olive drab, khaki, brass, stencil plates (same font) ===== */
-  #skHud .skc{width:44px!important;height:44px!important;font:700 15px 'Playfair Display',Georgia,serif!important;letter-spacing:1px!important}
-  #skHud .skc::before{inset:5px!important;transform:none!important;border-radius:2px;border:2px solid #b79a52!important;background:linear-gradient(180deg,var(--c1),var(--c2))!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.5),0 1px 4px rgba(0,0,0,.7)!important}
-  #skHud .skc::after{left:5px!important;right:5px!important;bottom:-3px!important;height:3px!important;background:#b79a52!important;opacity:.8}
-  #skHud .skc.ally{--c1:#5d6e45!important;--c2:#2a3320!important} #skHud .skc.enemy{--c1:#8a3a2c!important;--c2:#3e1a14!important}
-  #zoneMark .dm::before{transform:none!important;inset:7px!important;border-radius:2px;background:#2a3320!important;border:2px solid #b79a52!important}
-  #zoneMark.en .dm::before{background:#4a1f18!important;border-color:#c98a6a!important} #zoneMark.ne .dm::before{background:#34352c!important;border-color:#8c8a78!important}
-  #zoneMark .pc{background:#3b3a24!important;border:1px solid #b79a52!important;color:#efe6c6!important;border-radius:1px}
-  #zoneMark .dm{font:700 16px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:1px}
-  #hpwrap{background:rgba(26,28,18,.78)!important;border:1px solid #b79a52!important;border-radius:1px!important;margin:3px 0 4px!important}
-  #hpbar{background-image:repeating-linear-gradient(90deg,transparent 0 11px,rgba(0,0,0,.45) 11px 12px),linear-gradient(180deg,#8f9f5a 0,#6a7b3e 55%,#4c5a2b 100%)!important;background-size:100cqw 100%,100cqw 100%!important}
-  #hpwrap.low #hpbar{background-image:repeating-linear-gradient(90deg,transparent 0 11px,rgba(0,0,0,.45) 11px 12px),linear-gradient(180deg,#c4623a,#9c3d22 55%,#74281a)!important}
-  #hpTxt{font:700 13px 'Playfair Display',Georgia,serif!important;letter-spacing:2px!important;color:#f1ead0!important}
-  #hpLabel,#stLabel{font:700 10px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:3px!important;color:#cdbf8c!important;opacity:.9!important;text-transform:uppercase}
-  #stambar{background:rgba(26,28,18,.6)!important;border:1px solid rgba(183,154,82,.6)!important;height:5px!important}
-  #stam{background:linear-gradient(90deg,#9c8a4a,#d2bf78)!important}
-  #stamwrap{padding:8px 12px 9px;background:linear-gradient(180deg,rgba(40,42,28,.62),rgba(22,24,16,.7));border:1px solid rgba(183,154,82,.55);border-left:4px solid #b79a52;width:210px;box-sizing:border-box}
-  #ammo{padding:6px 10px 8px;background:linear-gradient(180deg,rgba(40,42,28,.62),rgba(22,24,16,.7));border:1px solid rgba(183,154,82,.55);border-right:4px solid #b79a52}
-  #ammo .w{font:700 11px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:3px;text-transform:uppercase;color:#cdbf8c!important}
-  #gunBar .n{font:700 17px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:2px;color:#f1ead0!important}
-  #inv .slot{border-radius:2px!important;border:1px solid rgba(183,154,82,.5)!important;background:rgba(30,32,22,.68)!important}
-  #inv .slot.sel{border-color:#d9bf70!important;background:rgba(66,62,30,.78)!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.5),0 0 calc(1.2*var(--u)) rgba(217,191,112,.35)!important}
-  body:not(.touch) #inv .slot{width:calc(15*var(--u))!important;height:calc(10*var(--u))!important}
-  body:not(.touch) #inv .slot svg{display:block!important;width:58%!important;height:34%!important}
-  body:not(.touch) #inv .slot.sel{width:calc(15*var(--u))!important;height:calc(10*var(--u))!important}
-  body:not(.touch) #inv .slot b{font-size:calc(1.5*var(--u))!important;letter-spacing:.2em;font-style:normal}
-  #keyHints{right:auto!important;left:1.1%!important;bottom:auto!important;top:24%!important;padding:6px 9px;background:rgba(24,26,18,.5);border-left:2px solid rgba(183,154,82,.6);font-size:10px!important;letter-spacing:.5px}
-  #keyHints i{color:#d9bf70!important}
-  #sideTag,#clockTag{font:700 clamp(13px,1.6vw,20px) 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:4px!important;text-transform:uppercase;border-radius:1px!important;background:linear-gradient(180deg,rgba(52,56,36,.85),rgba(28,30,20,.88))!important;border:1px solid #b79a52;color:#eee4c0!important}
-  #roleBanner #roleTxt{font:700 clamp(22px,3.4vw,44px) 'Playfair Display',Georgia,serif!important;letter-spacing:.5em!important;text-transform:uppercase;color:#eadfb4!important;padding:4px .5em 4px 1em;border-top:2px solid #b79a52;border-bottom:2px solid #b79a52;background:rgba(24,26,16,.55)}
+  /* ===== WW2 HUD v2: no panels. Flags, rounds, big numerals, ink-stamped banners (same font) ===== */
+  #stamwrap,#ammo{background:none!important;border:none!important;padding:0!important;position:absolute}
+  #stamwrap::before,#ammo::before{content:'';position:absolute;z-index:-1;pointer-events:none;inset:-60px -90px -40px -50px;background:radial-gradient(ellipse at 20% 100%,rgba(8,8,4,.62),transparent 68%)}
+  #ammo::before{inset:-60px -50px -40px -90px;background:radial-gradient(ellipse at 80% 100%,rgba(8,8,4,.62),transparent 68%)}
+  #stamwrap{width:250px!important}
+  #hpLabel,#stLabel{font:700 10px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:.4em!important;color:#cbbd8a!important;opacity:.85!important;text-transform:uppercase}
+  #hpwrap{overflow:visible!important;height:5px!important;margin:40px 0 12px!important;background:rgba(255,255,255,.14)!important;border:none!important;border-radius:0!important;position:relative}
+  #hpbar{height:5px!important;background-image:linear-gradient(90deg,#d9cf9f,#f3ecc8)!important;background-size:100cqw 100%!important;clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%)}
+  #hpwrap.low #hpbar{background-image:linear-gradient(90deg,#c0442c,#e8704a)!important}
+  #hpTxt{left:0!important;right:auto!important;top:auto!important;bottom:12px!important;height:auto!important;display:block!important;padding:0!important;font:400 44px/1 'Playfair Display',Georgia,serif!important;letter-spacing:-1px!important;color:#f3ecc8!important;text-shadow:0 2px 6px #000!important;font-variant-numeric:oldstyle-nums}
+  #stambar{height:2px!important;border:none!important;background:rgba(255,255,255,.12)!important;margin-top:4px!important}
+  #stam{background:#bfb07a!important}
+  #ammo .w{font:700 10px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:.4em;text-transform:uppercase;color:#cbbd8a!important;text-align:right}
+  #gunBar{display:flex!important;flex-direction:column-reverse;width:250px!important;margin-top:2px!important}
+  #gunBar .n{position:static!important;transform:none!important;text-align:right;font:400 44px/1 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:-1px;color:#f3ecc8!important;text-shadow:0 2px 6px #000!important;margin-bottom:6px;font-variant-numeric:oldstyle-nums}
+  #ammo.rl #gunFill{fill:#c0442c}
+  /* objective flags */
+  #skHud .skc,#zoneMark .dm{background:none!important}
+  #skHud .skc{width:46px!important;height:48px!important;align-items:flex-start!important;justify-content:flex-start!important;padding:7px 0 0 15px!important;font:700 13px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:.5px!important;outline:none!important;box-sizing:border-box}
+  #skHud .skc::before{content:''!important;inset:auto!important;left:12px!important;top:3px!important;width:30px!important;height:24px!important;transform:none!important;border:none!important;border-radius:0!important;z-index:-1;clip-path:polygon(0 0,100% 0,80% 50%,100% 100%,0 100%);background:linear-gradient(180deg,var(--c1),var(--c2))!important;box-shadow:none!important;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+  #skHud .skc::after{content:''!important;left:10px!important;right:auto!important;top:0!important;bottom:0!important;width:2px!important;height:auto!important;background:#cbbd8a!important;opacity:.9}
+  #skHud .skc.ally{--c1:#7d9150!important;--c2:#4d5e2f!important} #skHud .skc.enemy{--c1:#b4472f!important;--c2:#772a1b!important}
+  #zoneMark .dm{width:44px!important;height:46px!important;align-items:flex-start!important;justify-content:flex-start!important;padding:6px 0 0 15px!important;box-sizing:border-box;font:700 13px 'Playfair Display',Georgia,serif!important;font-style:normal!important}
+  #zoneMark .dm::before{content:''!important;inset:auto!important;left:12px!important;top:3px!important;width:30px!important;height:24px!important;transform:none!important;border:none!important;box-shadow:none!important;border-radius:0!important;clip-path:polygon(0 0,100% 0,80% 50%,100% 100%,0 100%);background:#5d7040!important}
+  #zoneMark .dm::after{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:#cbbd8a}
+  #zoneMark.en .dm::before{background:#9a3b27!important} #zoneMark.ne .dm::before{background:#6c6b5a!important}
+  #zoneMark .pc{background:none!important;border:none!important;color:#f3ecc8!important;font:400 15px 'Playfair Display',Georgia,serif!important;text-shadow:0 1px 4px #000!important}
+  /* tags and banners: ink-stamped type, no boxes */
+  #sideTag,#clockTag{background:none!important;border:none!important;padding:0 0 5px!important;font:400 clamp(22px,2.8vw,36px) 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:.18em!important;text-transform:uppercase;color:#f3ecc8!important;text-shadow:2px 2px 0 rgba(0,0,0,.55);background-image:linear-gradient(90deg,#cbbd8a,transparent)!important;background-size:100% 2px!important;background-repeat:no-repeat!important;background-position:0 100%!important}
+  #clockTag{background-image:linear-gradient(270deg,#cbbd8a,transparent)!important;font-variant-numeric:oldstyle-nums;letter-spacing:.08em!important}
+  #roleBanner #roleTxt{font:400 clamp(34px,5.6vw,72px) 'Playfair Display',Georgia,serif!important;letter-spacing:.14em!important;text-transform:uppercase;color:#f1e7c0!important;border:none!important;background:linear-gradient(90deg,transparent,#cbbd8a,transparent) 50% 100%/100% 2px no-repeat!important;padding:0 .3em 10px!important;transform:rotate(-2.5deg);text-shadow:4px 4px 0 rgba(0,0,0,.5),0 0 22px rgba(0,0,0,.5)!important}
   #roleBanner .shd{display:none!important}
-  #phaseBanner{font:700 56px 'Playfair Display',Georgia,serif!important;letter-spacing:.35em!important;text-transform:uppercase;-webkit-text-stroke:0!important;color:#eadfb4!important;text-shadow:0 2px 8px #000!important}
-  #killMsg{border-radius:1px!important;border-left:3px solid #b79a52!important}
-  #casTag{font:700 11px 'Playfair Display',Georgia,serif!important;font-style:normal!important;letter-spacing:2px!important;text-transform:uppercase}
-  #casTag .f{color:#b5c58a!important} #casTag .e{color:#d99a80!important}
+  #phaseBanner{font:400 64px 'Playfair Display',Georgia,serif!important;letter-spacing:.2em!important;text-transform:uppercase;-webkit-text-stroke:0!important;color:#f1e7c0!important;transform:rotate(-2deg);text-shadow:4px 4px 0 rgba(0,0,0,.5),0 0 24px rgba(0,0,0,.5)!important}
+  #killMsg{background:none!important;border:none!important;padding:0!important}
+  /* inventory: just the tools, the chosen one lifted and underlined */
+  #inv .slot{background:none!important;border:none!important;border-bottom:2px solid transparent!important;border-radius:0!important;box-shadow:none!important;opacity:.5;filter:drop-shadow(0 2px 3px #000)}
+  #inv .slot.sel{opacity:1;border-bottom-color:#e2c978!important;background:none!important;transform:translateY(-4px)}
+  body:not(.touch) #inv .slot,body:not(.touch) #inv .slot.sel{width:calc(14*var(--u))!important;height:calc(9*var(--u))!important}
+  body:not(.touch) #inv .slot svg{display:block!important;width:64%!important;height:40%!important}
+  body:not(.touch) #inv .slot b{font-size:calc(1.4*var(--u))!important;letter-spacing:.3em;font-style:normal}
+  #keyHints{background:none!important;border-left:1px solid rgba(203,189,138,.4)!important;opacity:.7;font-size:10px!important}
+  #casTag{font:400 12px 'Playfair Display',Georgia,serif!important;font-style:italic!important;letter-spacing:1px!important;text-transform:none!important}
+  #keyHints{right:auto!important;left:1.1%!important;bottom:auto!important;top:24%!important}
+  #hpwrap{margin-top:58px!important}
+  #inv .slot.sel{outline:none!important;border-width:0 0 2px 0!important;background:none!important;box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -508,7 +518,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v2.27</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v2.28</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -703,7 +713,7 @@ body:not(.touch) #side{display:none!important}
   <div id="scope"><i class="h"></i><i class="v"></i></div>
   <div id="tankSight"><i class="h"></i><i class="v"></i><i class="c1"></i><i class="c2"></i><i class="c3"></i></div>
   <div id="gunMark"></div>
-  <div id="ammo"><div class="w" id="ammoW"></div><div id="gunBar"><svg viewBox="0 0 240 44"><defs><clipPath id="gunClip"><path d="M9 7H231L237 13V31L231 37H9L3 31V13Z"/></clipPath></defs><path d="M9 7H231L237 13V31L231 37H9L3 31V13Z" fill="#2d3122" stroke="#b79a52" stroke-width="1.4"/><rect id="gunFill" x="0" y="0" width="240" height="44" fill="#8a9a52" clip-path="url(#gunClip)"/><path d="M63 7V37M123 7V37M183 7V37" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1.4" stroke-dasharray="3 3"/></svg><div class="n" id="ammoN">0 / 0</div></div></div>
+  <div id="ammo"><div class="w" id="ammoW"></div><div id="gunBar"><svg viewBox="0 0 240 44"><defs><clipPath id="gunClip"><path d="M2 40V19C2 11 6 5 12 3C18 5 22 11 22 19V40ZM26 40V19C26 11 30 5 36 3C42 5 46 11 46 19V40ZM50 40V19C50 11 54 5 60 3C66 5 70 11 70 19V40ZM74 40V19C74 11 78 5 84 3C90 5 94 11 94 19V40ZM98 40V19C98 11 102 5 108 3C114 5 118 11 118 19V40ZM122 40V19C122 11 126 5 132 3C138 5 142 11 142 19V40ZM146 40V19C146 11 150 5 156 3C162 5 166 11 166 19V40ZM170 40V19C170 11 174 5 180 3C186 5 190 11 190 19V40ZM194 40V19C194 11 198 5 204 3C210 5 214 11 214 19V40ZM218 40V19C218 11 222 5 228 3C234 5 238 11 238 19V40Z"/></clipPath></defs><path d="M2 40V19C2 11 6 5 12 3C18 5 22 11 22 19V40ZM26 40V19C26 11 30 5 36 3C42 5 46 11 46 19V40ZM50 40V19C50 11 54 5 60 3C66 5 70 11 70 19V40ZM74 40V19C74 11 78 5 84 3C90 5 94 11 94 19V40ZM98 40V19C98 11 102 5 108 3C114 5 118 11 118 19V40ZM122 40V19C122 11 126 5 132 3C138 5 142 11 142 19V40ZM146 40V19C146 11 150 5 156 3C162 5 166 11 166 19V40ZM170 40V19C170 11 174 5 180 3C186 5 190 11 190 19V40ZM194 40V19C194 11 198 5 204 3C210 5 214 11 214 19V40ZM218 40V19C218 11 222 5 228 3C234 5 238 11 238 19V40Z" fill="rgba(255,255,255,.10)" stroke="rgba(214,190,120,.55)" stroke-width="1"/><rect id="gunFill" x="0" y="0" width="240" height="44" fill="#d8bf6e" clip-path="url(#gunClip)"/><path d="M2 33H238" stroke="rgba(0,0,0,.35)" stroke-width="2"/></svg><div class="n" id="ammoN">0 / 0</div></div></div></div>
 </div>
 
 <div id="inv">

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="build" content="11a53698">
+<meta name="build" content="c2d08193">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
@@ -884,6 +884,7 @@ body:not(.touch) #side{display:none!important}
   { const tips=['Shells give you only half a second of whistle. Drop and move the moment you hear one.','Crouch with C to steady your aim and make a smaller target.','Right-click or Q to aim down the sights.','Your squad comes back 20 seconds after they fall. Keep them alive when you can.','Fallen soldiers respawn at the start point, so push the front forward to shorten the walk.','Press H for a third-person view.','Engineers can build sandbags and tank traps with T.','Capture points change hands faster with more soldiers standing on them.'];
     const e=document.getElementById('loadTip'); if(e) e.textContent='TIP · '+tips[(Math.random()*tips.length)|0]; }
   (async()=>{
+    if(document.readyState==='loading') await new Promise(r=>document.addEventListener('DOMContentLoaded',r,{once:true}));      // the page is big now: wait until the game code has finished arriving
     const BASES=['https://cdn.jsdelivr.net/npm/three@0.160.0/','https://unpkg.com/three@0.160.0/'];
     let base=null;
     for(const b of BASES){

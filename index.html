@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="build" content="068fdf22">
+<meta name="build" content="d9cb7c1f">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
@@ -547,6 +547,9 @@ body:not(.touch) #side{display:none!important}
   /* health bar like the reference: a solid red bar */
   #hpwrap{height:9px!important;background:rgba(0,0,0,.45)!important;border:1px solid rgba(0,0,0,.75)!important}
   #hpbar{height:100%!important;background-image:linear-gradient(180deg,#d0594a,#a63326 55%,#7d2519)!important;clip-path:none!important}
+
+  /* heavy dark edge shading, like the reference footage */
+  #edgeShade{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 78% 74% at 50% 48%,rgba(0,0,0,0) 46%,rgba(4,6,8,.34) 74%,rgba(2,3,5,.7) 100%)}
 </style>
 </head>
 <body>
@@ -570,7 +573,7 @@ body:not(.touch) #side{display:none!important}
  <path d="M71.0,141.3 L81.9,151.5 M81.9,141.3 L71.0,151.5 M71.0,151.5 L81.9,141.3 M81.9,151.5 L71.0,141.3 M141.3,126.1 L153.2,135.1 M153.2,126.1 L141.3,135.1 M141.3,135.1 L153.2,126.1 M153.2,135.1 L141.3,126.1 M211.7,96.2 L224.5,104.1 M224.5,96.2 L211.7,104.1 M211.7,104.1 L224.5,96.2 M224.5,104.1 L211.7,96.2 M283.4,113.8 L294.3,124.1 M294.3,113.8 L283.4,124.1 M283.4,124.1 L294.3,113.8 M294.3,124.1 L283.4,113.8 M353.7,146.2 L365.6,155.3 M365.6,146.2 L353.7,155.3 M353.7,155.3 L365.6,146.2 M365.6,155.3 L353.7,146.2 M424.1,127.7 L436.9,135.5 M436.9,127.7 L424.1,135.5 M424.1,135.5 L436.9,127.7 M436.9,135.5 L424.1,127.7 M495.8,92.5 L506.7,102.7 M506.7,92.5 L495.8,102.7 M495.8,102.7 L506.7,92.5 M506.7,102.7 L495.8,92.5 M566.1,108.7 L578.0,117.8 M578.0,108.7 L566.1,117.8 M566.1,117.8 L578.0,108.7 M578.0,117.8 L566.1,108.7 M636.5,139.0 L649.3,146.8 M649.3,139.0 L636.5,146.8 M636.5,146.8 L649.3,139.0 M649.3,146.8 L636.5,139.0 M708.2,117.7 L719.1,128.0 M719.1,117.7 L708.2,128.0 M708.2,128.0 L719.1,117.7 M719.1,128.0 L708.2,117.7" fill="none" stroke="#9a9a96" stroke-width="1.5" stroke-linecap="round"/>
 </g>
 </svg></h1>
-  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v2.74</div>
+  <div id="verTag" style="position:fixed;right:14px;bottom:10px;font:700 13px Playfair Display,Georgia,serif;letter-spacing:1px;color:#fff;opacity:.6;text-shadow:1px 1px 0 #000;pointer-events:none">v2.75</div>
   <div class="sub">CHOOSE HOW YOU WANT TO PLAY</div>
   <div class="sides">
     <div class="card sel" data-menu="missions">
@@ -809,7 +812,7 @@ body:not(.touch) #side{display:none!important}
 </div>
 <div id="rotate">↻<br>Turn your phone sideways<br><span style="font-size:14px;opacity:.7">This game is played in landscape</span></div>
 <div id="err"></div>
-<div id="vig"></div>
+<div id="edgeShade"></div><div id="vig"></div>
 <div id="loading" style="position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#1b1d18 0%,#0a0b09 100%);color:#e2d8bd;font-family:Playfair Display,Georgia,serif;transition:opacity .6s">
   <div style="font-size:clamp(30px,7vw,52px);letter-spacing:.3em;font-weight:700;text-indent:.3em">EMBATTLED</div>
   <div style="width:min(340px,70vw);height:4px;background:rgba(255,255,255,.14);margin:28px 0 12px;overflow:hidden"><div id="loadBar" style="height:100%;width:4%;background:#d8c27a;transition:width .5s ease-out"></div></div>

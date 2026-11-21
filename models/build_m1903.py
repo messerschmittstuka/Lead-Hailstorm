@@ -150,37 +150,40 @@ def profile(name, pts, width, m, bevel=0.003, subd=1, taper=None):
     for p in ob.data.polygons: p.use_smooth = True
     return ob
 
-BZ = 0.035            # M1903 Springfield: muzzle y=+0.73, butt y=-0.367 (1.097 m), pistol grip, full handguard, two bands with swivels
-top = [(0.615, 0.050), (0.55, 0.052), (0.40, 0.053), (0.25, 0.054), (0.19, 0.052), (0.17, 0.044), (0.0, 0.042), (-0.06, 0.040), (-0.075, 0.036),
-       (-0.10, 0.030), (-0.15, 0.024), (-0.22, 0.018), (-0.30, 0.012), (-0.365, 0.006)]
-under = [(-0.367, -0.100), (-0.30, -0.094), (-0.22, -0.076), (-0.16, -0.062), (-0.125, -0.062), (-0.095, -0.056), (-0.07, -0.040), (-0.045, -0.024),
-         (-0.01, -0.016), (0.09, -0.014), (0.2, -0.011), (0.3, -0.006), (0.45, 0.0), (0.55, 0.004), (0.615, 0.006)]
-st = profile('stock', top + under, 0.040, WOOD, 0.003, 1, taper=lambda y: 1.0 if y < 0.15 else max(0.82, 1.0 - 0.18 * min(1.0, (y - 0.15) / 0.4)))
-profile('butt_plate', [(-0.3655, 0.006), (-0.3695, -0.050), (-0.3695, -0.100), (-0.3665, -0.100), (-0.3665, -0.050), (-0.3625, 0.006)], 0.040, BLUED, 0.0008, 0)
+BZ = 0.035
+# Traced from the user's side photo (upper rifle, muzzle right). Butt at px=62 is y=-0.367, muzzle tip px=1925 is y=+0.730; the rifle is tilted ~1 deg in the photo, corrected below.
+SC = 1698.0
+def Bore(px): return 205.0 + (px - 600) * 0.0185
+def Y(px): return -0.367 + (px - 62) / SC
+def Z(px, py): return BZ + (Bore(px) - py) / SC
+def P(px, py): return (round(Y(px), 4), round(Z(px, py), 4))
 
-# barrel, receiver
-cyl_y('barrel', 0.0148, 0.0100, 0.10, 0.73, 0, BZ, BLUED)
-torus_y('muzzle_crown', 0.0102, 0.0014, 0.73, 0, BZ, ARSENAL)
-cyl_y('receiver_ring', 0.0150, 0.0150, 0.07, 0.15, 0, BZ, BLUED)
-cyl_y('receiver', 0.0138, 0.0138, -0.075, 0.09, 0, BZ, BLUED, 30)
-box('receiver_floor', 0.030, 0.16, 0.016, 0, 0.01, 0.018, BLUED)
-cyl_y('sight_collar', 0.0112, 0.0112, 0.69, 0.71, 0, BZ, BLUED)
+top_px = [(1722, 207), (1330, 199), (1200, 185), (1110, 172), (1100, 200), (760, 206), (640, 214), (560, 222), (500, 243), (450, 262), (410, 263), (300, 268), (180, 276), (62, 285)]
+under_px = [(88, 478), (200, 435), (300, 392), (400, 338), (470, 302), (520, 292), (700, 289), (880, 287), (1330, 280), (1722, 266)]
+st = profile('stock', [P(*p) for p in top_px + under_px], 0.040, WOOD, 0.003, 0, taper=lambda y: 1.0 if y < 0.15 else max(0.84, 1.0 - 0.16 * min(1.0, (y - 0.15) / 0.4)))
+
+# barrel (the exposed muzzle end), receiver, chamber section
+cyl_y('barrel', 0.0115, 0.0074, Y(880), 0.730, 0, BZ, BLUED)
+torus_y('muzzle_crown', 0.0076, 0.0012, 0.730, 0, BZ, ARSENAL)
+cyl_y('receiver_ring', 0.0146, 0.0146, Y(880), Y(1108), 0, BZ, BLUED)
+cyl_y('receiver', 0.0138, 0.0138, Y(575), Y(885), 0, BZ, BLUED, 30)
+box('receiver_floor', 0.030, Y(880) - Y(600), 0.016, 0, (Y(880) + Y(600)) / 2, 0.019, BLUED)
 for x in (-0.0185, 0.0185):
-    for y in (-0.04, 0.13):
-        cyl_x('screw', 0.0036, x, x + (0.0025 if x > 0 else -0.0025), y, 0.0, ARSENAL, 12)
+    for y in (Y(680), Y(1040)):
+        cyl_x('screw', 0.0034, x, x + (0.0025 if x > 0 else -0.0025), y, 0.0, ARSENAL, 12)
 
 # bolt: bent-down handle with a ball knob, round cocking piece at the rear
-cyl_y('bolt_body', 0.0105, 0.0105, -0.075, 0.07, 0, BZ + 0.0035, STEEL)
-cyl_y('cocking_piece', 0.0092, 0.0082, -0.098, -0.075, 0, BZ + 0.0035, STEEL)
-rod('cocking_stem', (0, -0.088, BZ + 0.004), (0, -0.088, 0.056), 0.0042, STEEL)
-ball('cocking_knob', 0.0070, (0, -0.088, 0.0585), STEEL)
-rod('bolt_arm', (0.008, -0.045, BZ + 0.0035), (0.046, -0.048, 0.032), 0.0050, STEEL)
-rod('bolt_arm_2', (0.046, -0.048, 0.032), (0.056, -0.040, 0.014), 0.0050, STEEL)
-ball('bolt_knob', 0.0100, (0.0578, -0.038, 0.009), STEEL)
-kn = bpy.data.objects.new('Knob', None); bpy.context.collection.objects.link(kn); kn.parent = root; kn.location = (0.0578, -0.038, 0.009)
+cyl_y('bolt_body', 0.0105, 0.0105, Y(575), Y(760), 0, BZ + 0.0035, STEEL)
+cyl_y('cocking_piece', 0.0092, 0.0082, Y(552), Y(580), 0, BZ + 0.0035, STEEL)
+rod('cocking_stem', (0, Y(566), BZ + 0.004), (0, Y(566), 0.056), 0.0042, STEEL)
+ball('cocking_knob', 0.0070, (0, Y(566), 0.0585), STEEL)
+rod('bolt_arm', (0.008, Y(640), BZ + 0.0035), (0.046, Y(635), 0.032), 0.0050, STEEL)
+rod('bolt_arm_2', (0.046, Y(635), 0.032), (0.056, Y(643), 0.014), 0.0050, STEEL)
+ball('bolt_knob', 0.0100, (0.0578, Y(645), 0.009), STEEL)
+kn = bpy.data.objects.new('Knob', None); bpy.context.collection.objects.link(kn); kn.parent = root; kn.location = (0.0578, Y(645), 0.009)
 
 # floor plate, guard bow, trigger
-box('floor_plate', 0.030, 0.105, 0.022, 0, 0.045, -0.0225, STEEL, 0.0012)
+box('floor_plate', 0.030, Y(880) - Y(700), 0.012, 0, (Y(880) + Y(700)) / 2, Z(790, 291), STEEL, 0.001)
 def curve_tube(name, pts, r, m):
     cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = r; cu.bevel_resolution = 4; cu.resolution_u = 14
     sp = cu.splines.new('BEZIER'); sp.bezier_points.add(len(pts) - 1)
@@ -192,14 +195,14 @@ def curve_tube(name, pts, r, m):
     for p in ob.data.polygons: p.use_smooth = True
     ob.data.materials.append(m); ob.parent = root
     return ob
-curve_tube('trigger_guard', [(-0.088, -0.020), (-0.080, -0.050), (-0.052, -0.063), (-0.022, -0.053), (-0.010, -0.020)], 0.0032, BLUED)
-box('trigger', 0.005, 0.005, 0.026, 0, -0.046, -0.036, STEEL, 0.0006)
+curve_tube('trigger_guard', [P(603, 300), P(612, 330), P(650, 345), P(688, 332), P(692, 298)], 0.0030, BLUED)
+box('trigger', 0.005, 0.005, 0.024, 0, Y(648), Z(648, 312), STEEL, 0.0006)
 
-# bands with stacking and front swivels, butt swivel
-for i, y in enumerate((0.46, 0.60)):
-    box('band_%d' % i, 0.044 if i == 0 else 0.041, 0.009, 0.062, 0, y, 0.0225, BLUED, 0.001)
-    box('swivel_%d' % i, 0.007, 0.011, 0.016, 0, y, -0.0025, STEEL, 0.0005)
-box('swivel_2', 0.012, 0.010, 0.012, 0, -0.27, -0.0835, STEEL, 0.0005)
+# middle band + swivel, nose cap + front swivel
+box('band_0', 0.043, Y(1350) - Y(1328), Z(1340, 196) - Z(1340, 284), 0, (Y(1350) + Y(1328)) / 2, (Z(1340, 196) + Z(1340, 284)) / 2, BLUED, 0.001)
+box('swivel_0', 0.007, 0.011, 0.012, 0, Y(1340), Z(1340, 290), STEEL, 0.0005)
+box('nose_cap', 0.034, Y(1792) - Y(1724), Z(1760, 212) - Z(1760, 272), 0, (Y(1792) + Y(1724)) / 2, (Z(1760, 212) + Z(1760, 272)) / 2, BLUED, 0.001)
+box('swivel_1', 0.007, 0.011, 0.014, 0, Y(1740), Z(1740, 278), STEEL, 0.0005)
 
 def group(name, pivot, members):
     g = bpy.data.objects.new(name, None); bpy.context.collection.objects.link(g)
@@ -210,8 +213,8 @@ def group(name, pivot, members):
             ob.parent = g; ob.matrix_parent_inverse = g.matrix_world.inverted()
     return g
 group('Bolt', (0, 0, BZ + 0.0035), ['bolt_body', 'cocking_piece', 'cocking_stem', 'cocking_knob', 'bolt_arm', 'bolt_arm_2', 'bolt_knob'])
-group('Trigger', (0, -0.046, -0.032), ['trigger'])
-group('FloorPlate', (0, -0.046, -0.030), ['floor_plate', 'trigger_guard'])
+group('Trigger', (0, Y(648), Z(648, 300)), ['trigger'])
+group('FloorPlate', (0, Y(648), Z(648, 296)), ['floor_plate', 'trigger_guard'])
 
 # ---------------- export + preview renders ----------------
 bpy.ops.object.select_all(action='DESELECT')

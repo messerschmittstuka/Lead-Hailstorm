@@ -64,9 +64,10 @@ def wood_mat(name, base, seed, rough=0.5):
     m.diffuse_color = (base[0], base[1], base[2], 1)
     return m
 
-WOOD  = wood_mat('birch', (0.66, 0.40, 0.18), 11, 0.42)
-WOOD2 = wood_mat('birch_dark', (0.42, 0.22, 0.09), 13, 0.5)
-BLUED = mat('blued_steel', (0.03, 0.033, 0.04), 0.9, 0.36)
+WOOD  = wood_mat('birch', (0.80, 0.40, 0.15), 11, 0.42)
+WOOD2 = wood_mat('birch_dark', (0.52, 0.24, 0.09), 13, 0.5)
+BLUED = mat('blued_steel', (0.075, 0.08, 0.09), 0.9, 0.4)
+ARSENAL = mat('arsenal_steel', (0.30, 0.31, 0.33), 0.9, 0.4)
 STEEL = mat('bright_steel', (0.46, 0.47, 0.5), 1.0, 0.28)
 PARKER = mat('parkerised', (0.055, 0.06, 0.052), 0.7, 0.55)
 BRASS = mat('brass', (0.55, 0.38, 0.1), 1.0, 0.3)
@@ -149,42 +150,52 @@ def profile(name, pts, width, m, bevel=0.003, subd=1, taper=None):
     for p in ob.data.polygons: p.use_smooth = True
     return ob
 
-BZ = 0.035            # bore height. Game units: muzzle at y=+0.88, butt plate at y=-0.41 (the game's z axis is -y here)
-stock_pts = [
-    (0.72, 0.047), (0.55, 0.049), (0.35, 0.050), (0.16, 0.048), (0.0, 0.045), (-0.06, 0.042), (-0.11, 0.036), (-0.17, 0.031),
-    (-0.25, 0.027), (-0.33, 0.022), (-0.40, 0.016),
-    (-0.412, -0.05), (-0.405, -0.118),
-    (-0.33, -0.100), (-0.25, -0.080), (-0.17, -0.062), (-0.12, -0.052), (-0.095, -0.040), (-0.07, -0.031),
-    (-0.01, -0.030), (0.04, -0.026), (0.12, -0.012), (0.22, 0.0), (0.45, 0.012), (0.72, 0.014)
-]
-profile('stock', stock_pts, 0.044, WOOD, 0.004, 2, taper=lambda y: 1.0 if y < 0.16 else max(0.72, 1.0 - 0.28 * min(1.0, (y - 0.16) / 0.5)))
-profile('handguard', [(0.27, 0.046), (0.27, 0.0625), (0.31, 0.0645), (0.47, 0.0645), (0.51, 0.0605), (0.51, 0.046)], 0.032, WOOD2, 0.003, 1)
-profile('butt_plate', [(-0.402, 0.016), (-0.419, -0.05), (-0.416, -0.124), (-0.406, -0.122), (-0.409, -0.05), (-0.394, 0.012)], 0.045, BLUED, 0.0015, 1)
-box('butt_screw_t', 0.007, 0.004, 0.007, 0, -0.4165, -0.025, STEEL, 0.0006)
-box('butt_screw_b', 0.007, 0.004, 0.007, 0, -0.4145, -0.100, STEEL, 0.0006)
+BZ = 0.035            # bore height. Outline traced from the user's photo (scale: butt y=-0.41, muzzle y=+0.88)
+top = [(0.78, 0.048), (0.749, 0.049), (0.663, 0.049), (0.513, 0.049), (0.385, 0.048), (0.342, 0.048), (0.299, 0.046), (0.23, 0.042), (0.17, 0.044), (0.107, 0.042),
+       (0.04, 0.036), (0.0, 0.041), (-0.049, 0.039), (-0.066, 0.036), (-0.083, 0.026), (-0.1, 0.014), (-0.117, 0.008), (-0.135, 0.001), (-0.17, -0.003),
+       (-0.203, 0.002), (-0.254, 0.001), (-0.289, 0.001), (-0.323, -0.004), (-0.357, -0.006), (-0.39, -0.011), (-0.405, -0.008)]
+under = [(-0.409, -0.115), (-0.357, -0.121), (-0.323, -0.106), (-0.289, -0.098), (-0.254, -0.086), (-0.22, -0.075), (-0.186, -0.062), (-0.152, -0.052), (-0.117, -0.043),
+         (-0.083, -0.031), (-0.049, -0.019), (0.0, -0.012), (0.064, -0.011), (0.149, -0.015), (0.192, -0.011), (0.256, -0.004), (0.299, -0.001), (0.321, 0.008),
+         (0.385, 0.009), (0.47, 0.009), (0.513, 0.014), (0.599, 0.014), (0.663, 0.015), (0.749, 0.018), (0.78, 0.024)]
+stock_pts = top + under
+st = profile('stock', stock_pts, 0.042, WOOD, 0.003, 1, taper=lambda y: 1.0 if y < 0.28 else max(0.78, 1.0 - 0.22 * min(1.0, (y - 0.28) / 0.5)))
 
-# barrel, receiver
-cyl_y('barrel', 0.0148, 0.0105, 0.12, 0.88, 0, BZ, BLUED)
-torus_y('muzzle_crown', 0.0108, 0.0016, 0.88, 0, BZ, STEEL)
-cyl_y('receiver_ring', 0.0195, 0.0195, 0.075, 0.19, 0, BZ, BLUED)
-cyl_y('receiver', 0.0185, 0.0185, -0.095, 0.080, 0, BZ, BLUED, 30)
-box('receiver_floor', 0.032, 0.18, 0.020, 0, -0.005, 0.016, BLUED)
-box('clip_guide', 0.030, 0.075, 0.006, 0, 0.02, 0.061, PARKER)
-for x in (-0.0195, 0.0195):
-    for y in (-0.05, 0.05):
-        cyl_x('screw', 0.0038, x, x + (0.003 if x > 0 else -0.003), y, 0.0, STEEL, 12)
+def cut_slot(target, name, cy, cz, L, Hh):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, cy, cz))
+    c = bpy.context.active_object; c.name = 'cutter_' + name; c.scale = (0.12, L, Hh)
+    bpy.ops.object.transform_apply(scale=True)
+    bv = c.modifiers.new('r', 'BEVEL'); bv.width = Hh * 0.45; bv.segments = 6; bv.limit_method = 'NONE'
+    c.display_type = 'WIRE'; c.hide_render = True
+    md = target.modifiers.new('cut_' + name, 'BOOLEAN'); md.operation = 'DIFFERENCE'; md.object = c; md.solver = 'EXACT'
+cut_slot(st, 'butt', -0.24, -0.045, 0.040, 0.013)       # sling slot through the butt
+cut_slot(st, 'fore', 0.575, 0.029, 0.040, 0.013)        # sling slot through the forend
 
-# bolt: straight body, big cocking piece, handle swept out and down, ball knob
-cyl_y('bolt_body', 0.0108, 0.0108, -0.085, 0.04, 0, BZ + 0.0035, STEEL)
-cyl_y('cocking_piece', 0.0098, 0.0085, -0.145, -0.085, 0, BZ + 0.0035, STEEL)
-ball('bolt_safety', 0.0105, (0, -0.148, BZ + 0.0035), STEEL)
-rod('bolt_arm', (0.008, -0.010, BZ + 0.0035), (0.052, -0.018, 0.030), 0.0052, STEEL)
-rod('bolt_arm_2', (0.052, -0.018, 0.030), (0.062, -0.028, 0.012), 0.0052, STEEL)
-ball('bolt_knob', 0.0115, (0.0635, -0.030, 0.004), STEEL)
+profile('butt_plate', [(-0.4055, -0.0075), (-0.4105, -0.060), (-0.4100, -0.1155), (-0.4075, -0.1155), (-0.4080, -0.060), (-0.4035, -0.0075)], 0.041, BLUED, 0.0008, 0)
+
+# barrel, receiver, tang
+cyl_y('barrel', 0.0148, 0.0092, 0.12, 0.88, 0, BZ, BLUED)
+torus_y('muzzle_crown', 0.0094, 0.0014, 0.88, 0, BZ, ARSENAL)
+cyl_y('receiver_ring', 0.0148, 0.0148, 0.075, 0.20, 0, BZ, ARSENAL)
+cyl_y('receiver', 0.0135, 0.0135, -0.060, 0.080, 0, BZ, ARSENAL, 30)
+box('receiver_floor', 0.030, 0.16, 0.016, 0, -0.005, 0.018, ARSENAL)
+box('clip_guide', 0.026, 0.07, 0.005, 0, 0.0, 0.0495, ARSENAL)
+for x in (-0.0185, 0.0185):
+    for y in (-0.03, 0.12):
+        cyl_x('screw', 0.0036, x, x + (0.0025 if x > 0 else -0.0025), y, 0.0, ARSENAL, 12)
+
+# bolt: bright steel body, cocking-piece knob rising behind the receiver, handle swept out and down with a ball knob
+cyl_y('bolt_body', 0.0105, 0.0105, -0.058, 0.045, 0, BZ + 0.0035, STEEL)
+cyl_y('cocking_piece', 0.0092, 0.0082, -0.075, -0.05, 0, BZ + 0.0035, STEEL)
+rod('cocking_stem', (0, 0.014, BZ + 0.004), (0, 0.014, 0.056), 0.0048, STEEL)
+ball('cocking_knob', 0.0078, (0, 0.014, 0.0615), STEEL)
+rod('bolt_arm', (0.008, -0.010, BZ + 0.0035), (0.052, -0.018, 0.030), 0.0050, STEEL)
+rod('bolt_arm_2', (0.052, -0.018, 0.030), (0.062, -0.028, 0.012), 0.0050, STEEL)
+ball('bolt_knob', 0.0112, (0.0635, -0.030, 0.004), STEEL)
 kn = bpy.data.objects.new('Knob', None); bpy.context.collection.objects.link(kn); kn.parent = root; kn.location = (0.0635, -0.030, 0.004)
 
-# trigger guard, floor plate, trigger
-box('floor_plate', 0.034, 0.075, 0.008, 0, -0.010, -0.0295, PARKER, 0.0015)
+# floor plate flush under the stock, guard bow behind it, trigger
+box('floor_plate', 0.030, 0.145, 0.024, 0, 0.058, -0.0235, STEEL, 0.0012)      # the magazine box and floor plate, silver like the photo
+box('guard_strap', 0.012, 0.17, 0.004, 0, 0.215, -0.0045, STEEL, 0.0005)
 def curve_tube(name, pts, r, m):
     cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = r; cu.bevel_resolution = 4; cu.resolution_u = 14
     sp = cu.splines.new('BEZIER'); sp.bezier_points.add(len(pts) - 1)
@@ -196,15 +207,15 @@ def curve_tube(name, pts, r, m):
     for p in ob.data.polygons: p.use_smooth = True
     ob.data.materials.append(m); ob.parent = root
     return ob
-curve_tube('trigger_guard', [(-0.085, -0.028), (-0.075, -0.056), (-0.045, -0.067), (-0.008, -0.060), (0.012, -0.026)], 0.0036, PARKER)
-box('trigger', 0.006, 0.006, 0.030, 0, -0.040, -0.044, STEEL, 0.0008)
+curve_tube('trigger_guard', [(-0.072, -0.016), (-0.066, -0.040), (-0.045, -0.054), (-0.026, -0.044), (-0.014, -0.018)], 0.0032, STEEL)
+box('trigger', 0.005, 0.005, 0.026, 0, -0.040, -0.034, STEEL, 0.0006)
 
-# barrel bands, nose cap, bayonet lug
-for i, y in enumerate((0.28, 0.50, 0.665)):
-    box('band_%d' % i, 0.047, 0.011, 0.056 if i == 0 else 0.046, 0, y, 0.037 if i == 0 else 0.031, STEEL, 0.0015)
-box('nose_cap', 0.040, 0.030, 0.044, 0, 0.705, 0.030, STEEL, 0.002)
-box('bayonet_lug', 0.012, 0.030, 0.014, 0, 0.835, 0.0155, STEEL, 0.001)
-box('muzzle_collar', 0.026, 0.020, 0.026, 0, 0.855, BZ, BLUED, 0.001)
+# bands, nose cap, muzzle collar
+for i, y in enumerate((0.32, 0.685)):
+    box('band_%d' % i, 0.043 if i == 0 else 0.040, 0.008, 0.044, 0, y, 0.0285, BLUED, 0.001)
+    box('swivel_%d' % i, 0.006, 0.010, 0.012, 0.0215 if i == 0 else 0.0195, y, 0.022, STEEL, 0.0005)
+box('nose_cap', 0.033, 0.018, 0.036, 0, 0.775, 0.0345, BLUED, 0.001)
+cyl_y('muzzle_collar', 0.0108, 0.0108, 0.835, 0.855, 0, BZ, BLUED)
 
 # rig: bolt, trigger, floor plate groups with pivots
 def group(name, pivot, members):
@@ -215,14 +226,14 @@ def group(name, pivot, members):
         for ob in [o for o in bpy.data.objects if o.type == 'MESH' and (o.name == n or o.name.startswith(n + '.'))]:
             ob.parent = g; ob.matrix_parent_inverse = g.matrix_world.inverted()
     return g
-group('Bolt', (0, 0, BZ + 0.0035), ['bolt_body', 'cocking_piece', 'bolt_safety', 'bolt_arm', 'bolt_arm_2', 'bolt_knob'])
+group('Bolt', (0, 0, BZ + 0.0035), ['bolt_body', 'cocking_piece', 'cocking_stem', 'cocking_knob', 'bolt_arm', 'bolt_arm_2', 'bolt_knob'])
 group('Trigger', (0, -0.040, -0.030), ['trigger'])
 group('FloorPlate', (0, -0.040, -0.0285), ['floor_plate', 'trigger_guard'])
 
 # ---------------- export + preview renders ----------------
 bpy.ops.object.select_all(action='DESELECT')
 for ob in bpy.data.objects:
-    if ob.type in ('MESH', 'EMPTY'): ob.select_set(True)
+    if ob.type in ('MESH', 'EMPTY') and not ob.name.startswith('cutter'): ob.select_set(True)
 glb = os.path.join(OUT, 'mosin.glb')
 bpy.ops.export_scene.gltf(filepath=glb, export_format='GLB', use_selection=True, export_apply=True, export_yup=True)
 

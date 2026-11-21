@@ -159,13 +159,13 @@ def P(px, py): return (round(Y(px), 4), round(Z(py), 4))
 
 top_px = [(525, 92), (440, 91), (300, 100), (268, 102), (245, 106), (225, 110), (205, 117), (150, 120), (100, 124), (55, 127)]
 under_px = [(65, 203), (120, 190), (170, 177), (215, 163), (250, 150), (268, 142), (300, 133), (385, 131), (450, 127), (525, 125)]
-st = profile('stock', [P(*p) for p in top_px + under_px], 0.040, WOOD, 0.003, 0, taper=lambda y: 1.0 if y < 0.15 else max(0.82, 1.0 - 0.18 * min(1.0, (y - 0.15) / 0.3)))
+st = profile('stock', [P(*p) for p in top_px + under_px], 0.040, WOOD, 0.006, 1, taper=lambda y: 1.0 if y < 0.15 else max(0.82, 1.0 - 0.18 * min(1.0, (y - 0.15) / 0.3)))
 
 # barrel, receiver
 cyl_y('barrel', 0.0125, 0.0068, Y(430), 0.770, 0, BZ, BLUED)
 torus_y('muzzle_crown', 0.0072, 0.0012, 0.770, 0, BZ, ARSENAL)
 cyl_y('receiver', 0.0132, 0.0132, Y(262), Y(440), 0, BZ, BLUED, 30)
-box('receiver_floor', 0.030, Y(440) - Y(268), 0.014, 0, (Y(440) + Y(268)) / 2, Z(113), BLUED)
+box('receiver_floor', 0.030, Y(440) - Y(268), 0.014, 0, (Y(440) + Y(268)) / 2, Z(113), BLUED, 0.004)
 for x in (-0.0185, 0.0185):
     for y in (Y(300), Y(400)):
         cyl_x('screw', 0.0034, x, x + (0.0025 if x > 0 else -0.0025), y, 0.0, ARSENAL, 12)
@@ -181,7 +181,7 @@ ball('bolt_knob', 0.0098, (0.060, Y(323), -0.004), STEEL)
 kn = bpy.data.objects.new('Knob', None); bpy.context.collection.objects.link(kn); kn.parent = root; kn.location = (0.060, Y(323), -0.004)
 
 # magazine box + floor, guard, trigger
-box('floor_plate', 0.034, Y(385) - Y(300), Z(133) - Z(158), 0, (Y(385) + Y(300)) / 2, (Z(133) + Z(158)) / 2, BLUED, 0.0012)
+profile('floor_plate', [P(300, 133), P(386, 131), P(384, 146), P(372, 158), P(306, 158), P(300, 150)], 0.032, BLUED, 0.003, 1)
 def curve_tube(name, pts, r, m):
     cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = r; cu.bevel_resolution = 4; cu.resolution_u = 14
     sp = cu.splines.new('BEZIER'); sp.bezier_points.add(len(pts) - 1)
@@ -197,9 +197,10 @@ curve_tube('trigger_guard', [P(268, 138), P(272, 156), P(290, 163), P(306, 155),
 box('trigger', 0.005, 0.005, 0.022, 0, Y(288), Z(147), STEEL, 0.0006)
 
 # band at the end of the wood, front block, folded bayonet under the barrel
-box('band_0', 0.036, Y(537) - Y(525), Z(89) - Z(126), 0, (Y(537) + Y(525)) / 2, (Z(89) + Z(126)) / 2, BLUED, 0.001)
+box('band_0', 0.0415, Y(537) - Y(525), Z(89) - Z(126), 0, (Y(537) + Y(525)) / 2, (Z(89) + Z(126)) / 2, BLUED, 0.006)
 box('swivel_0', 0.007, 0.011, 0.012, 0, Y(531), Z(126) - 0.003, STEEL, 0.0005)
-box('front_block', 0.030, Y(700) - Y(675), Z(91) - Z(122), 0, (Y(700) + Y(675)) / 2, (Z(91) + Z(122)) / 2, BLUED, 0.001)
+cyl_y('front_block', 0.0108, 0.0100, Y(676), Y(700), 0, BZ, BLUED, 24)
+box('front_lug', 0.012, Y(694) - Y(680), 0.012, 0, (Y(694) + Y(680)) / 2, Z(110), BLUED, 0.002)
 cyl_y('bayonet_fold', 0.0036, 0.0030, Y(540), Y(672), 0, Z(116), STEEL, 10)
 
 def group(name, pivot, members):

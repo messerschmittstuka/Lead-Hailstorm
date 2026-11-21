@@ -157,14 +157,15 @@ def Y(px): return -0.40 + (px - 22) / SC
 def Z(py): return BZ + (199 - py) / SC
 def P(px, py): return (round(Y(px), 4), round(Z(py), 4))
 
-top_px = [(335, 191), (255, 191), (215, 192), (180, 201), (150, 204), (130, 206), (112, 210), (95, 211), (60, 211), (22, 213)]
+top_px = [(335, 191), (255, 191), (215, 193), (190, 196), (165, 200), (145, 204), (128, 207), (112, 210), (95, 211), (60, 211), (22, 213)]
 under_px = [(30, 258), (70, 252), (100, 240), (125, 229), (140, 222), (160, 216), (200, 215), (330, 213)]
 st = profile('stock', [P(*p) for p in top_px + under_px], 0.038, WOOD, 0.006, 1, taper=lambda y: 1.0 if y < 0.12 else max(0.84, 1.0 - 0.16 * min(1.0, (y - 0.12) / 0.4)))
 
 # barrel (long, mostly exposed), receiver
-cyl_y('barrel', 0.0105, 0.0078, Y(215), 0.780, 0, BZ, BLUED, 24)
-torus_y('muzzle_crown', 0.0080, 0.0012, 0.780, 0, BZ, ARSENAL)
+cyl_y('barrel', 0.0122, 0.0088, Y(215), 0.780, 0, BZ, BLUED, 24)
+torus_y('muzzle_crown', 0.0090, 0.0012, 0.780, 0, BZ, ARSENAL)
 cyl_y('receiver', 0.0135, 0.0135, Y(128), Y(262), 0, BZ, BLUED, 30)
+box('dust_cover', 0.026, Y(255) - Y(165), 0.008, 0, (Y(255) + Y(165)) / 2, BZ + 0.0125, ARSENAL, 0.002)
 box('receiver_floor', 0.028, Y(262) - Y(140), 0.012, 0, (Y(262) + Y(140)) / 2, Z(210), BLUED, 0.004)
 for x in (-0.0175, 0.0175):
     for y in (Y(150), Y(235)):
@@ -197,9 +198,17 @@ curve_tube('trigger_guard', [P(137, 216), P(140, 229), P(150, 234), P(158, 228),
 box('trigger', 0.005, 0.005, 0.020, 0, Y(148), Z(224), STEEL, 0.0006)
 
 # band at the end of the wood with swivel, front band on the barrel
-box('band_0', 0.0405, Y(340) - Y(330), Z(188) - Z(217), 0, (Y(340) + Y(330)) / 2, (Z(188) + Z(217)) / 2, BLUED, 0.006)
+box('band_0', 0.0395, Y(340) - Y(330), Z(190) - Z(215), 0, (Y(340) + Y(330)) / 2, (Z(190) + Z(215)) / 2, BLUED, 0.004)
 box('swivel_0', 0.007, 0.011, 0.012, 0, Y(335), Z(217) - 0.003, STEEL, 0.0005)
-cyl_y('front_band', 0.0125, 0.0125, Y(445), Y(458), 0, BZ, BLUED, 24)
+cyl_y('front_band', 0.0118, 0.0118, Y(445), Y(458), 0, BZ, BLUED, 24)
+# Type 30 bayonet, fixed under the muzzle: grip, guard with the hooked quillon, long blade
+box('bayo_grip', 0.022, 0.080, 0.026, 0, 0.738, 0.0135, WOOD2, 0.003)
+box('bayo_guard', 0.030, 0.008, 0.032, 0, 0.782, 0.0135, STEEL, 0.002)
+box('bayo_ring', 0.028, 0.012, 0.012, 0, 0.714, 0.0262, STEEL, 0.002)
+rod('bayo_hook1', (0.017, 0.784, 0.016), (0.017, 0.784, 0.048), 0.0026, STEEL)
+rod('bayo_hook2', (0.017, 0.784, 0.048), (0.017, 0.774, 0.058), 0.0026, STEEL)
+rod('bayo_hook3', (0.017, 0.774, 0.058), (0.017, 0.758, 0.057), 0.0026, STEEL)
+profile('bayo_blade', [(0.786, 0.0005), (1.12, 0.0035), (1.185, 0.0105), (1.13, 0.0215), (0.786, 0.0265)], 0.0062, STEEL, 0.0008, 0)
 box('butt_swivel', 0.012, 0.010, 0.012, 0, Y(85), Z(244) - 0.001, STEEL, 0.0005)
 
 def group(name, pivot, members):
@@ -227,10 +236,10 @@ sc.display.shading.light = 'STUDIO'; sc.display.shading.color_type = 'TEXTURE'
 sc.render.resolution_x = 1800; sc.render.resolution_y = 500
 sc.world = sc.world or bpy.data.worlds.new('w'); sc.world.color = (0.52, 0.58, 0.62)
 cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); bpy.context.collection.objects.link(cam); sc.camera = cam
-cam.data.type = 'ORTHO'; cam.data.ortho_scale = 1.65
-cam.location = (2.0, 0.19, -0.02); cam.rotation_euler = (math.pi / 2, 0, math.pi / 2)
+cam.data.type = 'ORTHO'; cam.data.ortho_scale = 2.0
+cam.location = (2.0, 0.26, -0.02); cam.rotation_euler = (math.pi / 2, 0, math.pi / 2)
 sc.render.filepath = os.path.join(OUT, 'arisaka_side.png'); bpy.ops.render.render(write_still=True)
-sc.render.resolution_x = 1200; sc.render.resolution_y = 700; cam.data.ortho_scale = 1.15
+sc.render.resolution_x = 1200; sc.render.resolution_y = 700; cam.data.ortho_scale = 1.5
 cam.location = (1.2, -1.3, 0.55); cam.rotation_euler = (math.radians(72), 0, math.radians(42))
 sc.render.filepath = os.path.join(OUT, 'arisaka_view.png'); bpy.ops.render.render(write_still=True)
 print('ARISAKA DONE', glb)

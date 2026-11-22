@@ -21,3 +21,11 @@ Sets:
   Snow013    trampled snow
 
 Example: Grass001_1K-JPG_Color.jpg
+
+Walls and props (second batch, same 1K-JPG, same 3 files each):
+  Bricks105    brick walls (tan, urban)
+  Bricks113A   brick walls (second variety)
+  Planks037A   wood planks
+  Planks023A   dark wood planks
+  Concrete034  smooth grey concrete / plaster
+  Concrete031  bunker concrete

@@ -392,3 +392,15 @@ cages = [cage(ob) for ob in list(bpy.data.objects) if ob.name.startswith('COL_')
 shot(BATCH + '_col.png', cx, 24.0, 5.0, 10, 3.2)
 shot(BATCH + '_small_col.png', cx2, 16.0, 4.0, 10, 0.6)
 print('VEG DONE')
+
+# ---------------------------------------------------------------- game copy: same models, textures halved to 512 px (the dev page embeds this one)
+for im in bpy.data.images:
+    if im.type != 'IMAGE' or im.size[0] <= 512: continue
+    w, h = im.size; fp = (im.filepath or '').lower(); im.scale(512, max(1, int(h * 512 / w)))
+    if fp.endswith('.jpg'): im.file_format = 'JPEG'
+bpy.ops.object.select_all(action='DESELECT')
+for ob in bpy.data.objects:
+    if ob.name.startswith(('prop_', 'COL_')) or (ob.parent is not None and ob.parent.name.startswith('prop_')): ob.select_set(True)
+glb_g = os.path.join(OUT, BATCH + '_game.glb')
+bpy.ops.export_scene.gltf(filepath=glb_g, export_format='GLB', use_selection=True, export_apply=True, export_yup=True, export_extras=True, export_image_format='AUTO')
+print('GAME GLB', os.path.getsize(glb_g), 'bytes')

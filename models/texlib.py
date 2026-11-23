@@ -335,3 +335,136 @@ def meadow_card(w=1024, h=1024, seed=5):
                 a = 2 * math.pi * k / 9; seg(card, top, (top[0] + math.cos(a) * R, top[1] + math.sin(a) * R * 0.8), 5.0, 2.5, pc, np.array(pc) * 0.9)
             seg(card, top, (top[0] + 0.1, top[1] + 0.1), 6.0, 6.0, cc, cc)
     return bleed(card)
+
+# ------------------------------------------------------------------------------------------------ SEAMLESS GROUND TEXTURES
+WRAP = [False]
+_seg0 = seg
+def seg(card, p0, p1, w0, w1, c0, c1, a=1.0):
+    """tileable when WRAP[0] is set: a stroke that crosses an edge is also drawn on the opposite side"""
+    if not WRAP[0]: return _seg0(card, p0, p1, w0, w1, c0, c1, a)
+    h, w = card.shape[:2]; r = max(w0, w1) + 2
+    xs = [0]; ys = [0]
+    if min(p0[0], p1[0]) - r < 0: xs.append(w)
+    if max(p0[0], p1[0]) + r > w: xs.append(-w)
+    if min(p0[1], p1[1]) - r < 0: ys.append(h)
+    if max(p0[1], p1[1]) + r > h: ys.append(-h)
+    for dx in xs:
+        for dy in ys: _seg0(card, (p0[0] + dx, p0[1] + dy), (p1[0] + dx, p1[1] + dy), w0, w1, c0, c1, a)
+
+def blur(a, r=2):
+    """box blur with wrap-around (keeps tiles seamless)"""
+    out = a.astype(float)
+    for ax in (0, 1):
+        acc = np.zeros_like(out)
+        for k in range(-r, r + 1): acc += np.roll(out, k, ax)
+        out = acc / (2 * r + 1)
+    return out
+
+def over(base, card):
+    a = card[..., 3:4]; return base * (1 - a) + card[..., :3] * a
+
+def scatter_strokes(card, rng, n, count, lmin, lmax, wmin, wmax, pal, tone=None, ang=None, angjit=3.2):
+    for i in range(count):
+        x = rng.random() * n; y = rng.random() * n
+        a = (ang[int(y) % n, int(x) % n] if ang is not None else rng.random() * 6.283) + (rng.random() - 0.5) * angjit
+        L = rng.uniform(lmin, lmax); d = np.array([math.cos(a), math.sin(a)]); p0 = np.array([x, y]); p1 = p0 + d * L
+        c0, c1 = pal[rng.integers(len(pal))]; t = 1.0 if tone is None else (0.75 + 0.5 * tone[int(y) % n, int(x) % n])
+        w = rng.uniform(wmin, wmax); seg(card, tuple(p0), tuple(p1), w, w * 0.25, np.array(c0) * t, np.array(c1) * t)
+
+def worley_iso(n, seed, c, jitter=0.9):
+    return worley(n, seed, c, c, jitter)
+
+def leaf_litter(card, rng, n, count, cols, Lr=(26, 50)):
+    for i in range(count):
+        x = rng.random() * n; y = rng.random() * n; L = rng.uniform(*Lr); c = cols[rng.integers(len(cols))]
+        leaf(card, (x, y), rng.random() * 6.283, L, L * rng.uniform(0.22, 0.34), c[0], c[1], rib=rng.random() < 0.7)
+
+def twigs(card, rng, n, count, col=(0.07, 0.05, 0.035)):
+    for i in range(count):
+        x = rng.random() * n; y = rng.random() * n; a = rng.random() * 6.283; L = rng.uniform(40, 130); d = np.array([math.cos(a), math.sin(a)])
+        p = np.array([x, y]); q = p + d * L; seg(card, tuple(p), tuple(q), 2.0, 1.2, col, np.array(col) * 1.25)
+
+def ground_grass(n=1024, seed=101):
+    rng = np.random.default_rng(seed); tone = fbm(n, seed, 4, 4, 4)
+    soil = ramp(fbm(n, seed + 1, 7, 7, 4), [(0, (0.022, 0.016, 0.010)), (1, (0.075, 0.054, 0.034))])
+    WRAP[0] = True; card = new_card(n, n)
+    greens = [((0.030, 0.075, 0.018), (0.16, 0.30, 0.06)), ((0.040, 0.095, 0.022), (0.20, 0.34, 0.07)), ((0.025, 0.06, 0.015), (0.13, 0.24, 0.05)), ((0.06, 0.10, 0.03), (0.26, 0.36, 0.09))]
+    straw = [((0.12, 0.09, 0.04), (0.30, 0.24, 0.11)), ((0.09, 0.07, 0.035), (0.22, 0.17, 0.08))]
+    scatter_strokes(card, rng, n, 5200, 16, 34, 1.4, 2.4, straw, tone)                        # dead thatch underneath
+    scatter_strokes(card, rng, n, 26000, 10, 30, 1.0, 2.1, greens, tone)                       # the living grass mat
+    scatter_strokes(card, rng, n, 3800, 12, 30, 1.0, 1.9, [straw[0], greens[3]], tone)
+    leaf_litter(card, rng, n, 26, [((0.07, 0.04, 0.02), (0.20, 0.11, 0.04)), ((0.10, 0.07, 0.03), (0.26, 0.18, 0.07))], (18, 34))
+    WRAP[0] = False
+    col = over(soil, card)
+    yellow = smooth(fbm(n, seed + 3, 3, 3, 4), 0.55, 0.8)[..., None] * 0.35; col = col * (1 - yellow) + col * np.array([1.5, 1.25, 0.6]) * yellow
+    col = col * (0.82 + 0.36 * tone[..., None])
+    lum = col @ np.array([0.3, 0.59, 0.11]); h = blur(lum / lum.max(), 1) * 0.7 + 0.3 * fbm(n, seed + 4, 60, 60, 3)
+    return col, h
+
+def ground_trampled(n=1024, seed=202):
+    rng = np.random.default_rng(seed); tone = fbm(n, seed, 4, 4, 4); flow = fbm(n, seed + 1, 3, 3, 3) * 6.283 * 2
+    mud = ramp(fbm(n, seed + 2, 8, 8, 5), [(0, (0.03, 0.021, 0.013)), (0.5, (0.075, 0.052, 0.032)), (1, (0.15, 0.108, 0.07))])
+    f1, edge, pid = worley_iso(n, seed + 3, 9); dry = (1 - smooth(edge, 0.0, 0.06)) * smooth(fbm(n, seed + 4, 3, 3, 3), 0.45, 0.7)
+    mud = mud * (1 - 0.55 * dry[..., None])
+    WRAP[0] = True; card = new_card(n, n)
+    straw = [((0.10, 0.075, 0.035), (0.28, 0.22, 0.10)), ((0.15, 0.115, 0.05), (0.36, 0.29, 0.14)), ((0.07, 0.055, 0.03), (0.2, 0.15, 0.07)), ((0.05, 0.09, 0.025), (0.17, 0.25, 0.06))]
+    scatter_strokes(card, rng, n, 9000, 30, 80, 1.3, 2.8, straw, tone, flow, 1.0)                # flattened stems lying in swirling directions
+    leaf_litter(card, rng, n, 30, [((0.06, 0.035, 0.018), (0.18, 0.10, 0.04)), ((0.09, 0.06, 0.025), (0.22, 0.15, 0.06))], (22, 42)); twigs(card, rng, n, 26)
+    WRAP[0] = False
+    col = over(mud, card) * (0.8 + 0.4 * tone[..., None])
+    lum = col @ np.array([0.3, 0.59, 0.11]); h = 0.55 * blur(lum / lum.max(), 1) + 0.25 * fbm(n, seed + 5, 12, 12, 4) - 0.35 * dry
+    return col, h
+
+def ground_mud(n=1024, seed=303):
+    rng = np.random.default_rng(seed)
+    low = fbm(n, seed, 3, 3, 4); base = ramp(fbm(n, seed + 1, 6, 6, 5), [(0, (0.020, 0.013, 0.008)), (0.5, (0.056, 0.037, 0.023)), (1, (0.12, 0.082, 0.052))])
+    rut = fbm(n, seed + 2, 2, 12, 3); ruts = 1 - np.abs(rut * 2 - 1); ruts = smooth(ruts, 0.55, 0.95)              # wheel ruts / churned ridges running one way
+    churn = (fbm(n, seed + 3, 14, 14, 5) - 0.5)
+    h = 0.55 * ruts + 0.45 * fbm(n, seed + 4, 9, 9, 5) + 0.15 * churn
+    pud = smooth(fbm(n, seed + 5, 4, 4, 4), 0.70, 0.78)*0.8; h = h * (1 - pud) + 0.28 * pud                          # puddles are flat
+    col = base * (0.75 + 0.5 * smooth(h, 0.2, 0.9)[..., None])
+    wet = np.array([0.034, 0.030, 0.026]); col = col * (1 - 0.75 * pud[..., None]) + wet * 0.75 * pud[..., None]
+    f1, edge, pid = worley_iso(n, seed + 6, 34, 0.95); pebble = (pid < 0.16) & (f1 < 0.30); dome = np.sqrt(np.clip(1 - (f1 / 0.30) ** 2, 0, 1)) * pebble
+    pc = ramp(pid * 6, [(0, (0.10, 0.09, 0.08)), (0.5, (0.17, 0.15, 0.12)), (1, (0.12, 0.1, 0.07))]) * (1 - 0.5 * (pid * 6 % 1) * 0.3)[..., None]
+    col = col * (1 - pebble[..., None] * 0.9) + pc * pebble[..., None] * 0.9; h = h + 0.45 * dome * (1 - pud)
+    WRAP[0] = True; card = new_card(n, n)
+    scatter_strokes(card, rng, n, 900, 25, 60, 1.2, 2.2, [((0.08, 0.06, 0.03), (0.2, 0.15, 0.07))], low); twigs(card, rng, n, 18, (0.06, 0.045, 0.03))
+    WRAP[0] = False
+    col = over(col, card); h = h + 0.12 * blur(card[..., 3], 1)
+    return col, h
+
+def ground_dirt(n=1024, seed=404):
+    rng = np.random.default_rng(seed); tone = fbm(n, seed, 3, 3, 4)
+    base = ramp(fbm(n, seed + 1, 8, 8, 5), [(0, (0.05, 0.036, 0.024)), (0.5, (0.11, 0.08, 0.052)), (1, (0.21, 0.16, 0.105))])
+    grain = fbm(n, seed + 2, 120, 120, 3); base = base * (0.85 + 0.3 * grain[..., None])
+    f1, edge, pid = worley_iso(n, seed + 3, 7); cr = (1 - smooth(edge, 0.0, 0.05)) * smooth(fbm(n, seed + 4, 3, 3, 3), 0.42, 0.65)
+    base = base * (1 - 0.6 * cr[..., None])
+    g1, e1, p1 = worley_iso(n, seed + 5, 30, 0.95); peb = (p1 < 0.4) & (g1 < 0.34); dome = np.sqrt(np.clip(1 - (g1 / 0.34) ** 2, 0, 1)) * peb
+    pc = ramp(p1 * 2.5, [(0, (0.12, 0.10, 0.085)), (0.5, (0.22, 0.19, 0.15)), (1, (0.16, 0.12, 0.09))]) * (0.85 + 0.3 * grain[..., None])
+    col = base * (1 - peb[..., None]) + pc * peb[..., None] * (0.55 + 0.45 * dome[..., None])
+    WRAP[0] = True; card = new_card(n, n)
+    leaf_litter(card, rng, n, 80, [((0.05, 0.03, 0.015), (0.16, 0.09, 0.03)), ((0.09, 0.06, 0.025), (0.24, 0.16, 0.06)), ((0.08, 0.05, 0.02), (0.20, 0.12, 0.05)), ((0.03, 0.025, 0.02), (0.10, 0.08, 0.06))])
+    twigs(card, rng, n, 60); scatter_strokes(card, rng, n, 1400, 22, 55, 1.1, 2.0, [((0.12, 0.09, 0.04), (0.30, 0.24, 0.11)), ((0.06, 0.1, 0.03), (0.17, 0.24, 0.07))], tone)
+    WRAP[0] = False
+    col = over(col, card) * (0.85 + 0.3 * tone[..., None])
+    h = 0.4 * fbm(n, seed + 6, 20, 20, 5) + 0.5 * dome + 0.25 * blur(card[..., 3], 1) - 0.3 * cr
+    return col, h
+
+def ground_stone(n=1024, seed=505):
+    rng = np.random.default_rng(seed)
+    f1, edge, pid = worley_iso(n, seed, 13, 0.95); gap = 1 - smooth(edge, 0.0, 0.10)
+    dome = np.sqrt(np.clip(1 - (f1 / 0.66) ** 2, 0, 1)) * (0.7 + 0.3 * pid)
+    stone = ramp(pid, [(0, (0.10, 0.095, 0.09)), (0.35, (0.2, 0.18, 0.15)), (0.7, (0.28, 0.25, 0.2)), (1, (0.17, 0.15, 0.12))])
+    stone = stone * (0.8 + 0.4 * fbm(n, seed + 1, 90, 90, 4)[..., None]); stone = stone * (0.7 + 0.3 * smooth(dome, 0.0, 1.0)[..., None])
+    spots = smooth(fbm(n, seed + 2, 24, 24, 3), 0.7, 0.78)[..., None]; stone = stone * (1 - 0.35 * spots) + np.array([0.3, 0.3, 0.24]) * 0.35 * spots
+    soil = ramp(fbm(n, seed + 3, 30, 30, 4), [(0, (0.03, 0.022, 0.014)), (1, (0.09, 0.066, 0.042))])
+    moss = smooth(fbm(n, seed + 4, 6, 6, 4), 0.5, 0.72)[..., None] * gap[..., None]; soil = soil * (1 - 0.7 * moss) + np.array([0.06, 0.10, 0.03]) * 0.7 * moss
+    col = stone * (1 - gap[..., None]) + soil * gap[..., None]
+    mossy = smooth(fbm(n, seed + 5, 5, 5, 4), 0.62, 0.8)[..., None] * smooth(1 - dome, 0.45, 0.9)[..., None] * (1 - gap[..., None])
+    col = col * (1 - 0.5 * mossy) + np.array([0.07, 0.12, 0.035]) * 0.5 * mossy
+    WRAP[0] = True; card = new_card(n, n)
+    leaf_litter(card, rng, n, 20, [((0.07, 0.04, 0.02), (0.2, 0.11, 0.04))], (18, 32)); scatter_strokes(card, rng, n, 900, 14, 34, 1.1, 1.9, [((0.05, 0.09, 0.025), (0.15, 0.24, 0.06))], None)
+    WRAP[0] = False
+    col = over(col, card)
+    h = 0.85 * dome * (1 - gap) + 0.1 * fbm(n, seed + 6, 50, 50, 3) + 0.1 * blur(card[..., 3], 1)
+    return col, h

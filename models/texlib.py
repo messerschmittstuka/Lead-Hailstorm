@@ -204,9 +204,9 @@ def blade(card, rng, x0, H, lean, w0, cols, rib=True, segs=14, curl=0.6):
         if rib and wa > 2.2: seg(card, pts[i], pts[i + 1], wa * 0.22, wb * 0.22, np.array(base) * 0.55, np.array(base) * 0.55, 0.55)
     return pts
 
-def grass_card(w=1024, h=1024, seed=1, count=70, hmin=0.45, hmax=0.95, spread=0.33, width=7.0):
+def grass_card(w=1024, h=1024, seed=1, count=70, hmin=0.45, hmax=0.95, spread=0.33, width=7.0, pal=None):
     rng = np.random.default_rng(seed); card = new_card(w, h)
-    pal = [((0.30, 0.22, 0.10), (0.62, 0.52, 0.30)), ((0.26, 0.19, 0.09), (0.52, 0.42, 0.24)), ((0.36, 0.30, 0.13), (0.70, 0.62, 0.38)), ((0.22, 0.24, 0.10), (0.46, 0.46, 0.22)), ((0.20, 0.14, 0.07), (0.40, 0.30, 0.17))]
+    pal = pal or [((0.30, 0.22, 0.10), (0.62, 0.52, 0.30)), ((0.26, 0.19, 0.09), (0.52, 0.42, 0.24)), ((0.36, 0.30, 0.13), (0.70, 0.62, 0.38)), ((0.22, 0.24, 0.10), (0.46, 0.46, 0.22)), ((0.20, 0.14, 0.07), (0.40, 0.30, 0.17))]
     order = rng.permutation(count)
     for i in order:
         cx = w * (0.5 + (rng.random() - 0.5) * spread * 2); lean = (cx / w - 0.5) * 0.9 + (rng.random() - 0.5) * 0.35
@@ -267,4 +267,71 @@ def spruce_card(w=1024, h=512, seed=2, snow=0.0):
         top = card[..., 3] > 0.3; hh = np.cumsum(top[::-1], 0)[::-1] <= 3
         m = top & hh & (np.random.default_rng(seed).random(top.shape) < snow)
         card[..., :3][m] = card[..., :3][m] * 0.2 + np.array([0.85, 0.88, 0.9]) * 0.8
+    return bleed(card)
+
+GREEN_PAL = [((0.05, 0.11, 0.03), (0.24, 0.40, 0.10)), ((0.07, 0.14, 0.04), (0.30, 0.46, 0.13)), ((0.04, 0.09, 0.03), (0.20, 0.34, 0.09)),
+             ((0.09, 0.17, 0.05), (0.38, 0.50, 0.17)), ((0.12, 0.17, 0.05), (0.44, 0.50, 0.20)), ((0.22, 0.18, 0.07), (0.46, 0.40, 0.18))]
+
+def leaf(card, base, ang, L, W, c0, c1, rib=True):
+    """one pointed leaf: widens then narrows, with a lighter mid-rib"""
+    d = np.array([math.cos(ang), math.sin(ang)]); p = np.array(base); n = 7
+    for i in range(n):
+        t0 = i / n; t1 = (i + 1) / n
+        w0 = W * math.sin(math.pi * min(1, t0 * 0.95 + 0.02)) ** 0.8 + 0.4; w1 = W * math.sin(math.pi * min(1, t1 * 0.95 + 0.02)) ** 0.8 + 0.4
+        seg(card, tuple(p + d * L * t0), tuple(p + d * L * t1), w0, w1, np.array(c0) * (1 - t0) + np.array(c1) * t0, np.array(c0) * (1 - t1) + np.array(c1) * t1)
+    if rib: seg(card, tuple(p), tuple(p + d * L * 0.95), 0.9, 0.4, np.array(c1) * 1.25, np.array(c1) * 1.15, 0.8)
+
+def leafy_card(w=1024, h=512, seed=6):
+    """a leafy twig lying along the card (stem on the left), alternate leaves with varied colour"""
+    rng = np.random.default_rng(seed); card = new_card(w, h); cy = h * 0.5; wood = np.array([0.15, 0.10, 0.06])
+    pts = [(10 + i * (w - 60) / 16, cy + math.sin(i * 0.35) * 8 - i * 0.8) for i in range(17)]
+    for i in range(16): seg(card, pts[i], pts[i + 1], 3.6 * (1 - i / 18) + 1.0, 3.6 * (1 - (i + 1) / 18) + 1.0, wood, wood * 1.2)
+    greens = [((0.05, 0.14, 0.04), (0.20, 0.38, 0.08)), ((0.07, 0.17, 0.05), (0.26, 0.44, 0.11)), ((0.10, 0.18, 0.05), (0.34, 0.46, 0.13)), ((0.14, 0.18, 0.05), (0.42, 0.44, 0.12))]
+    def side(p0, sgn, L, depth):
+        a = math.radians(sgn * rng.uniform(40, 70)); q = np.array(p0) + np.array([math.cos(a), math.sin(a)]) * L
+        seg(card, tuple(p0), tuple(q), 1.6, 0.8, wood, wood)
+        for k in range(4):
+            f = rng.uniform(0.2, 1.0); b = np.array(p0) + (q - np.array(p0)) * f
+            g = greens[rng.integers(len(greens))]; la = a + sgn * math.radians(rng.uniform(15, 55)) * (1 if k % 2 else -1)
+            leaf(card, b, la, rng.uniform(55, 85) * (1 - 0.3 * depth), rng.uniform(15, 24), g[0], g[1])
+        g = greens[rng.integers(len(greens))]; leaf(card, q, a, 80, 20, g[0], g[1])
+    for i in range(1, 16):
+        for sgn in (-1, 1):
+            if rng.random() < 0.8: side(pts[i], sgn, rng.uniform(70, 150) * (1 - i / 22), 0)
+    for k in range(5): g = greens[rng.integers(len(greens))]; leaf(card, pts[-1], rng.uniform(-0.5, 0.5), 90, 22, g[0], g[1])
+    return bleed(card)
+
+def fern_card(w=1024, h=1024, seed=3):
+    """arching fern fronds from the bottom centre: curved rachis, dense short pinnae that shorten toward the tip and curl down"""
+    rng = np.random.default_rng(seed); card = new_card(w, h)
+    cols = [((0.05, 0.13, 0.04), (0.20, 0.38, 0.09)), ((0.07, 0.16, 0.05), (0.26, 0.44, 0.12)), ((0.09, 0.15, 0.04), (0.32, 0.42, 0.11))]
+    for f in range(8):
+        a0 = math.pi / 2 + (f - 3.5) * 0.30 + rng.uniform(-0.08, 0.08); L = h * rng.uniform(0.62, 0.9); c = cols[rng.integers(3)]; side = 1 if f >= 4 else -1
+        N = 44; ang = a0; p = np.array([w * 0.5 + (f - 3.5) * 7, 4.0]); pts = [p.copy()]
+        for i in range(N):
+            ang += side * 0.021 * (0.4 + i / N * 1.6); p = p + np.array([math.cos(ang), math.sin(ang)]) * L / N; pts.append(p.copy())
+        for i in range(N): seg(card, pts[i], pts[i + 1], 2.4 * (1 - i / (N + 2)) + 0.7, 2.4 * (1 - (i + 1) / (N + 2)) + 0.7, (0.12, 0.2, 0.07), (0.2, 0.3, 0.1))
+        for i in range(3, N):
+            t = i / N; pl = L * 0.13 * math.sin(math.pi * min(1, t * 0.96 + 0.05)) ** 0.75 + 4
+            d = pts[i + 1] - pts[i]; d = d / (np.hypot(*d) + 1e-9); nrm = np.array([-d[1], d[0]])
+            for sg in (-1, 1):
+                mid = pts[i] + (nrm * sg * 0.88 + d * 0.5) * pl * 0.6; tip = mid + (nrm * sg * 0.45 + d * 0.25 - np.array([0, 0.45])) * pl * 0.5
+                cc0 = np.array(c[0]) * rng.uniform(0.85, 1.2); cc1 = np.array(c[1]) * rng.uniform(0.85, 1.15)
+                seg(card, tuple(pts[i]), tuple(mid), 3.2, 3.0, cc0, cc1); seg(card, tuple(mid), tuple(tip), 3.0, 0.5, cc1, cc1 * 0.9)
+    return bleed(card)
+
+def meadow_card(w=1024, h=1024, seed=5):
+    """short green grass with wildflowers (white daisies, yellow buttercups, purple vetch) on thin stems"""
+    rng = np.random.default_rng(seed); card = grass_card(w, h, seed, 64, 0.30, 0.62, 0.38, 6.0, GREEN_PAL[:5])
+    flowers = [((0.93, 0.92, 0.86), (0.95, 0.78, 0.15)), ((0.95, 0.80, 0.12), (0.85, 0.55, 0.05)), ((0.50, 0.30, 0.62), (0.80, 0.78, 0.40))]
+    for i in range(14):
+        cx = w * (0.5 + (rng.random() - 0.5) * 0.7); H = h * rng.uniform(0.45, 0.8); lean = (cx / w - 0.5) * 0.5
+        top = (cx + lean * H, H); seg(card, (cx, 0), top, 2.2, 1.6, (0.09, 0.17, 0.05), (0.2, 0.32, 0.10))
+        pc, cc = flowers[i % 3]; R = rng.uniform(15, 24)
+        if i % 3 == 2:
+            for k in range(5): seg(card, (top[0], top[1] - 12 + k * 6), (top[0] + rng.uniform(-6, 6), top[1] - 6 + k * 6), 5.5, 4.0, pc, pc)
+        else:
+            for k in range(9):
+                a = 2 * math.pi * k / 9; seg(card, top, (top[0] + math.cos(a) * R, top[1] + math.sin(a) * R * 0.8), 5.0, 2.5, pc, np.array(pc) * 0.9)
+            seg(card, top, (top[0] + 0.1, top[1] + 0.1), 6.0, 6.0, cc, cc)
     return bleed(card)

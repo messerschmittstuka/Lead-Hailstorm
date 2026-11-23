@@ -1052,10 +1052,10 @@ function splatPatch(m){
 }
 splatPatch(ground.material);
 async function loadSplatTex(){
-  for(const n of ['grass','trampled','mud','dirt','stone']){ try{
+  for(const n of ['grass','trampled','mud','dirt','stone','water_n','water_c']){ try{
     const el=document.getElementById('tex_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
     const im=new Image(); const url=URL.createObjectURL(new Blob([u],{type:'image/jpeg'})); await new Promise(r=>{ im.onload=r; im.onerror=r; im.src=url; });
-    const t=new THREE.Texture(im); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; t.needsUpdate=true; SPT[n]=t; }catch(e){ console.warn('ground texture',n,e); } }
+    const t=new THREE.Texture(im); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.colorSpace=(n==='water_n')?THREE.NoColorSpace:THREE.SRGBColorSpace; t.anisotropy=8; t.needsUpdate=true; SPT[n]=t; }catch(e){ console.warn('ground texture',n,e); } }
   SP.g.value=SPT.grass||null; SP.t.value=SPT.trampled||null; SP.m.value=SPT.mud||null; SP.d.value=SPT.dirt||null;
   if(SPT.stone) detailTexCache.stone=SPT.stone;
   setTimeout(()=>{ try{ pbrDetail(); }catch(e){} },1500);      // the real wall textures load after the game is up
@@ -1337,14 +1337,28 @@ function refreshEnv(){
     if(envRT) envRT.dispose(); envRT=rt; scene.environment=rt.texture; viewScene.environment=rt.texture;
   }catch(e){ envFail=true; scene.environment=null; viewScene.environment=null; console.warn('[look] env skipped',e); }
 }
+/* ---- water: murky natural river. Two scrolling ripple layers (a normal map and a silt/foam map drifting in different directions), tinted per map ---- */
+const WATER_LIST=[];
+function waterTint(kind){ return mapSnow?0x4a5a62:(kind==='brown'?0x8a7f64:0x7d8a68); }
+function makeWaterMat(hex,repM,repN,opts={}){
+  const m=new THREE.MeshStandardMaterial({color:hex,roughness:opts.rough??0.16,metalness:0.06,envMapIntensity:0.8});
+  m.userData.w={repM,repN,spd:opts.spd||1,on:false}; WATER_LIST.push(m); waterSetup(m); return m;
+}
+function waterSetup(m){ const w=m.userData.w; if(w.on||!SPT.water_n||!SPT.water_c) return;
+  const tn=SPT.water_n.clone(), tc=SPT.water_c.clone(); for(const t of [tn,tc]){ t.wrapS=t.wrapT=THREE.RepeatWrapping; t.needsUpdate=true; }
+  tn.repeat.set(w.repN[0],w.repN[1]); tc.repeat.set(w.repM[0],w.repM[1]);
+  m.normalMap=tn; m.normalScale=new THREE.Vector2(0.55,0.55); m.map=tc; m.needsUpdate=true; w.on=true; }
+function waterTick(t){ for(const m of WATER_LIST){ const w=m.userData.w; if(!w.on){ waterSetup(m); continue; } const k=t*w.spd;
+  m.normalMap.offset.set((k*0.011)%1,(k*0.006)%1); m.map.offset.set((-k*0.004)%1,(k*0.0025)%1); } }
 function lookTick(t){
+  try{ waterTick(t); }catch(e){}
   if(!envRT && !envFail) refreshEnv();
   try{ grassTick(); }catch(e){ GRS.on=false; console.warn('[look] grass stream off',e); }
   grassU.uTime.value=t; skyMat.uniforms.uTime.value=t;
   const on=!air.on; skyDome.visible=on && !lookFail.sky; if(!on) hills.visible=false;
   skyDome.position.copy(camera.position); hills.position.set(camera.position.x,0,camera.position.z);
   if(on && !hills.visible && HILL_BASE[currentMap]) hills.visible=true;
-  if(remWater && currentMap==='remagen' && remWater.material && remWater.material.uniforms && remWater.material.uniforms.uTime){ const u=remWater.material.uniforms; u.uTime.value=t; u.uSun.value.copy(SUN_DIR); u.fogColor.value.copy(scene.fog.color); u.fogNear.value=scene.fog.near; u.fogFar.value=scene.fog.far; }
+  if(remWater && currentMap==='remagen' && remWater.material && remWater.material.uniforms && remWater.material.uniforms.uTime){ const u=remWater.material.uniforms; if(!u.tN.value&&SPT.water_n){ u.tN.value=SPT.water_n; u.tC.value=SPT.water_c; } u.uTime.value=t; u.uSun.value.copy(SUN_DIR); u.fogColor.value.copy(scene.fog.color); u.fogNear.value=scene.fog.near; u.fogFar.value=scene.fog.far; }
   if(sun) skyMat.uniforms.uSun.value.set(sun.position.x-sun.target.position.x,Math.max(8,sun.position.y),sun.position.z-sun.target.position.z);
 }
 
@@ -2169,7 +2183,7 @@ for(const [tx,tz] of [[46,14],[50,-12],[-62,-60],[-60,55],[48,46],[-30,-62]]) de
 // ---------- the Volga (east edge) ----------
 sBox(54.5,0,0,1.2,1.5,140,M.concrete);             // embankment wall
 sBox(54.5,1.5,0,1.3,0.08,140,M.snow,false);
-const water=new THREE.Mesh(new THREE.PlaneGeometry(80,240),new THREE.MeshStandardMaterial({color:0x26333a,roughness:.25,metalness:.4}));
+const water=new THREE.Mesh(new THREE.PlaneGeometry(80,240),makeWaterMat(waterTint(),[13,40],[20,60]));
 water.rotation.x=-Math.PI/2; water.position.set(95,0.04,0); water.receiveShadow=true; mapRoot.add(water);
 for(let i=0;i<70;i++){ const s=1+rnd()*5; addGeo(new THREE.BoxGeometry(s,0.12,s*(0.5+rnd())),M.snow,57+rnd()*70,0.05,(rnd()*2-1)*110,0,rnd()*3,0); }
 const farBank=new THREE.Mesh(new THREE.PlaneGeometry(60,240),M.snow); farBank.rotation.x=-Math.PI/2; farBank.position.set(150,0.06,0); mapRoot.add(farBank);
@@ -2856,7 +2870,7 @@ function buildBerlin(){
   const B={
     stone:[mat(0x8c8474,{roughness:.95}),mat(0x7d7566,{roughness:.95}),mat(0x958d7c,{roughness:.95})],
     soot:mat(0x3a3631,{roughness:1}), road:mat(0x5d5953,{roughness:1}), cobble:mat(0x6b665e,{roughness:1}),
-    water:new THREE.MeshStandardMaterial({color:0x2e3532,roughness:.3,metalness:.3}), steel:mat(0x2f2d2a,{roughness:.6,metalness:.6}),
+    water:makeWaterMat(waterTint('brown'),[12,2],[18,3]), steel:mat(0x2f2d2a,{roughness:.6,metalness:.6}),
     bronze:mat(0x4d5a4a,{roughness:.6,metalness:.4})
   };
   const st=()=>B.stone[(rnd()*3)|0];
@@ -2884,7 +2898,7 @@ function buildBerlin(){
   // ---------- Königsplatz: the open killing ground ----------
   sBox(0,0.011,-22,90,0.01,28,B.cobble,false);
   // flooded anti-tank ditch (crossed by planks and rubble)
-  sBox(0,0.02,-18,74,0.01,3,B.water,false);
+  { const dm=new THREE.Mesh(new THREE.PlaneGeometry(74,3),B.water); dm.rotation.x=-Math.PI/2; dm.position.set(0,0.03,-18); dm.raycast=()=>{}; mapRoot.add(dm); }
   for(const side of [-1,1]) sBox(0,0,-18+side*1.8,74,0.35,0.6,M.dirt,false);
   for(const cx of [-12,0,14]) sBox(cx,0.03,-18,3,0.12,4.4,M.wood,false);
   [[-22,-24,8],[-6,-26,6],[8,-26,6],[24,-24,8],[-6,-36,4],[6,-36,4],[-16,-34,4],[16,-34,4]].forEach(s=>sandbags(s[0],s[1],s[2]));
@@ -2898,7 +2912,7 @@ function buildBerlin(){
   for(let i=0;i<26;i++) deadTree(-66+rnd()*26,-44+rnd()*36);
   // Spree embankment (east)
   sBox(57,0,-10,1.2,1.4,120,M.concrete); sBox(57,1.4,-10,1.3,0.08,120,M.concrete,false);
-  const river=new THREE.Mesh(new THREE.PlaneGeometry(60,200),B.water); river.rotation.x=-Math.PI/2; river.position.set(88,0.04,0); mapRoot.add(river);
+  const river=new THREE.Mesh(new THREE.PlaneGeometry(60,200),makeWaterMat(waterTint('brown'),[10,33],[15,50])); river.rotation.x=-Math.PI/2; river.position.set(88,0.04,0); mapRoot.add(river);
 
   // ---------- THE REICHSTAG ----------
   const H=15, FZ=-46;                                  // front wall line
@@ -3053,7 +3067,7 @@ ashTex.wrapS=ashTex.wrapT=THREE.RepeatWrapping; ashTex.repeat.set(40,40);
 let searchBeams=[];
 function buildSeelow(){
   const K={ earth:mat(0x5a4c36,{roughness:1}), earthD:mat(0x3e3426,{roughness:1}), log:logDetail(mat(0x5c4430,{roughness:.9})), log2:logDetail(mat(0x6e5236,{roughness:.9})),
-    water:new THREE.MeshStandardMaterial({color:0x3a4448,roughness:.25,metalness:.35}), grass:mat(0x6b6e48,{roughness:1}), concrete:mat(0x6f6d66,{roughness:1}),
+    water:makeWaterMat(waterTint('brown'),[4,4],[7,7]), grass:mat(0x6b6e48,{roughness:1}), concrete:mat(0x6f6d66,{roughness:1}),
     brick:mat(0x7d4a38), roof:mat(0x5a3a30), hill:[mat(0x50553c,{roughness:1}),mat(0x5c5f42,{roughness:1}),mat(0x474c36,{roughness:1})] };
   // ---- trench lines (the enemy comes from the north, -Z): walk-in trenches with firing steps and MG nests ----
   const KT={earthD:K.earthD,earth:K.earth,log:K.log,log2:K.log2}, enS=(enemyOf(selSide));
@@ -3579,19 +3593,24 @@ const REM_FLAT=[...REM_SP.map(p=>[p[0],p[1],6]),...REM_ZN.map(p=>[p[0],p[1],9]),
 const remRailD=(x,z)=>{ let m=1e9; for(let i=0;i<REM_RAIL.length-1;i++){ const a=REM_RAIL[i], b=REM_RAIL[i+1], dx=b[0]-a[0], dz=b[1]-a[1], t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz))); m=Math.min(m,Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t)); } return m; };
 let remWater=null;       // the river surface (a mirror on High / Medium, a glossy surface on Low and phones); animated from lookTick
 const REM_WATER_SHADER={name:'RemWater',
-  uniforms:{color:{value:null},tDiffuse:{value:null},textureMatrix:{value:null},uTime:{value:0},uSun:{value:new THREE.Vector3(-0.7,0.3,-0.6)},fogColor:{value:new THREE.Color(0xf0b07a)},fogNear:{value:20},fogFar:{value:180}},
+  uniforms:{tN:{value:null},tC:{value:null},color:{value:null},tDiffuse:{value:null},textureMatrix:{value:null},uTime:{value:0},uSun:{value:new THREE.Vector3(-0.7,0.3,-0.6)},fogColor:{value:new THREE.Color(0xf0b07a)},fogNear:{value:20},fogFar:{value:180}},
   vertexShader:`uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vW; varying float vDepth;
     void main(){ vUv=textureMatrix*vec4(position,1.0); vec4 wp=modelMatrix*vec4(position,1.0); vW=wp.xyz; vec4 mv=viewMatrix*wp; vDepth=-mv.z; gl_Position=projectionMatrix*mv; }`,
-  fragmentShader:`uniform vec3 color; uniform sampler2D tDiffuse; uniform float uTime,fogNear,fogFar; uniform vec3 uSun,fogColor; varying vec4 vUv; varying vec3 vW; varying float vDepth;
+  fragmentShader:`uniform vec3 color; uniform sampler2D tDiffuse,tN,tC; uniform float uTime,fogNear,fogFar; uniform vec3 uSun,fogColor; varying vec4 vUv; varying vec3 vW; varying float vDepth;
     vec2 rip(vec2 p,float t){ return vec2(sin(p.x*0.9+t*1.4)+sin(p.y*1.7-t*1.1)+sin((p.x+p.y)*0.5+t*0.7), cos(p.x*1.5-t*1.2)+sin(p.y*0.8+t*1.0)+cos((p.x-p.y)*0.6-t*0.8)); }
     void main(){
-      vec2 r=rip(vW.xz,uTime)*0.33;
-      vec3 N=normalize(vec3(r.x*0.07,1.0,r.y*0.07)); vec3 V=normalize(cameraPosition-vW);
+      vec2 r=rip(vW.xz,uTime)*0.12;
+      vec3 n1=texture2D(tN,vW.xz*0.085+vec2(uTime*0.020,uTime*0.008)).xyz*2.0-1.0;
+      vec3 n2=texture2D(tN,vW.xz*0.19+vec2(-uTime*0.012,uTime*0.016)).xyz*2.0-1.0;
+      r+=(n1.xy+n2.xy*0.7)*0.9;
+      vec3 N=normalize(vec3(r.x*0.10,1.0,r.y*0.10)); vec3 V=normalize(cameraPosition-vW);
       float fres=pow(1.0-clamp(dot(V,N),0.0,1.0),3.0);
       vec4 uv=vUv; uv.xy+=r*0.018*uv.w;
       vec3 refl=texture2DProj(tDiffuse,uv).rgb;
-      vec3 deep=color*(0.75+0.25*sin(vW.x*0.2+vW.z*0.15+uTime*0.3));
-      vec3 col=mix(deep,refl,clamp(0.42+0.58*fres,0.0,1.0));
+      vec3 murk=texture2D(tC,vW.xz*0.07+vec2(-uTime*0.006,uTime*0.003)).rgb;
+      vec3 deep=color*(0.55+0.9*murk)*(0.8+0.2*sin(vW.x*0.2+vW.z*0.15+uTime*0.3));
+      vec3 col=mix(deep,refl,clamp(0.16+0.5*fres,0.0,0.7));
+      col=mix(col,vec3(0.78,0.8,0.76),smoothstep(0.82,1.0,murk.g)*0.35);
       vec3 R=reflect(-V,N); float g=pow(max(dot(R,normalize(uSun)),0.0),180.0)*2.6; col+=vec3(1.0,0.72,0.42)*g;
       col=mix(col,fogColor,smoothstep(fogNear,fogFar,vDepth));
       gl_FragColor=vec4(col,1.0);
@@ -3621,11 +3640,11 @@ function buildRemagen(){
     for(let i=0;i<XS.length-1;i++){ const z=zc(XS[i]); noGrass.push(XS[i]-0.2,z-HW-1.2,XS[i]+4.2,z+HW+1.2); }
     // the water lies in a local XY plane (local y = -z); the mesh is turned flat
     const pw=[], iw=[]; XS.forEach((x,i)=>{ const z=zc(x); pw.push(x,-(z+HW),0,x,-(z-HW),0); if(i){ const a=(i-1)*2; iw.push(a,a+2,a+1,a+2,a+3,a+1); } });
-    const gw=new THREE.BufferGeometry(); gw.setAttribute('position',new THREE.Float32BufferAttribute(pw,3)); gw.setIndex(iw); gw.computeVertexNormals();
+    const gw=new THREE.BufferGeometry(); gw.setAttribute('position',new THREE.Float32BufferAttribute(pw,3)); gw.setIndex(iw); gw.computeVertexNormals(); { const uv=[]; for(let i=0;i<pw.length;i+=3) uv.push(pw[i],-pw[i+1]); gw.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); }
     let water=null;
     if(gfx!=='low' && !IS_TOUCH){ try{ const tw=Math.max(256,Math.floor(innerWidth*Math.min(devicePixelRatio||1,1.5)*0.5)), th=Math.max(256,Math.floor(innerHeight*Math.min(devicePixelRatio||1,1.5)*0.5));
-        water=new Reflector(gw,{textureWidth:tw,textureHeight:th,clipBias:0.003,multisample:0,color:0x1b4d63,shader:REM_WATER_SHADER}); water.userData.reflector=true; }catch(e){ console.warn('mirror water skipped',e); water=null; } }
-    if(!water) water=new THREE.Mesh(gw,new THREE.MeshStandardMaterial({color:0x2c6a82,roughness:0.12,metalness:0.45,transparent:true,opacity:0.88}));
+        water=new Reflector(gw,{textureWidth:tw,textureHeight:th,clipBias:0.003,multisample:0,color:0x3d4a3c,shader:REM_WATER_SHADER}); water.userData.reflector=true; water.userData.remW=true; }catch(e){ console.warn('mirror water skipped',e); water=null; } }
+    if(!water) water=new THREE.Mesh(gw,makeWaterMat(0x7a8566,[1/9,1/9],[1/5,1/5]));
     water.rotation.x=-Math.PI/2; water.position.y=0.07; water.renderOrder=1; water.raycast=()=>{}; water.receiveShadow=false; mapRoot.add(water); remWater=water; }
   for(let i=0;i<70;i++){ const x=-L+3+rnd()*(2*L-6), side=rnd()<.5?-1:1, z=zc(x)+side*(HW+0.5+rnd()*1.4); if(Math.abs(x)<8) continue;
     for(let k=0;k<3;k++) addGeo(new THREE.CylinderGeometry(0.02,0.03,1.0+rnd()*0.8,4),reedM,x+(rnd()-.5)*0.7,0.5,z+(rnd()-.5)*0.7,(rnd()-.5)*0.3,0,(rnd()-.5)*0.3); }
@@ -4150,7 +4169,7 @@ function buildMap(id){
   seed=1942+MAP_ORDER.indexOf(id)*1000;
   mapSnow=Mp.snow;
   ground.material.map=Mp.tex; ground.material.needsUpdate=true;      // set before the terrain is built, so the hills copy THIS map's ground texture, not the previous map's snow
-  propQ={}; addBorders();
+  WATER_LIST.length=0; propQ={}; addBorders();
   Mp.build();
   try{ dressMap(id); }catch(e){ console.warn('dressing skipped',e); }
   try{ extraCraters(id); }catch(e){ console.warn('craters skipped',e); }

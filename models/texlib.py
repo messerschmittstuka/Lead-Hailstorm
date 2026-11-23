@@ -468,3 +468,25 @@ def ground_stone(n=1024, seed=505):
     col = over(col, card)
     h = 0.85 * dome * (1 - gap) + 0.1 * fbm(n, seed + 6, 50, 50, 3) + 0.1 * blur(card[..., 3], 1)
     return col, h
+
+# ------------------------------------------------------------------------------------------------ WATER (seamless)
+def water_height(n=512, seed=77):
+    """waves from integer wave-vectors (so they tile exactly), mostly travelling along x, plus choppy ripples"""
+    rng = np.random.default_rng(seed); Y, X = np.mgrid[0:n, 0:n].astype(float); h = np.zeros((n, n))
+    for i in range(30):
+        kx = int(rng.integers(2, 17)) * (1 if rng.random() < 0.85 else -1); ky = int(rng.integers(-9, 10))
+        amp = 1.0 / (math.hypot(kx, ky) ** 1.15); ph = rng.random() * 6.283
+        h += amp * np.sin(2 * math.pi * (kx * X + ky * Y) / n + ph)
+    ch = 1 - np.abs(fbm(n, seed + 1, 14, 9, 4) * 2 - 1)              # choppy ridges
+    h = h / np.abs(h).max() + 0.30 * ch + 0.10 * fbm(n, seed + 2, 24, 24, 3)
+    return (h - h.min()) / (h.max() - h.min())
+
+def water_colour(n, h, seed=78):
+    """neutral light/dark map (the material colour tints it): silty patches, slow swirls and pale foam streaks on the crests"""
+    silt = fbm(n, seed, 4, 3, 5); swirl = warp(fbm(n, seed + 1, 7, 4, 4), n, seed + 2, 0.14, 3)
+    l = 0.62 + 0.22 * silt + 0.12 * (swirl - 0.5)
+    crest = smooth(h, 0.62, 0.86) * smooth(fbm(n, seed + 3, 10, 40, 4), 0.50, 0.70)
+    foam = np.clip(blur(crest, 3) * 0.9, 0, 0.55)
+    col = np.stack([l * 1.00, l * 0.98, l * 0.90], -1)                 # faint warm silt
+    col = col * (1 - foam[..., None]) + np.array([0.97, 0.98, 0.96]) * foam[..., None]
+    return np.clip(col, 0, 1)

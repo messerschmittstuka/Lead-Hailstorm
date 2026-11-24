@@ -1499,7 +1499,7 @@ let _pebMat=null;
 const PROPDB={}; let propDbDone=false;
 function propIndex(){
   if(propDbDone) return; if(!GUNGLB.props1) return; propDbDone=true; window.__props={PROPDB,colliders};
-  for(const key of ['props1','props2','props3','props4']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
+  for(const key of ['props1','props2','props3','props4','walls2']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
     sc.traverse(o=>{
       if(!o.name||!o.name.startsWith('prop_')) return; const name=o.name.slice(5);
       const inv=o.matrixWorld.clone().invert(), tri=[]; let pass=false;
@@ -1629,6 +1629,14 @@ function scatterBlenderProps(id){
     for(let i=0,t=0;i<n && t<n*14;t++){ const x=(rr()*2-1)*(L-6), z=(rr()*2-1)*(L-6);
       if(Math.hypot(x,z-(L-22))<9 || Math.hypot(x,z+(L-22))<9 || insideBuilding(x,z) || groundY(x,z)<-0.05) continue;
       (propQ[nm]||(propQ[nm]=[])).push([x,Math.max(0,groundY(x,z)),z,rr()*6.283,0.9+rr()*0.4,[1,1,1],0,0]); i++; made++; } } }
+  if(PROPDB.wall_brick_ruined){                         // runs of standing brick wall (the walls of houses that are mostly gone), 3 m pieces butted end to end
+    const WP=['wall_brick_ruined','wall_brick_ruined','wall_brick_ruined','wall_brick_window','wall_brick_door','wall_brick_solid'], nr=Math.round((city?6:2)*k);
+    for(let i=0,t=0;i<nr && t<nr*20;t++){
+      const x=(rr()*2-1)*(L-12), z=(rr()*2-1)*(L-12), yaw=Math.floor(rr()*4)*1.5708+(rr()-0.5)*0.35, len=1+((rr()*3)|0), cs=Math.cos(yaw), sn=Math.sin(yaw), pcs=[]; let ok=true;
+      for(let j=0;j<len;j++){ const px=x+cs*3*j, pz=z-sn*3*j; if(Math.abs(px)>L-8||Math.abs(pz)>L-8||Math.hypot(px,pz-(L-22))<10||Math.hypot(px,pz+(L-22))<10||insideBuilding(px,pz)||groundY(px,pz)<-0.05||blocked(new V3(px,0,pz),1.8,2.4)){ ok=false; break; } pcs.push([px,pz]); }
+      if(!ok) continue;
+      pcs.forEach(([px,pz])=>{ placeProp(WP[(rr()*WP.length)|0],px,pz,yaw,1); made++; }); i++; }
+  }
   window.__propsMade=made;
 }
 /* ---- vegetation scatter: what grows (or is left standing) depends on the map's season and state ----
@@ -6041,7 +6049,7 @@ function analyseModel(template){
 function tintMaterial(m,col){ const n=m.clone(); if(n.color) n.color.multiply(new THREE.Color(col)); return n; }
 
 var GUNGLB_unused=0;      // Blender-made rifles for the player's own hands: kar98k, mosin
-async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } }
 async function loadCharacters(){
   const loader=new GLTFLoader();

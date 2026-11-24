@@ -597,3 +597,43 @@ def burlap(n=1024, seed=651, tone=(0.24, 0.185, 0.105)):
     dust = smooth(fbm(n, seed + 3, 10, 10, 5), 0.55, 0.85) * 0.5; col = col * (1 - dust[..., None]) + np.array([0.42, 0.36, 0.25]) * 0.8 * dust[..., None]
     h = 0.5 + 0.35 * thread + 0.05 * fbm(n, seed + 4, 80, 80, 2)
     return col, h
+
+# ------------------------------------------------------------------------------------------------ BUILDING MATERIALS
+def plaster_wall(n=1024, seed=701, tone=(0.40, 0.34, 0.25), brick_seed=601, exposed=0.28):
+    """rendered wall in poor repair: stained plaster, hairline cracks, and patches blown off to show the brick below"""
+    pc, ph = concrete(n, seed, tone); bc, bh = brick_wall(n, brick_seed)
+    m = fbm(n, seed + 1, 4, 5, 5) + 0.25 * fbm(n, seed + 2, 18, 18, 4)
+    cut = 1 - exposed; mask = smooth(m, cut - 0.015, cut + 0.015)                              # 1 where the plaster has fallen off
+    edge = smooth(m, cut - 0.07, cut) * (1 - mask)                                              # a dark, thick lip of plaster round each hole
+    col = pc * (1 - mask[..., None]) + bc * mask[..., None]
+    col = col * (1 - 0.35 * edge[..., None])
+    damp = smooth(fbm(n, seed + 3, 5, 3, 5), 0.55, 0.85) * 0.35; col = col * (1 - damp[..., None]) + np.array([0.05, 0.045, 0.035]) * damp[..., None]
+    h = ph * (1 - mask) + (bh - 0.25) * mask + 0.12 * edge
+    return col, h
+
+def roof_tile(n=1024, seed=711, rows=10, cols=8):
+    """overlapping clay pan tiles in courses: per-tile colour, shadow under every course, moss and soot"""
+    rng = np.random.default_rng(seed); Y, X = np.mgrid[0:n, 0:n].astype(float)
+    th = n / rows; tw = n / cols; r = np.floor(Y / th).astype(int); xo = X / tw + (r % 2) * 0.5; c = np.floor(xo).astype(int); u = xo - c; v = Y / th - r
+    ID = rng.random((rows, cols)); tid = ID[r % rows, c % cols]
+    base = ramp(tid, [(0, (0.28, 0.075, 0.045)), (0.5, (0.36, 0.10, 0.06)), (1, (0.44, 0.15, 0.08))])
+    sh = 0.55 + 0.6 * smooth(v, 0.0, 0.7)                                                       # each tile is darker where the course above overlaps it
+    curve = 0.82 + 0.28 * np.cos((u - 0.5) * math.pi)                                           # pan profile
+    col = base * (sh * curve)[..., None] * (0.8 + 0.4 * fbm(n, seed + 1, 60, 60, 4))[..., None]
+    gap = (1 - smooth(np.minimum(u, 1 - u), 0.0, 0.05)) * 0.7; col = col * (1 - gap[..., None])
+    moss = smooth(fbm(n, seed + 2, 7, 7, 5), 0.58, 0.8) * 0.5; col = col * (1 - moss[..., None]) + np.array([0.06, 0.09, 0.03]) * moss[..., None]
+    soot = smooth(fbm(n, seed + 3, 4, 4, 4), 0.55, 0.85) * 0.5; col = col * (1 - soot[..., None]) + np.array([0.02, 0.02, 0.02]) * soot[..., None]
+    h = 0.2 + 0.6 * smooth(v, 0.0, 0.9) * curve - 0.4 * gap + 0.06 * fbm(n, seed + 4, 50, 50, 3)
+    return col, h
+
+def roof_tar(n=1024, seed=721):
+    """bitumen roofing felt with sand grit, seams, blisters and pale patched repairs"""
+    Y, X = np.mgrid[0:n, 0:n].astype(float)
+    col = np.array([0.055, 0.055, 0.06])[None, None, :] * (0.7 + 0.7 * fbm(n, seed, 6, 6, 5)[..., None])
+    grit = smooth(fbm(n, seed + 1, 200, 200, 2), 0.62, 0.75); col = col + 0.07 * grit[..., None]
+    seam = (1 - smooth(np.abs(((X / n * 5) % 1) - 0.5) * 2, 0.97, 1.0)) * 0.0
+    sw = 1 - smooth(np.minimum(((X / n * 5) % 1), 1 - ((X / n * 5) % 1)), 0.0, 0.012); col = col * (1 - 0.5 * sw[..., None])
+    patch = smooth(fbm(n, seed + 2, 5, 5, 3), 0.66, 0.7); col = col * (1 - patch[..., None]) + np.array([0.15, 0.15, 0.15]) * patch[..., None]
+    wet = smooth(fbm(n, seed + 3, 4, 4, 5), 0.5, 0.8) * 0.4; col = col * (1 - wet[..., None]) + np.array([0.04, 0.045, 0.05]) * wet[..., None]
+    h = 0.5 + 0.2 * grit - 0.3 * sw + 0.1 * patch + 0.08 * fbm(n, seed + 4, 30, 30, 3)
+    return col, h

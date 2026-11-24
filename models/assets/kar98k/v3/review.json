@@ -1,0 +1,79 @@
+{
+ "version": "v3",
+ "reviewer": "Claude (visual inspection + measurement)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_action.png",
+  "renders/close_muzzle.png",
+  "renders/close_rear_sight.png",
+  "renders/close_butt.png",
+  "renders/close_forend_band.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v3 fixes the floor plate and moves the sight to the right place but the blade was misplaced by a build bug.",
+ "defects": [
+  {
+   "id": "D1",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "6,704 tris, 12% over the 6,000 target, under the 10,000 maximum.",
+   "evidence": "stats.json",
+   "fix": "Lower sides on tori, ball, screws and stock rings.",
+   "status": "open"
+  },
+  {
+   "id": "D3",
+   "severity": "major",
+   "category": "history",
+   "text": "Rear sight still not legible. Measuring model.blend shows the sloped blade rs_blade sits at z 0.038-0.049 (inside the stock) instead of 0.067-0.075: setting rotation after creation and re-parenting into the RearSight group displaced it. Only the base, grey slider, notch plate and floating ticks are visible. Notch apex now at y 0.20, so the 0.50 m sight radius is right.",
+   "evidence": "close_rear_sight; bounding-box measurement",
+   "fix": "Build the blade as a profile mesh with explicit vertex coordinates (no object rotation).",
+   "status": "open"
+  },
+  {
+   "id": "D6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Floor plate is now thin and flush with the stock, the guard bow is slightly heavier; reads as one assembly.",
+   "evidence": "close_action",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D7",
+   "severity": "minor",
+   "category": "history",
+   "text": "Bayonet lug still a block on top of the nose cap.",
+   "evidence": "close_muzzle, close_forend_band",
+   "fix": "Lug under the nose cap, cleaning rod stub lower in front.",
+   "status": "open"
+  },
+  {
+   "id": "D8",
+   "severity": "minor",
+   "category": "history",
+   "text": "No handguard break. Accepted: the single smooth wood mass reads as the handguard at game distance and a seam would cost triangles for no visible gain.",
+   "evidence": "left",
+   "fix": "Documented in spec.md as deliberately simplified.",
+   "status": "resolved"
+  },
+  {
+   "id": "D9",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Scratch/chip texture on blued parts is coarse (shared texture).",
+   "evidence": "close_action, close_butt",
+   "fix": "Deferred: needs a purpose-made blued steel texture. Flag to the user.",
+   "status": "open"
+  }
+ ]
+}

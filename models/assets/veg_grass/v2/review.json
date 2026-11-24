@@ -1,0 +1,48 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection of reed closeup)",
+ "reviewed_images": [
+  "renders/close_reed.png",
+  "textures/reed_plume.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Only the reed changed in v2; other tufts as v1.",
+ "defects": [
+  {
+   "id": "G1",
+   "severity": "major",
+   "category": "history",
+   "text": "Reed now has feathery drooping plumes, straw culms, arching strap leaves; stand is wider.",
+   "evidence": "close_reed",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "G5",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Reed: bare thin culm lines hang below the leaf area down to the ground like stilts, and the cards read as stacked flat layers.",
+   "evidence": "close_reed",
+   "fix": "Add a basal leaf mass at the bottom of each card and vary card heights/rotations.",
+   "status": "open"
+  },
+  {
+   "id": "G2",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Fern still flat star (not yet addressed).",
+   "evidence": "v1",
+   "fix": "More cards, varied angles, arching fronds.",
+   "status": "open"
+  },
+  {
+   "id": "G3",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Tuft symmetry (not yet addressed).",
+   "evidence": "v1",
+   "fix": "Fill cards, vary angle.",
+   "status": "open"
+  }
+ ]
+}

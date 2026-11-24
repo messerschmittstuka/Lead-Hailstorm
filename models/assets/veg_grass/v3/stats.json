@@ -1,0 +1,213 @@
+{
+ "stats": {
+  "tris_total": 492,
+  "objects": [
+   {
+    "object": "grass_dry_short",
+    "tris": 48,
+    "verts": 60,
+    "materials": [
+     "grass_a",
+     "grass_b"
+    ]
+   },
+   {
+    "object": "grass_dry_tall",
+    "tris": 40,
+    "verts": 50,
+    "materials": [
+     "grass_b",
+     "grass_a"
+    ]
+   },
+   {
+    "object": "grass_green_short",
+    "tris": 72,
+    "verts": 90,
+    "materials": [
+     "grass_green_a",
+     "grass_green_b"
+    ]
+   },
+   {
+    "object": "grass_green_tall",
+    "tris": 40,
+    "verts": 50,
+    "materials": [
+     "grass_green_b",
+     "grass_green_a"
+    ]
+   },
+   {
+    "object": "grass_meadow_flowers",
+    "tris": 40,
+    "verts": 50,
+    "materials": [
+     "meadow"
+    ]
+   },
+   {
+    "object": "fern_clump",
+    "tris": 72,
+    "verts": 90,
+    "materials": [
+     "fern"
+    ]
+   },
+   {
+    "object": "reed_clump",
+    "tris": 180,
+    "verts": 210,
+    "materials": [
+     "reed_plume",
+     "grass_green_b"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 16.0416,
+   "y": 1.4652,
+   "z": 2.453
+  },
+  "bbox_min": [
+   -0.3485,
+   -0.7812,
+   -0.01
+  ],
+  "bbox_max": [
+   15.6931,
+   0.6841,
+   2.443
+  ],
+  "materials": {
+   "grass_a": {
+    "textured": true,
+    "images": [
+     {
+      "image": "grass_a.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "grass_b": {
+    "textured": true,
+    "images": [
+     {
+      "image": "grass_b.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "grass_green_a": {
+    "textured": true,
+    "images": [
+     {
+      "image": "grass_green_a.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "grass_green_b": {
+    "textured": true,
+    "images": [
+     {
+      "image": "grass_green_b.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "meadow": {
+    "textured": true,
+    "images": [
+     {
+      "image": "meadow.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "fern": {
+    "textured": true,
+    "images": [
+     {
+      "image": "fern.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "reed_plume": {
+    "textured": true,
+    "images": [
+     {
+      "image": "reed_plume.png",
+      "size": [
+       512,
+       1536
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 35.91,
+  "loose_verts": 0,
+  "open_edges": 600,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": []
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "pass",
+   "detail": "492 tris (target 300-1500, max 2500)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "pass",
+   "detail": "lowest point z = -0.010 m"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "35.9 MB (mips included)"
+  }
+ ]
+}

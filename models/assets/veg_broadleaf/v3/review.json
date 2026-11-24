@@ -1,0 +1,32 @@
+{
+ "version": "v3",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_oak_a_crown.png",
+  "renders/close_oak_b_crown.png",
+  "renders/close_birch_b_crown.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Crown outline now irregular. Two artefacts remain.",
+ "defects": [
+  {
+   "id": "B6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Crown outline irregular, no regular dome. A tall card cluster still sticks up from the top of oak_a.",
+   "evidence": "close_oak_a_crown",
+   "fix": "Cap upward component of dome-fill card directions.",
+   "status": "open"
+  },
+  {
+   "id": "B7",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Oak_b has detached floating card clusters at the low edge of the dome (right side, near the limbs) with no branch holding them.",
+   "evidence": "close_oak_b_crown",
+   "fix": "Dome elevation minimum 0.35 (was 0.05) and radius minimum 0.75, so clusters stay on the limb network.",
+   "status": "open"
+  }
+ ]
+}

@@ -1,0 +1,58 @@
+{
+ "version": "v3",
+ "reviewer": "Claude (visual inspection of contact sheets + stats.json)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_broad_face.png",
+  "renders/close_cap_handle.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v3 resolves D2 and D10. D6 did not change visibly.",
+ "defects": [
+  {
+   "id": "D2",
+   "severity": "minor",
+   "category": "history",
+   "text": "Handle thinned to 30 mm with taller openings; reads as a pressed strap with three grip openings.",
+   "evidence": "front, q_front, close_cap_handle",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D4",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Rust splashes still read as camouflage blotches (shared baked texture).",
+   "evidence": "front, rear, q_front",
+   "fix": "Deferred: needs a purpose-made can paint texture.",
+   "status": "open"
+  },
+  {
+   "id": "D6",
+   "severity": "minor",
+   "category": "history",
+   "text": "Seam groove present but sub-pixel at render scale (4.5 mm on a 0.35 m can is about 1 px at 800 px). Verified numerically on model.blend: end-face x is 0.168 m at y=0 against 0.1725 m beside it, with loops at y=+-5.5 mm. An earlier reading of 'missing' was a render-resolution limit, not a geometry bug.",
+   "evidence": "left, right, clay_q_front",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D10",
+   "severity": "minor",
+   "category": "proportions",
+   "text": "Depth 0.165 m, height 0.463 m, width 0.3505 m: all in spec.",
+   "evidence": "stats.json",
+   "fix": "-",
+   "status": "resolved"
+  }
+ ]
+}

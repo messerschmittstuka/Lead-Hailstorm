@@ -1,0 +1,28 @@
+{
+ "state": "done",
+ "asset": "jerrycan",
+ "version": "v2",
+ "build_sha": "8dad959415dcb02b",
+ "rerendered_with_fixed_harness": true,
+ "seconds": 6.3,
+ "tris": 1068,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_cap_handle.png",
+  "renders/close_broad_face.png"
+ ],
+ "checks": {
+  "pass": 9,
+  "warn": 2,
+  "fail": 0
+ }
+}

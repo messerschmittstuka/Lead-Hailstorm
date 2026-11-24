@@ -1,0 +1,70 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_oak_a_crown.png",
+  "renders/close_oak_a_trunk.png",
+  "renders/close_oak_b_crown.png",
+  "renders/close_birch_a_crown.png",
+  "renders/close_birch_a_trunk.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Oak reads as an oak (rounded dome, lobed leaves, grey-brown bark); birch as a silver birch.",
+ "defects": [
+  {
+   "id": "B1",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Oak now a rounded dome with spreading limbs.",
+   "evidence": "close_oak_a_crown, close_oak_b_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "B2",
+   "severity": "major",
+   "category": "texture",
+   "text": "Lobed oak leaves and toothed birch leaves visible.",
+   "evidence": "close_oak_b_crown, close_birch_a_trunk",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "B3",
+   "severity": "major",
+   "category": "texture",
+   "text": "Oak bark grey-brown and fissured.",
+   "evidence": "close_oak_a_trunk",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "B4",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Birch crown wider, open, drooping.",
+   "evidence": "close_birch_a_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "B5",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Lowest point z = -0.054 m, within 6 cm tolerance of a flared root.",
+   "evidence": "stats.json",
+   "fix": "accepted",
+   "status": "resolved"
+  },
+  {
+   "id": "B6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Oak_a has a single card pointing straight up out of the crown top; both crowns are a smooth regular dome with no gaps.",
+   "evidence": "close_oak_a_crown",
+   "fix": "Clamp upward direction of limb-end cards; vary dome radius with azimuth (0.8-1.15) and leave 8 percent of dome points empty.",
+   "status": "open"
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+Addresses B6: limb-end card direction z capped at 0.35 (was 1.0) so nothing spikes out of the crown top; dome points skip 8 percent, dome radius varies with azimuth (about 0.8-1.15 of nominal), dome elevation max 1.15.

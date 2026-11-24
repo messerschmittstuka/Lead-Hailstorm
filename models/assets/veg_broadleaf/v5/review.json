@@ -1,0 +1,31 @@
+{
+ "version": "v5",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_oak_a_crown.png",
+  "renders/close_oak_b_crown.png"
+ ],
+ "verdict": "good",
+ "notes": "Stopped after four improvement cycles. Two cosmetic leftovers, both single pads, deferred.",
+ "defects": [
+  {
+   "id": "B6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "One elongated foliage pad still reaches above the oak_a crown (seen end-on it looks like a spike). Not from the dome fill or the sub-branch clusters, so the cap did not change it; likely a limb-end pad on the steepest limb.",
+   "evidence": "close_oak_a_crown",
+   "fix": "Deferred: find the limb whose pad it is and tilt it down.",
+   "status": "deferred"
+  },
+  {
+   "id": "B7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "One or two tip pads on oak_b still look detached from the limb network at close range.",
+   "evidence": "close_oak_b_crown",
+   "fix": "Deferred: extend tip twigs to reach the pad bases.",
+   "status": "deferred"
+  }
+ ]
+}

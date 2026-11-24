@@ -1,0 +1,30 @@
+{
+ "state": "done",
+ "asset": "veg_shrubs",
+ "version": "v4",
+ "build_sha": "4462561645daa4c3",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 7.7,
+ "tris": 6088,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_bare_a.png",
+  "renders/close_bare_b.png",
+  "renders/close_leafy_a.png",
+  "renders/close_leafy_b.png"
+ ],
+ "checks": {
+  "pass": 5,
+  "warn": 2,
+  "fail": 0
+ }
+}

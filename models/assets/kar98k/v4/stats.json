@@ -1,0 +1,551 @@
+{
+ "stats": {
+  "tris_total": 5912,
+  "objects": [
+   {
+    "object": "stock",
+    "tris": 1916,
+    "verts": 960,
+    "materials": [
+     "walnut"
+    ]
+   },
+   {
+    "object": "butt_plate",
+    "tris": 248,
+    "verts": 126,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "butt_screw_t",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "butt_screw_b",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "sling_disc_L",
+    "tris": 36,
+    "verts": 20,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "sling_disc_R",
+    "tris": 36,
+    "verts": 20,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "barrel",
+    "tris": 156,
+    "verts": 80,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "muzzle_crown",
+    "tris": 160,
+    "verts": 80,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "receiver_ring",
+    "tris": 156,
+    "verts": 80,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "receiver",
+    "tris": 156,
+    "verts": 80,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "receiver_floor",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "receiver_bridge",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "clip_guide",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "safety_wing",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "rear_tang",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "bolt_ring_0",
+    "tris": 160,
+    "verts": 80,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "bolt_ring_1",
+    "tris": 160,
+    "verts": 80,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "bolt_ring_2",
+    "tris": 160,
+    "verts": 80,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "bolt_stop",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "bolt_body",
+    "tris": 156,
+    "verts": 80,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "cocking_piece",
+    "tris": 156,
+    "verts": 80,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "bolt_arm",
+    "tris": 52,
+    "verts": 28,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "bolt_arm_2",
+    "tris": 52,
+    "verts": 28,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "bolt_knob",
+    "tris": 168,
+    "verts": 86,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "floor_plate",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "parkerised"
+    ]
+   },
+   {
+    "object": "trigger_guard",
+    "tris": 288,
+    "verts": 150,
+    "materials": [
+     "parkerised"
+    ]
+   },
+   {
+    "object": "trigger",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "band",
+    "tris": 188,
+    "verts": 96,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "nose_cap",
+    "tris": 188,
+    "verts": 96,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "bayonet_lug",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "cleaning_rod_tip",
+    "tris": 52,
+    "verts": 28,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "fs_base",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "fs_post",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "fs_hood",
+    "tris": 128,
+    "verts": 64,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "fs_hood_leg",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "rs_base",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "rs_leaf_ramp",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "rs_blade",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "rs_slider",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "rs_leaf",
+    "tris": 80,
+    "verts": 42,
+    "materials": [
+     "blued_steel"
+    ]
+   },
+   {
+    "object": "rs_tick_0",
+    "tris": 12,
+    "verts": 8,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "rs_tick_1",
+    "tris": 12,
+    "verts": 8,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "rs_tick_2",
+    "tris": 12,
+    "verts": 8,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "rs_tick_3",
+    "tris": 12,
+    "verts": 8,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "screw",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "screw.001",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "screw.002",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "screw.003",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   },
+   {
+    "object": "sling_swivel",
+    "tris": 44,
+    "verts": 24,
+    "materials": [
+     "bright_steel"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 0.0993,
+   "y": 1.1145,
+   "z": 0.2233
+  },
+  "bbox_min": [
+   -0.025,
+   -0.383,
+   -0.1298
+  ],
+  "bbox_max": [
+   0.0743,
+   0.7315,
+   0.0935
+  ],
+  "materials": {
+   "walnut": {
+    "textured": true,
+    "images": [
+     {
+      "image": "walnut_c.jpg",
+      "size": [
+       2048,
+       512
+      ]
+     },
+     {
+      "image": "walnut_n.jpg",
+      "size": [
+       2048,
+       512
+      ]
+     }
+    ]
+   },
+   "blued_steel": {
+    "textured": true,
+    "images": [
+     {
+      "image": "blued_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "blued_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "bright_steel": {
+    "textured": true,
+    "images": [
+     {
+      "image": "steel_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "steel_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "parkerised": {
+    "textured": true,
+    "images": [
+     {
+      "image": "parker_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "parker_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 42.56,
+  "loose_verts": 0,
+  "open_edges": 12,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": []
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "pass",
+   "detail": "5912 tris (target 3000-6000, max 10000)"
+  },
+  {
+   "name": "dimension x",
+   "status": "pass",
+   "detail": "0.099 m (spec 0.090 +-0.015 m)"
+  },
+  {
+   "name": "dimension y",
+   "status": "pass",
+   "detail": "1.115 m (spec 1.110 +-0.020 m)"
+  },
+  {
+   "name": "dimension z",
+   "status": "pass",
+   "detail": "0.223 m (spec 0.215 +-0.030 m)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "origin",
+   "status": "pass",
+   "detail": "weapon origin on the bore axis by game contract (lowest point z = -0.130 m)"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "42.6 MB (mips included)"
+  }
+ ]
+}

@@ -1,0 +1,52 @@
+{
+ "version": "v3",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_pine_a_crown.png",
+  "renders/close_pine_b_crown.png",
+  "renders/close_spruce_b_crown.png",
+  "renders/close_snow_b_crown.png",
+  "renders/close_spruce_a_trunk.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Ground clearance fixed (lowest z -0.03). Pine and spruce read correctly.",
+ "defects": [
+  {
+   "id": "C6",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Lowest point now z = -0.03 m: no branch below ground.",
+   "evidence": "stats.json",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Pine crowns rounder with upward clumps; spruce leader widened but the tip is still a dark thin spike with a forked top.",
+   "evidence": "close_spruce_b_crown, close_snow_b_crown",
+   "fix": "-",
+   "status": "open"
+  },
+  {
+   "id": "C8",
+   "severity": "major",
+   "category": "texture",
+   "text": "Pine needle pads have a dark outline halo along their edges (transparent texels carry black colour, mip-mapped into the edge).",
+   "evidence": "close_pine_a_crown, close_pine_b_crown",
+   "fix": "Bleed foliage colour into transparent texels of pine and snow cards.",
+   "status": "open"
+  },
+  {
+   "id": "C9",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Pine limbs end in a single pad with gaps between pads; dead-limb stubs on the lower trunk are thin black thorns.",
+   "evidence": "close_pine_b_crown",
+   "fix": "Add a terminal clump of 3 cards at every limb end; stubs thicker with a stub-length taper.",
+   "status": "open"
+  }
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "state": "done",
+ "asset": "veg_broadleaf",
+ "version": "v5",
+ "build_sha": "e9ba658598d6ad3a",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 14.8,
+ "tris": 24880,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_oak_a_crown.png",
+  "renders/close_oak_a_trunk.png",
+  "renders/close_oak_b_crown.png",
+  "renders/close_oak_b_trunk.png",
+  "renders/close_birch_a_crown.png",
+  "renders/close_birch_a_trunk.png",
+  "renders/close_birch_b_crown.png",
+  "renders/close_birch_b_trunk.png"
+ ],
+ "checks": {
+  "pass": 7,
+  "warn": 1,
+  "fail": 0
+ }
+}

@@ -1,0 +1,38 @@
+{
+ "state": "done",
+ "asset": "veg_conifers",
+ "version": "v3",
+ "build_sha": "02ef25065e549e73",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 35.8,
+ "tris": 39526,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_pine_a_crown.png",
+  "renders/close_pine_a_trunk.png",
+  "renders/close_pine_b_crown.png",
+  "renders/close_pine_b_trunk.png",
+  "renders/close_spruce_a_crown.png",
+  "renders/close_spruce_a_trunk.png",
+  "renders/close_spruce_b_crown.png",
+  "renders/close_spruce_b_trunk.png",
+  "renders/close_snow_a_crown.png",
+  "renders/close_snow_a_trunk.png",
+  "renders/close_snow_b_crown.png",
+  "renders/close_snow_b_trunk.png"
+ ],
+ "checks": {
+  "pass": 7,
+  "warn": 1,
+  "fail": 0
+ }
+}

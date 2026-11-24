@@ -1,0 +1,1 @@
+Addresses B1-B5: new oak_v5 (lobed oak leaves with veins) and birch_v5 (toothed ovate leaves) cards, bark_oak_light (grey-brown, mean albedo about 0.25 vs 0.07); oak limbs steeper (z 1.0 vs 0.75), shorter 4.2-5.4 and thicker r0 0.34, plus 52 dome-fill foliage points (2 cards each); birch 22 limbs (was 15), elevation 0.15-0.65, length 3.8-2.0, cards 1.0-1.5 m; root tips z 0.

@@ -1,0 +1,106 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_action.png",
+  "renders/close_muzzle.png",
+  "renders/close_rear_sight.png",
+  "renders/close_butt.png",
+  "renders/close_forend_band.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v2 resolves D2, D4, D5 and the budget failure.",
+ "defects": [
+  {
+   "id": "D1",
+   "severity": "major",
+   "category": "optimisation",
+   "text": "6,648 tris: under the 10,000 maximum, above the 6,000 target by 11%.",
+   "evidence": "stats.json",
+   "fix": "Trim a little in later cycles or justify in spec.md.",
+   "status": "open"
+  },
+  {
+   "id": "D3",
+   "severity": "major",
+   "category": "history",
+   "text": "Rear sight unchanged: wide flat block, small notched plate, sight radius 0.43 m.",
+   "evidence": "close_rear_sight, left",
+   "fix": "Rebuild at y 0.20: narrow base, ramp, sloped blade, slider, notch plate, ticks.",
+   "status": "open"
+  },
+  {
+   "id": "D6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Floor plate still a thick slab proud of the stock; guard thin tube.",
+   "evidence": "close_action",
+   "fix": "Thin flush plate, slightly thicker bow.",
+   "status": "open"
+  },
+  {
+   "id": "D7",
+   "severity": "minor",
+   "category": "history",
+   "text": "Bayonet lug still a block on top of the nose cap.",
+   "evidence": "close_muzzle, close_forend_band",
+   "fix": "Lug under the nose cap.",
+   "status": "open"
+  },
+  {
+   "id": "D8",
+   "severity": "minor",
+   "category": "history",
+   "text": "No handguard break.",
+   "evidence": "left, close_rear_sight",
+   "fix": "Step at both handguard ends.",
+   "status": "open"
+  },
+  {
+   "id": "D9",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Scratch/chip texture on blued parts is coarse (shared texture).",
+   "evidence": "close_action, close_butt",
+   "fix": "Deferred: purpose-made blued steel texture.",
+   "status": "open"
+  },
+  {
+   "id": "D2",
+   "severity": "major",
+   "category": "history",
+   "text": "Hood is now one tunnel round the post on a single support; reads correctly in close_muzzle.",
+   "evidence": "close_muzzle / close_butt",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D4",
+   "severity": "major",
+   "category": "history",
+   "text": "grip_cap removed; wrist underside is clean in close_butt and close_action.",
+   "evidence": "close_muzzle / close_butt",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D5",
+   "severity": "minor",
+   "category": "history",
+   "text": "Band, nose cap and lug are dark blued; only the muzzle crown and bolt remain bright, as they should.",
+   "evidence": "close_muzzle / close_butt",
+   "fix": "-",
+   "status": "resolved"
+  }
+ ]
+}

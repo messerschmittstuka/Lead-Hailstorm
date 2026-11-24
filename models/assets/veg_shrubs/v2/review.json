@@ -1,0 +1,62 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection of closeups)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/q_front.png",
+  "renders/top.png",
+  "renders/close_bare_a.png",
+  "renders/close_bare_b.png",
+  "renders/close_leafy_a.png",
+  "renders/close_leafy_b.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Big step: sinuous forking stems, real leaf size. Still thin for cover.",
+ "defects": [
+  {
+   "id": "S1",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Bare shrubs now fork and curve; height 1.4/1.25 m in range.",
+   "evidence": "close_bare_a/b",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "S2",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Leafy shrubs now carry small leaf cards on a branching skeleton.",
+   "evidence": "close_leafy_a/b",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "S3",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "3,720 tris for four pieces (about 930 each).",
+   "evidence": "stats.json",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "S4",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Bare shrubs are too sparse and spindly: stems nearly vertical and very long and straight in the upper half, few side twigs low down, no mass; reads as a bundle of wires from a distance.",
+   "evidence": "close_bare_a/b",
+   "fix": "Shorter stems with more curvature and spread, a third fork level, 20-30% thicker stems, extra low side twigs.",
+   "status": "open"
+  },
+  {
+   "id": "S5",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Leafy shrubs: lower half of every stem is bare, leaves concentrate on the outer tips, silhouette is airy and lopsided.",
+   "evidence": "close_leafy_a/b",
+   "fix": "Start leaves lower on stems, more cards per twig, add inner short leafy twigs for a rounded mass.",
+   "status": "open"
+  }
+ ]
+}

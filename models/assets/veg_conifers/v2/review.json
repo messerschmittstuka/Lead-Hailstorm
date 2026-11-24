@@ -1,0 +1,79 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/front.png",
+  "renders/close_pine_a_crown.png",
+  "renders/close_pine_a_trunk.png",
+  "renders/close_spruce_a_crown.png",
+  "renders/close_snow_a_crown.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Large step up. Snow reads as snow, pine has real needle clumps and two-tone bark.",
+ "defects": [
+  {
+   "id": "C1",
+   "severity": "major",
+   "category": "texture",
+   "text": "Snow spruce now clearly snow-laden with green showing through.",
+   "evidence": "close_snow_a_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C2",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Pine crown now dense needle clumps; still flat layered pads with a narrow outline.",
+   "evidence": "close_pine_a_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C3",
+   "severity": "major",
+   "category": "texture",
+   "text": "Pine bark: grey-brown low, orange above, trunk bent.",
+   "evidence": "close_pine_a_crown, close_pine_a_trunk",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C4",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Spruce dense conical; leader still a dark thin spike.",
+   "evidence": "close_spruce_a_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C5",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Roots fixed but the sits-on-ground warning remains: lowest point is still -0.91 m.",
+   "evidence": "stats.json",
+   "fix": "see C6",
+   "status": "resolved"
+  },
+  {
+   "id": "C6",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Lowest spruce whorls (start z 1.6 m, 3.9 m long, sag 0.32) droop to z = -0.9 m: branch tips pass through the ground.",
+   "evidence": "stats bbox_min z -0.914; geometry arithmetic",
+   "fix": "Start whorls at z 2.0, lower elevation bias -0.14, sag 0.24.",
+   "status": "open"
+  },
+  {
+   "id": "C7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Pine pads are flat horizontal layers; crown needs rounder outline; spruce leader is thin.",
+   "evidence": "close_pine_a_crown, close_spruce_a_crown",
+   "fix": "Bias pine cards upward, add leader/top clump to pine; widen spruce leader.",
+   "status": "open"
+  }
+ ]
+}

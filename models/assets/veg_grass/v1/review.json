@@ -1,0 +1,56 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection and measurement)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/q_front.png",
+  "renders/top.png",
+  "renders/close_dry_short.png",
+  "renders/close_dry_tall.png",
+  "renders/close_green_short.png",
+  "renders/close_green_tall.png",
+  "renders/close_meadow.png",
+  "renders/close_fern.png",
+  "renders/close_reed.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v1 is the existing in-game tufts. Heights all inside the spec ranges. The star-shaped lit patches on the ground under the tufts are the shadows of the opaque cards in the renderer, not judged as an asset defect.",
+ "defects": [
+  {
+   "id": "G1",
+   "severity": "major",
+   "category": "history",
+   "text": "Reed stand: the seed heads are brown club-shaped spikes (bulrush / cattail look), not the feathery drooping plume of common reed; the stand is a narrow bundle (0.94 m wide for 2.4 m tall) with straight vertical leaves.",
+   "evidence": "close_reed",
+   "fix": "New reed card texture: straw culms, strap leaves arching from the nodes, feathery drooping plume; wider stand.",
+   "status": "open"
+  },
+  {
+   "id": "G2",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Fern: each card is a flat fan; the fronds lie almost horizontal and the 5 cards read as a flat star from above (top view). Fronds start with bare stems.",
+   "evidence": "close_fern, top",
+   "fix": "More cards at varied angles and heights, fronds arching up before dropping.",
+   "status": "open"
+  },
+  {
+   "id": "G3",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Grass tufts are a symmetric fan of crossing cards with similar lean; the card planes are visible from the side as a star at the base.",
+   "evidence": "close_dry_short, close_green_short, close_green_tall",
+   "fix": "Add shorter fill cards at random yaw and vary lean.",
+   "status": "open"
+  },
+  {
+   "id": "G4",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "Texture memory 35.9 MB against the 24 MB set in the spec (seven 1024 px RGBA cards, mips included). The game export halves them; documented, not weakened.",
+   "evidence": "stats.json",
+   "fix": "Raise the spec limit to 40 MB with the reason.",
+   "status": "open"
+  }
+ ]
+}

@@ -1,0 +1,281 @@
+{
+ "stats": {
+  "tris_total": 364,
+  "objects": [
+   {
+    "object": "jerrycan",
+    "tris": 364,
+    "verts": 214,
+    "materials": [
+     "brick",
+     "brick_solid",
+     "concrete",
+     "plaster",
+     "planks",
+     "planks_olive",
+     "metal_olive",
+     "metal_grey",
+     "burlap"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 0.34,
+   "y": 0.17,
+   "z": 0.49
+  },
+  "bbox_min": [
+   -0.17,
+   -0.085,
+   0.0
+  ],
+  "bbox_max": [
+   0.17,
+   0.085,
+   0.49
+  ],
+  "materials": {
+   "brick": {
+    "textured": true,
+    "images": [
+     {
+      "image": "brick_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "brick_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "brick_solid": {
+    "textured": true,
+    "images": [
+     {
+      "image": "brick_solid_c.jpg",
+      "size": [
+       512,
+       512
+      ]
+     },
+     {
+      "image": "brick_solid_n.jpg",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "concrete": {
+    "textured": true,
+    "images": [
+     {
+      "image": "concrete_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "concrete_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "plaster": {
+    "textured": true,
+    "images": [
+     {
+      "image": "plaster_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "plaster_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "planks": {
+    "textured": true,
+    "images": [
+     {
+      "image": "planks_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "planks_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "planks_olive": {
+    "textured": true,
+    "images": [
+     {
+      "image": "planks_olive_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "planks_olive_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "metal_olive": {
+    "textured": true,
+    "images": [
+     {
+      "image": "metal_olive_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "metal_olive_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "metal_grey": {
+    "textured": true,
+    "images": [
+     {
+      "image": "metal_grey_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "metal_grey_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "burlap": {
+    "textured": true,
+    "images": [
+     {
+      "image": "burlap_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "burlap_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 87.78,
+  "loose_verts": 0,
+  "open_edges": 10,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": [
+   {
+    "object": "COL_jerrycan",
+    "tris": 22,
+    "closed": true
+   }
+  ]
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "warn",
+   "detail": "364 tris (target 500-2000, max 3000)  below target: fine only if the real object is simple"
+  },
+  {
+   "name": "dimension x",
+   "status": "pass",
+   "detail": "0.340 m (spec 0.350 +-0.012 m)"
+  },
+  {
+   "name": "dimension y",
+   "status": "pass",
+   "detail": "0.170 m (spec 0.165 +-0.008 m)"
+  },
+  {
+   "name": "dimension z",
+   "status": "fail",
+   "detail": "0.490 m (spec 0.460 +-0.012 m)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "pass",
+   "detail": "lowest point z = 0.000 m"
+  },
+  {
+   "name": "collision hull",
+   "status": "pass",
+   "detail": "closed, 22 tris"
+  },
+  {
+   "name": "texture memory",
+   "status": "warn",
+   "detail": "87.8 MB (mips included)"
+  }
+ ]
+}

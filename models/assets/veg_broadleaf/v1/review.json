@@ -1,0 +1,61 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_oak_a_crown.png",
+  "renders/close_oak_a_trunk.png",
+  "renders/close_birch_a_crown.png",
+  "renders/close_birch_a_trunk.png",
+  "renders/close_birch_b_crown.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v1 = the in-game veg_4 oak and birch. 18,996 tris for four trees.",
+ "defects": [
+  {
+   "id": "B1",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Oak crown is a flat umbrella on three Y-shaped limbs (acacia silhouette); an English oak has a broad rounded dome with several heavy spreading limbs.",
+   "evidence": "close_oak_a_crown, q_front",
+   "fix": "Steeper, shorter heavy limbs plus a dome fill of foliage clusters, trunk radius up.",
+   "status": "open"
+  },
+  {
+   "id": "B2",
+   "severity": "major",
+   "category": "texture",
+   "text": "Oak and birch leaf cards look like compound acacia/fern leaflets, not an oak leaf (lobed) or a birch leaf (ovate, toothed).",
+   "evidence": "close_oak_a_crown, close_birch_a_crown, oak_v4.png, birch_v4.png",
+   "fix": "New cards with drawn lobed oak leaves (4-5 lobes) and toothed ovate birch leaves with veins.",
+   "status": "open"
+  },
+  {
+   "id": "B3",
+   "severity": "major",
+   "category": "texture",
+   "text": "Oak bark is almost black (mean albedo about 0.07); real oak bark is grey-brown with deep fissures.",
+   "evidence": "close_oak_a_trunk",
+   "fix": "Lighter grey-brown fissured bark (same height detail).",
+   "status": "open"
+  },
+  {
+   "id": "B4",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Birch crown is a narrow column of drooping sprays with the white trunk showing; silver birch has a more open, wider crown with fine drooping twigs.",
+   "evidence": "close_birch_a_crown, close_birch_b_crown",
+   "fix": "More, longer, lower-elevation limbs (22, elevation 0.15-0.65), smaller leaf cards.",
+   "status": "open"
+  },
+  {
+   "id": "B5",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Lowest point z = -0.076 m (sits-on-ground warning), roots slightly under ground.",
+   "evidence": "stats.json",
+   "fix": "Root tips to z 0.",
+   "status": "open"
+  }
+ ]
+}

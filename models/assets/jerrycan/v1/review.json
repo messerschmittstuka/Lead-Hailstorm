@@ -1,0 +1,94 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection of the contact sheets: views, forms, closeups, plus stats.json)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_broad_face.png",
+  "renders/close_cap_handle.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v1 is the jerrycan as it exists in build_props4.py. This review replaces review_superseded_1.json, which was written from renders that showed the collision hull over the model (harness bug, fixed).",
+ "defects": [
+  {
+   "id": "D1",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Body is a pillow: the broad faces bow outward and the vertical edges are pinched, so the side view is a hexagon instead of a rectangle with rounded edges.",
+   "evidence": "left, right, top, q_front",
+   "fix": "Rebuild as a rounded box: flat faces, flat top, 2 cm fillets.",
+   "status": "open"
+  },
+  {
+   "id": "D2",
+   "severity": "major",
+   "category": "history",
+   "text": "Handle is one solid block set off-centre: no three-bar grip openings, the can's defining feature.",
+   "evidence": "front, close_cap_handle",
+   "fix": "Four posts and three grip openings along the top.",
+   "status": "open"
+  },
+  {
+   "id": "D3",
+   "severity": "major",
+   "category": "geometry",
+   "text": "The X and rails are flat bars laid on the surface like planks; the upper rail overshoots the panel edge and the bars stand clear of the surface in the side views. They are not pressed ribs.",
+   "evidence": "close_broad_face, left, rear",
+   "fix": "Low trapezoid ribs half-sunk into the face, inside a pressed frame.",
+   "status": "open"
+  },
+  {
+   "id": "D4",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Paint is a coarse mottled green with large orange rust blotches that read as camouflage; real wear sits at edges, seam and handle. No Kraftstoff 20 L stencil.",
+   "evidence": "front, rear, close_broad_face",
+   "fix": "Needs a purpose-made can paint texture with edge wear and stencils.",
+   "status": "open"
+  },
+  {
+   "id": "D5",
+   "severity": "minor",
+   "category": "history",
+   "text": "Spout is a bare grey cylinder: no flip cap, cam lever or retainer ring.",
+   "evidence": "close_cap_handle, top",
+   "fix": "Flanged spout, flip cap, lever.",
+   "status": "open"
+  },
+  {
+   "id": "D6",
+   "severity": "minor",
+   "category": "history",
+   "text": "No recessed seam around the middle of the narrow faces (Wikipedia: recessed welded seam).",
+   "evidence": "clay_q_front, wire_q_front",
+   "fix": "Shallow groove along y = 0 over top, ends and bottom.",
+   "status": "open"
+  },
+  {
+   "id": "D7",
+   "severity": "major",
+   "category": "proportions",
+   "text": "Height is 0.490 m against 0.46 +-0.012 m (numeric check fails).",
+   "evidence": "stats.json",
+   "fix": "Body 0.40 m, overall 0.46 m.",
+   "status": "open"
+  },
+  {
+   "id": "D8",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "Nine material slots attached, two used: 87.8 MB of texture memory for a 0.35 m prop.",
+   "evidence": "stats.json",
+   "fix": "Attach only the materials used.",
+   "status": "open"
+  }
+ ]
+}

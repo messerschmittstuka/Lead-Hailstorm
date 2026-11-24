@@ -1,0 +1,1 @@
+Addresses C6, C7: spruce whorls start at z 2.0 (was 1.6), elevation bias -0.14 (was -0.22), sag 0.24 (was 0.32) so no branch dips below ground; leader cards 1.9 x 1.0; pine cards biased upward (z 0..0.9) and the pine top clump leans up.

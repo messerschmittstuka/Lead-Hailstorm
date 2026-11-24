@@ -1,0 +1,51 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection of the closeup sheet and measurement)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_bare_a.png",
+  "renders/close_bare_b.png",
+  "renders/close_leafy_a.png",
+  "renders/close_leafy_b.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v1 is the existing in-game shrubs from build_veg2.py / build_veg3.py.",
+ "defects": [
+  {
+   "id": "S1",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Bare shrubs are broom-like: about nine straight rods fan out of one point, almost no forking, a few strays reach past 1.7 m. Reads as sticks, not a thorny hedgerow shrub. bare_a is 1.77 m high against 1.1-1.6.",
+   "evidence": "close_bare_a, close_bare_b; measured heights",
+   "fix": "Rebuild with sinuous stems, two levels of forks and fine tip twigs; height 1.25-1.4 m.",
+   "status": "open"
+  },
+  {
+   "id": "S2",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Leafy shrubs: leaf cards line each straight stem like feathers and the stems fan from one point, so they read as laurel or fern fronds, not a rounded hedgerow shrub. Cards are 0.6-0.9 m long (leaf size should be 6-10 cm). leafy_a is 2.7 m wide for 1.8 m tall.",
+   "evidence": "close_leafy_a, close_leafy_b; measured widths",
+   "fix": "Branching skeleton with small leaf cards on the twigs, in 3D; width about 1.2-1.5 m.",
+   "status": "open"
+  },
+  {
+   "id": "S3",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "6,395 triangles for four pieces (bare_a alone 2,130) for thin rods.",
+   "evidence": "stats.json",
+   "fix": "Rebuild at 900-1,300 per piece.",
+   "status": "open"
+  }
+ ]
+}

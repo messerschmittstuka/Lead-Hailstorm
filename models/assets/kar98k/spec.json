@@ -1,0 +1,93 @@
+{
+ "asset": "kar98k",
+ "class": "rifle",
+ "front_axis": "+Y",
+ "grid_m": 0.1,
+ "budget": {
+  "target": [
+   3000,
+   6000
+  ],
+  "max": 10000
+ },
+ "budget_exception": null,
+ "dims_m": {
+  "x": [
+   0.09,
+   0.015
+  ],
+  "y": [
+   1.11,
+   0.02
+  ],
+  "z": [
+   0.215,
+   0.03
+  ]
+ },
+ "closeups": [
+  {
+   "name": "action",
+   "target": [
+    0,
+    -0.03,
+    0.02
+   ],
+   "dist": 0.45,
+   "az": 55,
+   "el": 22
+  },
+  {
+   "name": "muzzle",
+   "target": [
+    0,
+    0.66,
+    0.05
+   ],
+   "dist": 0.4,
+   "az": 35,
+   "el": 18
+  },
+  {
+   "name": "rear_sight",
+   "target": [
+    0,
+    0.27,
+    0.07
+   ],
+   "dist": 0.4,
+   "az": 50,
+   "el": 25
+  },
+  {
+   "name": "butt",
+   "target": [
+    0,
+    -0.3,
+    -0.04
+   ],
+   "dist": 0.55,
+   "az": -140,
+   "el": 15
+  },
+  {
+   "name": "forend_band",
+   "target": [
+    0,
+    0.5,
+    0.03
+   ],
+   "dist": 0.4,
+   "az": 70,
+   "el": 10
+  }
+ ],
+ "require_textured_materials": true,
+ "require_collision": false,
+ "origin_at_bore": true,
+ "texture_mem_mb_max": 48,
+ "sight_radius_m": [
+  0.5,
+  0.02
+ ]
+}

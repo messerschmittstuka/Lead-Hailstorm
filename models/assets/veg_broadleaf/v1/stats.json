@@ -1,0 +1,215 @@
+{
+ "stats": {
+  "tris_total": 18996,
+  "objects": [
+   {
+    "object": "tree_oak_a",
+    "tris": 6108,
+    "verts": 6230,
+    "materials": [
+     "bark_oak",
+     "end_grain",
+     "oak_card"
+    ]
+   },
+   {
+    "object": "tree_oak_b",
+    "tris": 6108,
+    "verts": 6230,
+    "materials": [
+     "bark_oak",
+     "end_grain",
+     "oak_card"
+    ]
+   },
+   {
+    "object": "tree_birch_a",
+    "tris": 3390,
+    "verts": 3516,
+    "materials": [
+     "bark_birch",
+     "end_grain",
+     "birch_card"
+    ]
+   },
+   {
+    "object": "tree_birch_b",
+    "tris": 3390,
+    "verts": 3516,
+    "materials": [
+     "bark_birch",
+     "end_grain",
+     "birch_card"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 52.4981,
+   "y": 10.9025,
+   "z": 12.562
+  },
+  "bbox_min": [
+   -6.7661,
+   -5.5632,
+   -0.0763
+  ],
+  "bbox_max": [
+   45.7321,
+   5.3394,
+   12.4857
+  ],
+  "materials": {
+   "bark_oak": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_oak_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_oak_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "end_grain": {
+    "textured": true,
+    "images": [
+     {
+      "image": "endgrain_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "endgrain_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "oak_card": {
+    "textured": true,
+    "images": [
+     {
+      "image": "oak_v4.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   },
+   "bark_birch": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_birch_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_birch_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "birch_card": {
+    "textured": true,
+    "images": [
+     {
+      "image": "birch_v4.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 37.24,
+  "loose_verts": 0,
+  "open_edges": 16724,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": [
+   {
+    "object": "COL_tree_oak_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_oak_b",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_birch_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_birch_b",
+    "tris": 28,
+    "closed": true
+   }
+  ]
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "pass",
+   "detail": "18996 tris (target 8000-24000, max 40000)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "warn",
+   "detail": "lowest point z = -0.076 m"
+  },
+  {
+   "name": "collision hull",
+   "status": "pass",
+   "detail": "closed, 112 tris"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "37.2 MB (mips included)"
+  }
+ ]
+}

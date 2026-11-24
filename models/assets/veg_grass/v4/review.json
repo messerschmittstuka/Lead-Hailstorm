@@ -1,0 +1,41 @@
+{
+ "version": "v4",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/close_reed.png",
+  "renders/close_dry_tall.png",
+  "renders/close_meadow.png",
+  "renders/close_green_tall.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "G7 resolved (all tufts now dense and irregular). The G6 taper was built as a kinked function, so every blade zig-zags at half height: a regression.",
+ "defects": [
+  {
+   "id": "G7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "All tufts now card_stand style, dense and irregular.",
+   "evidence": "close_dry_tall, close_meadow, close_green_tall",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "G8",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Base taper uses min(1,2t): slope changes at half height, so every blade bends in a zig-zag kink (dry tall, green tall, reed).",
+   "evidence": "close_dry_tall, close_green_tall",
+   "fix": "Use a linear taper 0.62+0.38*t over the whole height: straight blades.",
+   "status": "open"
+  },
+  {
+   "id": "G6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Base footprint is narrower but kinks make it worse; recheck after G8.",
+   "evidence": "close_green_tall",
+   "fix": "see G8",
+   "status": "open"
+  }
+ ]
+}

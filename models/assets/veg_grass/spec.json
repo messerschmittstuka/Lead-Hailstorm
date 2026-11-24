@@ -1,0 +1,148 @@
+{
+ "asset": "veg_grass",
+ "class": "small_prop",
+ "front_axis": "-Y",
+ "grid_m": 0.5,
+ "budget": {
+  "target": [
+   300,
+   1500
+  ],
+  "max": 2500
+ },
+ "budget_exception": null,
+ "dims_m": {},
+ "closeups": [
+  {
+   "name": "dry_short",
+   "target": [
+    0,
+    0,
+    0.275
+   ],
+   "dist": 1.9,
+   "az": 15,
+   "el": 10
+  },
+  {
+   "name": "dry_tall",
+   "target": [
+    2.5,
+    0,
+    0.475
+   ],
+   "dist": 2.6,
+   "az": 15,
+   "el": 10
+  },
+  {
+   "name": "green_short",
+   "target": [
+    5,
+    0,
+    0.3
+   ],
+   "dist": 1.9,
+   "az": 15,
+   "el": 10
+  },
+  {
+   "name": "green_tall",
+   "target": [
+    7.5,
+    0,
+    0.475
+   ],
+   "dist": 2.6,
+   "az": 15,
+   "el": 10
+  },
+  {
+   "name": "meadow",
+   "target": [
+    10,
+    0,
+    0.425
+   ],
+   "dist": 2.4,
+   "az": 15,
+   "el": 10
+  },
+  {
+   "name": "fern",
+   "target": [
+    12.5,
+    0,
+    0.5
+   ],
+   "dist": 2.6,
+   "az": 15,
+   "el": 10
+  },
+  {
+   "name": "reed",
+   "target": [
+    15,
+    0,
+    1.1
+   ],
+   "dist": 5.0,
+   "az": 15,
+   "el": 6
+  }
+ ],
+ "require_textured_materials": true,
+ "require_collision": false,
+ "texture_mem_mb_max": 40,
+ "pieces": {
+  "grass_dry_short": {
+   "x": 0,
+   "height": [
+    0.35,
+    0.6
+   ]
+  },
+  "grass_dry_tall": {
+   "x": 2.5,
+   "height": [
+    0.8,
+    1.1
+   ]
+  },
+  "grass_green_short": {
+   "x": 5,
+   "height": [
+    0.4,
+    0.7
+   ]
+  },
+  "grass_green_tall": {
+   "x": 7.5,
+   "height": [
+    0.8,
+    1.1
+   ]
+  },
+  "grass_meadow_flowers": {
+   "x": 10,
+   "height": [
+    0.7,
+    1.0
+   ]
+  },
+  "fern_clump": {
+   "x": 12.5,
+   "height": [
+    0.8,
+    1.2
+   ]
+  },
+  "reed_clump": {
+   "x": 15,
+   "height": [
+    1.8,
+    2.6
+   ]
+  }
+ }
+}

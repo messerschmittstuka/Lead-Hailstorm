@@ -1,0 +1,282 @@
+{
+ "stats": {
+  "tris_total": 41366,
+  "objects": [
+   {
+    "object": "tree_pine_a",
+    "tris": 7241,
+    "verts": 7742,
+    "materials": [
+     "bark_pine_low",
+     "end_grain",
+     "pine_card",
+     "bark_pine_up"
+    ]
+   },
+   {
+    "object": "tree_pine_b",
+    "tris": 7241,
+    "verts": 7742,
+    "materials": [
+     "bark_pine_low",
+     "end_grain",
+     "pine_card",
+     "bark_pine_up"
+    ]
+   },
+   {
+    "object": "tree_spruce_a",
+    "tris": 7826,
+    "verts": 9132,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_card4",
+     "spruce_snow_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_b",
+    "tris": 5646,
+    "verts": 6516,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_card4",
+     "spruce_snow_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_snow_a",
+    "tris": 7606,
+    "verts": 8868,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_snow_card",
+     "spruce_snow_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_snow_b",
+    "tris": 5806,
+    "verts": 6708,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_snow_card",
+     "spruce_snow_card"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 62.8889,
+   "y": 10.9021,
+   "z": 18.8515
+  },
+  "bbox_min": [
+   -4.3944,
+   -5.5015,
+   -0.0316
+  ],
+  "bbox_max": [
+   58.4945,
+   5.4006,
+   18.8199
+  ],
+  "materials": {
+   "bark_pine_low": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_pine_low_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_pine_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "end_grain": {
+    "textured": true,
+    "images": [
+     {
+      "image": "endgrain_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "endgrain_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "pine_card": {
+    "textured": true,
+    "images": [
+     {
+      "image": "pine_v5.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   },
+   "bark_pine_up": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_pine_up_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_pine_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "bark_spruce": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_spruce_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_spruce_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "spruce_card4": {
+    "textured": true,
+    "images": [
+     {
+      "image": "spruce_v4.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   },
+   "spruce_snow_card": {
+    "textured": true,
+    "images": [
+     {
+      "image": "spruce_snow_v5.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 45.22,
+  "loose_verts": 0,
+  "open_edges": 44294,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": [
+   {
+    "object": "COL_tree_pine_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_pine_b",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_b",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_snow_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_snow_b",
+    "tris": 28,
+    "closed": true
+   }
+  ]
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "pass",
+   "detail": "41366 tris (target 12000-48000, max 60000)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "warn",
+   "detail": "lowest point z = -0.032 m"
+  },
+  {
+   "name": "collision hull",
+   "status": "pass",
+   "detail": "closed, 168 tris"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "45.2 MB (mips included)"
+  }
+ ]
+}

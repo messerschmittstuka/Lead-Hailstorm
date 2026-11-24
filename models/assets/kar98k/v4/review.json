@@ -1,0 +1,70 @@
+{
+ "version": "v4",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_action.png",
+  "renders/close_muzzle.png",
+  "renders/close_rear_sight.png",
+  "renders/close_butt.png",
+  "renders/close_forend_band.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v4 resolves D1, D3, D7. One regression (D10) from the triangle trim.",
+ "defects": [
+  {
+   "id": "D1",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "5,912 tris, inside the 3,000-6,000 target.",
+   "evidence": "stats.json",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D3",
+   "severity": "major",
+   "category": "history",
+   "text": "Rear sight now reads as a tangent sight: base, ramp, sloped blade with range ticks, slider and V-notch plate at the 0.50 m sight radius.",
+   "evidence": "close_rear_sight, q_rear",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D7",
+   "severity": "minor",
+   "category": "history",
+   "text": "Bayonet lug is under the nose cap, the cleaning rod stub sits in front of it.",
+   "evidence": "close_forend_band, close_muzzle",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D9",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Scratch/chip texture on blued parts is coarse (shared texture).",
+   "evidence": "close_action, close_butt",
+   "fix": "Deferred: purpose-made blued steel texture. Flag to the user.",
+   "status": "open"
+  },
+  {
+   "id": "D10",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "The stock disc is a visible octagon (side count dropped to 10 in the v4 trim) and the butt plate is slightly smaller than the stock end, leaving a wood step at the top.",
+   "evidence": "close_butt, q_rear",
+   "fix": "Disc 24 sides; plate 45 mm wide, reaching to the heel.",
+   "status": "open"
+  }
+ ]
+}

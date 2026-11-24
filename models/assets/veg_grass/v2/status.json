@@ -1,0 +1,33 @@
+{
+ "state": "done",
+ "asset": "veg_grass",
+ "version": "v2",
+ "build_sha": "1ee8add34f20238b",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 9.2,
+ "tris": 364,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_dry_short.png",
+  "renders/close_dry_tall.png",
+  "renders/close_green_short.png",
+  "renders/close_green_tall.png",
+  "renders/close_meadow.png",
+  "renders/close_fern.png",
+  "renders/close_reed.png"
+ ],
+ "checks": {
+  "pass": 7,
+  "warn": 0,
+  "fail": 0
+ }
+}

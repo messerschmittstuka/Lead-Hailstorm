@@ -1,0 +1,44 @@
+{
+ "version": "v3",
+ "reviewer": "Claude (visual inspection of closeups)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/q_front.png",
+  "renders/top.png",
+  "renders/close_bare_a.png",
+  "renders/close_bare_b.png",
+  "renders/close_leafy_a.png",
+  "renders/close_leafy_b.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Now a believable hedgerow shrub. Polish left.",
+ "defects": [
+  {
+   "id": "S4",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Bare shrubs now spread, fork three levels deep and have low side twigs; reads as a winter shrub.",
+   "evidence": "close_bare_a/b",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "S5",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Leafy shrubs now leafy from low on the stems and fuller.",
+   "evidence": "close_leafy_a/b",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "S6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Leaf cards on twigs are uniform combs of the same width and droop; bare_a has one single spike well above the rest (about 1.9 m).",
+   "evidence": "close_leafy_a, close_bare_a",
+   "fix": "Vary leaf card width/length/droop per twig, cap the tallest stem at 0.85 of height.",
+   "status": "open"
+  }
+ ]
+}

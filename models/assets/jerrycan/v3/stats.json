@@ -1,0 +1,141 @@
+{
+ "stats": {
+  "tris_total": 1172,
+  "objects": [
+   {
+    "object": "jerrycan",
+    "tris": 1172,
+    "verts": 674,
+    "materials": [
+     "paint_olive",
+     "steel_grey"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 0.3505,
+   "y": 0.165,
+   "z": 0.463
+  },
+  "bbox_min": [
+   -0.178,
+   -0.0825,
+   0.0
+  ],
+  "bbox_max": [
+   0.1725,
+   0.0825,
+   0.463
+  ],
+  "materials": {
+   "paint_olive": {
+    "textured": true,
+    "images": [
+     {
+      "image": "metal_olive_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "metal_olive_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "steel_grey": {
+    "textured": true,
+    "images": [
+     {
+      "image": "metal_grey_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "metal_grey_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 21.28,
+  "loose_verts": 0,
+  "open_edges": 92,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": [
+   {
+    "object": "COL_jerrycan",
+    "tris": 24,
+    "closed": true
+   }
+  ]
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "pass",
+   "detail": "1172 tris (target 500-2000, max 3000)"
+  },
+  {
+   "name": "dimension x",
+   "status": "pass",
+   "detail": "0.350 m (spec 0.350 +-0.012 m)"
+  },
+  {
+   "name": "dimension y",
+   "status": "pass",
+   "detail": "0.165 m (spec 0.165 +-0.008 m)"
+  },
+  {
+   "name": "dimension z",
+   "status": "pass",
+   "detail": "0.463 m (spec 0.460 +-0.012 m)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "pass",
+   "detail": "lowest point z = 0.000 m"
+  },
+  {
+   "name": "collision hull",
+   "status": "pass",
+   "detail": "closed, 24 tris"
+  },
+  {
+   "name": "texture memory",
+   "status": "warn",
+   "detail": "21.3 MB (mips included)"
+  }
+ ]
+}

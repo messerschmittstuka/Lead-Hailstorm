@@ -1,0 +1,138 @@
+{
+ "asset": "veg_broadleaf",
+ "class": "large_prop",
+ "front_axis": "-Y",
+ "grid_m": 0.1,
+ "budget": {
+  "target": [
+   8000,
+   26000
+  ],
+  "max": 40000
+ },
+ "budget_exception": "four trees at 5-7k each (per-tree large_prop max 10k); alpha-card crowns need 6-7k for a full silhouette",
+ "dims_m": {},
+ "closeups": [
+  {
+   "name": "oak_a_crown",
+   "target": [
+    0,
+    0,
+    8.450000000000001
+   ],
+   "dist": 24.7,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "oak_a_trunk",
+   "target": [
+    0,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "oak_b_crown",
+   "target": [
+    14,
+    0,
+    7.15
+   ],
+   "dist": 20.9,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "oak_b_trunk",
+   "target": [
+    14,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "birch_a_crown",
+   "target": [
+    28,
+    0,
+    7.800000000000001
+   ],
+   "dist": 22.799999999999997,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "birch_a_trunk",
+   "target": [
+    28,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "birch_b_crown",
+   "target": [
+    42,
+    0,
+    6.175
+   ],
+   "dist": 18.05,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "birch_b_trunk",
+   "target": [
+    42,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  }
+ ],
+ "require_textured_materials": true,
+ "require_collision": true,
+ "texture_mem_mb_max": 64,
+ "pieces": {
+  "tree_oak_a": {
+   "x": 0,
+   "height": [
+    11,
+    15
+   ]
+  },
+  "tree_oak_b": {
+   "x": 14,
+   "height": [
+    9,
+    13
+   ]
+  },
+  "tree_birch_a": {
+   "x": 28,
+   "height": [
+    10,
+    14
+   ]
+  },
+  "tree_birch_b": {
+   "x": 42,
+   "height": [
+    8,
+    11
+   ]
+  }
+ }
+}

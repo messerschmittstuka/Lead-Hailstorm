@@ -1,0 +1,59 @@
+{
+ "version": "v3",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/close_reed.png",
+  "renders/close_fern.png",
+  "renders/close_green_short.png",
+  "renders/top.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "Fern and short tuft much improved.",
+ "defects": [
+  {
+   "id": "G2",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Fern now a full upright shuttlecock of arching fronds, no flat star.",
+   "evidence": "close_fern, top",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "G3",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Green short tuft is irregular and dense.",
+   "evidence": "close_green_short",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "G5",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Reed basal mass hides the bare culms.",
+   "evidence": "close_reed",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "G6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Card edges: straight vertical cut edges and a star-shaped footprint show at the base of the tufts and reed.",
+   "evidence": "close_green_short, close_reed",
+   "fix": "Taper each card toward its base so blades converge into a tuft base (width 0.6 at ground to 1.0 at half height).",
+   "status": "open"
+  },
+  {
+   "id": "G7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Dry short/tall, green tall and meadow tufts still use the v1 plain symmetrical cards.",
+   "evidence": "v1 closeups",
+   "fix": "Give them the same card_stand treatment as green_short.",
+   "status": "open"
+  }
+ ]
+}

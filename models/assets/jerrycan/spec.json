@@ -1,0 +1,54 @@
+{
+ "asset": "jerrycan",
+ "class": "small_prop",
+ "front_axis": "-Y",
+ "grid_m": 0.05,
+ "budget": {
+  "target": [
+   500,
+   2000
+  ],
+  "max": 3000
+ },
+ "budget_exception": null,
+ "dims_m": {
+  "x": [
+   0.35,
+   0.012
+  ],
+  "y": [
+   0.165,
+   0.008
+  ],
+  "z": [
+   0.46,
+   0.012
+  ]
+ },
+ "closeups": [
+  {
+   "name": "cap_handle",
+   "target": [
+    0.06,
+    0,
+    0.44
+   ],
+   "dist": 0.45,
+   "az": 30,
+   "el": 25
+  },
+  {
+   "name": "broad_face",
+   "target": [
+    0,
+    -0.08,
+    0.22
+   ],
+   "dist": 0.7,
+   "az": 0,
+   "el": 4
+  }
+ ],
+ "require_textured_materials": true,
+ "require_collision": true
+}

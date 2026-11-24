@@ -1,0 +1,15 @@
+# macOS / Python
+.DS_Store
+__pycache__/
+
+# local Blender loop runner (watcher is never committed)
+models/watch.py
+models/run.py
+models/run.log
+
+# generated, large, rebuildable from build.py
+models/buildings_hd.glb
+models/assets/**/model.blend
+models/assets/**/*.blend1
+models/assets/**/renders/
+models/assets/**/renders_superseded_*/

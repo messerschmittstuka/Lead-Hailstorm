@@ -1,0 +1,103 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection of the contact sheets: views, forms, closeups, plus stats.json)",
+ "reviewed_images": [
+  "renders/front.png",
+  "rear",
+  "left",
+  "right",
+  "top",
+  "q_front",
+  "q_rear",
+  "clay_q_front",
+  "clay_q_rear",
+  "wire_q_front",
+  "close_broad_face",
+  "close_cap_handle"
+ ],
+ "verdict": "needs_work",
+ "notes": "v1 is the jerrycan as it exists in build_props4.py. The harness' first lighting was blown out and the wire view was black; both were harness bugs fixed before this review (renders_superseded_* keeps the bad ones).",
+ "defects": [
+  {
+   "id": "D1",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Top of the can is a hip-roof/pyramid wedge (upper vertices pulled in) instead of a flat top with shoulders; the front, side and three-quarter silhouettes are wrong.",
+   "evidence": "front/left/q_front/clay_q_front",
+   "fix": "Rebuild the body as a rounded box with a flat top and only a small fillet.",
+   "status": "open"
+  },
+  {
+   "id": "D2",
+   "severity": "major",
+   "category": "history",
+   "text": "The three-bar handle, the can's defining feature, is missing: only thin slivers are visible above the top (close_cap_handle).",
+   "evidence": "close_cap_handle, left, top",
+   "fix": "Model a raised handle block with four posts and three grip openings, spanning most of the top.",
+   "status": "open"
+  },
+  {
+   "id": "D3",
+   "severity": "major",
+   "category": "geometry",
+   "text": "The X and the two rails are flat bars laid over the face like planks; they overlap the dished panel edge, stand clear of the surface in the side views, and are not pressed ribs.",
+   "evidence": "close_broad_face, left, right",
+   "fix": "Make low trapezoid ribs half-sunk into a flat panel face, ending inside a pressed frame.",
+   "status": "open"
+  },
+  {
+   "id": "D4",
+   "severity": "major",
+   "category": "materials",
+   "text": "The body shell renders as untextured white in every view; only the dished panel carries the paint texture (bad UV or material assignment on the body faces).",
+   "evidence": "front, rear, clay vs shaded",
+   "fix": "Rebuild with per-face box UVs in metres and check all faces show the paint texture.",
+   "status": "open"
+  },
+  {
+   "id": "D5",
+   "severity": "minor",
+   "category": "history",
+   "text": "Spout is a tiny flat octagon: no flip cap, cam lever or retainer ring.",
+   "evidence": "close_cap_handle, top",
+   "fix": "Add a flanged spout, a flip cap, a short lever and a ring.",
+   "status": "open"
+  },
+  {
+   "id": "D6",
+   "severity": "minor",
+   "category": "history",
+   "text": "No recessed seam around the middle of the narrow faces (Wikipedia: recessed welded seam).",
+   "evidence": "clay_q_front, wire_q_front",
+   "fix": "Add a shallow groove along y=0 across top, ends and bottom.",
+   "status": "open"
+  },
+  {
+   "id": "D7",
+   "severity": "major",
+   "category": "proportions",
+   "text": "Height is 0.490 m against 0.46 +-0.012 m (numeric check fails).",
+   "evidence": "stats.json",
+   "fix": "Body 0.40 m plus handle to 0.46 m.",
+   "status": "open"
+  },
+  {
+   "id": "D8",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "Nine material slots are attached but only two are used: 87.8 MB of texture memory for a 0.35 m prop.",
+   "evidence": "stats.json",
+   "fix": "Attach only the olive-paint and grey-steel materials.",
+   "status": "open"
+  },
+  {
+   "id": "D9",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "All edges are sharp; pressed steel cans have rounded edges and shoulders.",
+   "evidence": "q_front, clay_q_front",
+   "fix": "Round the body edges with a rounded-box mapping (radius about 2 cm).",
+   "status": "open"
+  }
+ ]
+}

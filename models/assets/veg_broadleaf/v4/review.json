@@ -1,0 +1,32 @@
+{
+ "version": "v4",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_oak_a_crown.png",
+  "renders/close_oak_b_crown.png",
+  "renders/close_birch_a_crown.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v4 render of oak_a is unchanged at the top: the spike is not from the dome fill. It is the sub-branch clusters (z direction up to 0.9). Pads at limb tips still look detached because the tip twigs are very thin.",
+ "defects": [
+  {
+   "id": "B6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Upward card cluster still sticks out of the oak_a crown top; cause is the sub-branch foliage (z up to 0.9), not the dome fill.",
+   "evidence": "close_oak_a_crown",
+   "fix": "Cap sub-branch card z to 0.4.",
+   "status": "open"
+  },
+  {
+   "id": "B7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Floating-cluster problem on the dome edge fixed; remaining pads at limb tips read slightly detached because tip twigs end at r 0.025.",
+   "evidence": "close_oak_b_crown",
+   "fix": "Tip twig radius 0.025 to 0.04 and clusters 0.15 m closer to the limb.",
+   "status": "open"
+  }
+ ]
+}

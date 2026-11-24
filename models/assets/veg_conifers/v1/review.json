@@ -1,0 +1,61 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection of crown/trunk closeups, textures inspected)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_pine_a_crown.png",
+  "renders/close_pine_a_trunk.png",
+  "renders/close_spruce_a_crown.png",
+  "renders/close_spruce_a_trunk.png",
+  "renders/close_snow_a_crown.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v1 = the in-game veg_4 pine and spruces. Total 33,828 tris for six trees (5.0-6.8k each); budget is set per tree.",
+ "defects": [
+  {
+   "id": "C1",
+   "severity": "major",
+   "category": "texture",
+   "text": "Snow spruce shows almost no snow: the card has only a few pale specks on the needle tips, it reads as a plain spruce.",
+   "evidence": "close_snow_a_crown, spruce_snow_v4.png",
+   "fix": "New snow card with heavy clumped snow on the needles.",
+   "status": "open"
+  },
+  {
+   "id": "C2",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Pine foliage is sparse pale needle specks on long thin ferny flat sprays; the crown is thin and see-through, reads as a yew or fern, not a Scots pine with dense needle clumps.",
+   "evidence": "close_pine_a_crown, pine_v4.png",
+   "fix": "New dense needle-brush card; shorter, droopier cards in 4 per position; heavier limbs.",
+   "status": "open"
+  },
+  {
+   "id": "C3",
+   "severity": "major",
+   "category": "texture",
+   "text": "Pine trunk is one brown bark tone, a perfectly straight pole; Scots pine shows grey-brown plates low and orange flaking bark above, and a twisted trunk.",
+   "evidence": "close_pine_a_trunk, spec features 1",
+   "fix": "Two-tone trunk (grey-brown lower 50 percent, orange flaking above), more bend.",
+   "status": "open"
+  },
+  {
+   "id": "C4",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Spruce: branch tiers are sparse and regular so the bare trunk shows through the middle; the leader is a flat star of cards instead of an upright tip.",
+   "evidence": "close_spruce_a_crown, close_snow_a_crown",
+   "fix": "Wider cards, more branches per whorl, tighter whorl spacing, upright leader.",
+   "status": "open"
+  },
+  {
+   "id": "C5",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Root flare dips 0.85 m below z = 0 (sits-on-ground warning).",
+   "evidence": "stats.json",
+   "fix": "Raise root tips to z >= -0.1.",
+   "status": "open"
+  }
+ ]
+}

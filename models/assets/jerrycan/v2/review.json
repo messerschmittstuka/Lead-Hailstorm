@@ -1,0 +1,58 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection of the contact sheets: views, forms, closeups, plus stats.json)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_broad_face.png",
+  "renders/close_cap_handle.png"
+ ],
+ "verdict": "needs_work",
+ "notes": "v2 fixes D1, D3, D5, D7, D8 (verified in images). Collision hull now hidden in renders and lighting uniform.",
+ "defects": [
+  {
+   "id": "D2",
+   "severity": "minor",
+   "category": "history",
+   "text": "Handle is a heavy rectangular slab (42 mm deep, thick top bar) with square openings; a pressed-steel strap is thinner (about 30 mm) with taller grip openings.",
+   "evidence": "front, q_front, close_cap_handle",
+   "fix": "Thin the handle to 30 mm deep, lower the top bar to 10 mm, make the openings taller.",
+   "status": "open"
+  },
+  {
+   "id": "D4",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Large orange rust splashes on both broad faces and the sides read as a camouflage pattern, not wear; the texture is shared with other props and is baked.",
+   "evidence": "front, rear, q_front",
+   "fix": "Deferred: needs a purpose-made can paint texture (outside this loop test), flag to the user.",
+   "status": "open"
+  },
+  {
+   "id": "D6",
+   "severity": "minor",
+   "category": "history",
+   "text": "Seam groove is not readable: on the top it shows as a faint dashed line, on the narrow ends it cannot be seen.",
+   "evidence": "top, left, right, clay_q_front",
+   "fix": "Add loops at y = +-5.5 mm before displacing, so the groove is a continuous V.",
+   "status": "open"
+  },
+  {
+   "id": "D10",
+   "severity": "minor",
+   "category": "proportions",
+   "text": "Depth is 0.174 m against 0.165 +-0.008 m (the 4.5 mm ribs add to the 0.165 m body).",
+   "evidence": "stats.json warn",
+   "fix": "Body depth 0.156 m so that over the ribs it is 0.165 m.",
+   "status": "open"
+  }
+ ]
+}

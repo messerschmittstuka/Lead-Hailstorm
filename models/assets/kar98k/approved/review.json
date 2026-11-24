@@ -1,0 +1,52 @@
+{
+ "version": "v5",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_action.png",
+  "renders/close_muzzle.png",
+  "renders/close_rear_sight.png",
+  "renders/close_butt.png",
+  "renders/close_forend_band.png"
+ ],
+ "verdict": "acceptable_pending_user_approval",
+ "notes": "Final cycle. One open minor defect (D9, texture) deliberately deferred.",
+ "defects": [
+  {
+   "id": "D1",
+   "severity": "minor",
+   "category": "optimisation",
+   "text": "6,024 tris, 0.4% over the 6,000 target and 40% under the 10,000 maximum. Justified: the extra triangles are the sight, bolt and stock disc detail; no further trim worth the silhouette risk.",
+   "evidence": "stats.json",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "D9",
+   "severity": "minor",
+   "category": "materials",
+   "text": "Blued parts carry long white hair-like scratches and chip blotches from the shared gun texture; real blued steel wears at edges. Not fixable in geometry.",
+   "evidence": "close_action, close_butt",
+   "fix": "Needs a purpose-made blued/phosphated steel texture (separate texture task).",
+   "status": "open"
+  },
+  {
+   "id": "D10",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Stock disc round again; butt plate covers the heel and matches the stock end.",
+   "evidence": "close_butt, q_rear",
+   "fix": "-",
+   "status": "resolved"
+  }
+ ]
+}

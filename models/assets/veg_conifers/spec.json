@@ -1,0 +1,196 @@
+{
+ "asset": "veg_conifers",
+ "class": "large_prop",
+ "front_axis": "-Y",
+ "grid_m": 0.1,
+ "budget": {
+  "target": [
+   12000,
+   48000
+  ],
+  "max": 60000
+ },
+ "budget_exception": "six trees at 5-9k each (per-tree large_prop max 10k); the spruces are cone-shaped branch-card trees that need 7-9k for a dense silhouette",
+ "dims_m": {},
+ "closeups": [
+  {
+   "name": "pine_a_crown",
+   "target": [
+    0,
+    0,
+    12.6
+   ],
+   "dist": 34.199999999999996,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "pine_a_trunk",
+   "target": [
+    0,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "pine_b_crown",
+   "target": [
+    11,
+    0,
+    10.5
+   ],
+   "dist": 28.5,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "pine_b_trunk",
+   "target": [
+    11,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "spruce_a_crown",
+   "target": [
+    22,
+    0,
+    11.2
+   ],
+   "dist": 30.4,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "spruce_a_trunk",
+   "target": [
+    22,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "spruce_b_crown",
+   "target": [
+    33,
+    0,
+    8.399999999999999
+   ],
+   "dist": 22.799999999999997,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "spruce_b_trunk",
+   "target": [
+    33,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "snow_a_crown",
+   "target": [
+    44,
+    0,
+    11.2
+   ],
+   "dist": 30.4,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "snow_a_trunk",
+   "target": [
+    44,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  },
+  {
+   "name": "snow_b_crown",
+   "target": [
+    55,
+    0,
+    8.399999999999999
+   ],
+   "dist": 22.799999999999997,
+   "az": 15,
+   "el": 8
+  },
+  {
+   "name": "snow_b_trunk",
+   "target": [
+    55,
+    0,
+    2.0
+   ],
+   "dist": 6.0,
+   "az": 20,
+   "el": 6
+  }
+ ],
+ "require_textured_materials": true,
+ "require_collision": true,
+ "texture_mem_mb_max": 64,
+ "pieces": {
+  "tree_pine_a": {
+   "x": 0,
+   "height": [
+    16,
+    20
+   ]
+  },
+  "tree_pine_b": {
+   "x": 11,
+   "height": [
+    13,
+    17
+   ]
+  },
+  "tree_spruce_a": {
+   "x": 22,
+   "height": [
+    14,
+    18
+   ]
+  },
+  "tree_spruce_b": {
+   "x": 33,
+   "height": [
+    10,
+    14
+   ]
+  },
+  "tree_spruce_snow_a": {
+   "x": 44,
+   "height": [
+    14,
+    18
+   ]
+  },
+  "tree_spruce_snow_b": {
+   "x": 55,
+   "height": [
+    10,
+    14
+   ]
+  }
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "version": "v4",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/close_bare_a.png",
+  "renders/close_leafy_a.png",
+  "renders/q_front.png"
+ ],
+ "verdict": "good",
+ "notes": "Leaf size/droop vary, spike capped. Diminishing returns: stop here.",
+ "defects": [
+  {
+   "id": "S6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Leaf cards now vary; tallest stem no longer a lone spike.",
+   "evidence": "close_leafy_a, close_bare_a",
+   "fix": "-",
+   "status": "resolved"
+  }
+ ]
+}

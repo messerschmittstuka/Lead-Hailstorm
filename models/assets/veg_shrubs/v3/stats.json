@@ -1,0 +1,170 @@
+{
+ "stats": {
+  "tris_total": 6088,
+  "objects": [
+   {
+    "object": "shrub_bare_a",
+    "tris": 1968,
+    "verts": 1288,
+    "materials": [
+     "bark_dead",
+     "wood_fibre"
+    ]
+   },
+   {
+    "object": "shrub_bare_b",
+    "tris": 1722,
+    "verts": 1127,
+    "materials": [
+     "bark_dead",
+     "wood_fibre"
+    ]
+   },
+   {
+    "object": "shrub_leafy_a",
+    "tris": 1308,
+    "verts": 1470,
+    "materials": [
+     "bark_dead",
+     "wood_fibre",
+     "leafy_a",
+     "leafy_b"
+    ]
+   },
+   {
+    "object": "shrub_leafy_b",
+    "tris": 1090,
+    "verts": 1225,
+    "materials": [
+     "bark_dead",
+     "wood_fibre",
+     "leafy_a",
+     "leafy_b"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 9.1203,
+   "y": 1.8982,
+   "z": 1.4751
+  },
+  "bbox_min": [
+   -0.974,
+   -0.8244,
+   -0.0118
+  ],
+  "bbox_max": [
+   8.1463,
+   1.0739,
+   1.4634
+  ],
+  "materials": {
+   "bark_dead": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_dead_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_dead_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "wood_fibre": {
+    "textured": true,
+    "images": [
+     {
+      "image": "fibre_c.jpg",
+      "size": [
+       512,
+       512
+      ]
+     },
+     {
+      "image": "fibre_n.jpg",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "leafy_a": {
+    "textured": true,
+    "images": [
+     {
+      "image": "leafy_a.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   },
+   "leafy_b": {
+    "textured": true,
+    "images": [
+     {
+      "image": "leafy_b.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 18.62,
+  "loose_verts": 0,
+  "open_edges": 3472,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": []
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "warn",
+   "detail": "6088 tris (target 800-4800, max 8000)  above target but under max: needs justification"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "warn",
+   "detail": "lowest point z = -0.012 m"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "18.6 MB (mips included)"
+  }
+ ]
+}

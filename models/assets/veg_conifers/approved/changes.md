@@ -1,0 +1,1 @@
+Addresses C7, C8, C9: pine and snow cards regenerated with foliage colour bled into transparent texels (no dark halo); every pine limb end gets 3 extra upward-biased cards; dead stubs thicker (r 0.065) and shorter; spruce leader is 6 cards 1.5 x 1.1 m at tilt 0.6.

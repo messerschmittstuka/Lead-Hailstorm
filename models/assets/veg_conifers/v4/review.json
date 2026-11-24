@@ -1,0 +1,43 @@
+{
+ "version": "v4",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/q_front.png",
+  "renders/close_pine_a_crown.png",
+  "renders/close_pine_b_crown.png",
+  "renders/close_spruce_b_crown.png",
+  "renders/close_snow_b_crown.png",
+  "renders/close_pine_a_trunk.png"
+ ],
+ "verdict": "good",
+ "notes": "Pine crowns full, halo largely gone, spruce leader clean. Further loops would be diminishing returns; stopped after three improvement cycles beyond v1.",
+ "defects": [
+  {
+   "id": "C7",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Spruce leader now a 6-card upright tuft.",
+   "evidence": "close_spruce_b_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C8",
+   "severity": "major",
+   "category": "texture",
+   "text": "Dark card-edge halo on pine pads mostly gone; faint dark tips remain at the very ends of needle brushes.",
+   "evidence": "close_pine_a_crown",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "C9",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Pine limbs end in clumps; stubs thicker.",
+   "evidence": "close_pine_b_crown",
+   "fix": "-",
+   "status": "resolved"
+  }
+ ]
+}

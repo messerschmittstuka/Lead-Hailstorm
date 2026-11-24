@@ -1,0 +1,32 @@
+{
+ "version": "v5",
+ "reviewer": "Claude (visual inspection)",
+ "reviewed_images": [
+  "renders/close_dry_tall.png",
+  "renders/close_green_tall.png",
+  "renders/close_reed.png",
+  "renders/close_green_short.png"
+ ],
+ "verdict": "good",
+ "notes": "Blades straight, tufts dense and irregular, fern and reed convincing. Remaining: card base edges slightly visible at ground level (accepted).",
+ "defects": [
+  {
+   "id": "G8",
+   "severity": "major",
+   "category": "geometry",
+   "text": "Zig-zag kinks gone with linear taper.",
+   "evidence": "close_dry_tall, close_green_tall",
+   "fix": "-",
+   "status": "resolved"
+  },
+  {
+   "id": "G6",
+   "severity": "minor",
+   "category": "geometry",
+   "text": "Narrower base footprint; faint card edge lines remain at the ground.",
+   "evidence": "close_green_tall",
+   "fix": "-",
+   "status": "resolved"
+  }
+ ]
+}

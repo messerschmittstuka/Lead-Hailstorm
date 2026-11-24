@@ -1,0 +1,261 @@
+{
+ "stats": {
+  "tris_total": 33828,
+  "objects": [
+   {
+    "object": "tree_pine_a",
+    "tris": 5110,
+    "verts": 5218,
+    "materials": [
+     "bark_pine",
+     "end_grain",
+     "pine_card"
+    ]
+   },
+   {
+    "object": "tree_pine_b",
+    "tris": 5110,
+    "verts": 5218,
+    "materials": [
+     "bark_pine",
+     "end_grain",
+     "pine_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_a",
+    "tris": 6766,
+    "verts": 7652,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_card4",
+     "spruce_snow_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_b",
+    "tris": 5014,
+    "verts": 5608,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_card4",
+     "spruce_snow_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_snow_a",
+    "tris": 6814,
+    "verts": 7708,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_snow_card",
+     "spruce_snow_card"
+    ]
+   },
+   {
+    "object": "tree_spruce_snow_b",
+    "tris": 5014,
+    "verts": 5608,
+    "materials": [
+     "bark_spruce",
+     "end_grain",
+     "spruce_snow_card",
+     "spruce_snow_card"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 64.0557,
+   "y": 12.9375,
+   "z": 20.1329
+  },
+  "bbox_min": [
+   -5.7295,
+   -6.8668,
+   -0.8481
+  ],
+  "bbox_max": [
+   58.3261,
+   6.0706,
+   19.2848
+  ],
+  "materials": {
+   "bark_pine": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_pine_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_pine_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "end_grain": {
+    "textured": true,
+    "images": [
+     {
+      "image": "endgrain_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "endgrain_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "pine_card": {
+    "textured": true,
+    "images": [
+     {
+      "image": "pine_v4.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   },
+   "bark_spruce": {
+    "textured": true,
+    "images": [
+     {
+      "image": "bark_spruce_c.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     },
+     {
+      "image": "bark_spruce_n.jpg",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "spruce_card4": {
+    "textured": true,
+    "images": [
+     {
+      "image": "spruce_v4.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   },
+   "spruce_snow_card": {
+    "textured": true,
+    "images": [
+     {
+      "image": "spruce_snow_v4.png",
+      "size": [
+       1024,
+       512
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 39.9,
+  "loose_verts": 0,
+  "open_edges": 34764,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": [
+   {
+    "object": "COL_tree_pine_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_pine_b",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_b",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_snow_a",
+    "tris": 28,
+    "closed": true
+   },
+   {
+    "object": "COL_tree_spruce_snow_b",
+    "tris": 28,
+    "closed": true
+   }
+  ]
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "fail",
+   "detail": "33828 tris (target 2000-6000, max 10000)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "warn",
+   "detail": "lowest point z = -0.848 m"
+  },
+  {
+   "name": "collision hull",
+   "status": "pass",
+   "detail": "closed, 168 tris"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "39.9 MB (mips included)"
+  }
+ ]
+}

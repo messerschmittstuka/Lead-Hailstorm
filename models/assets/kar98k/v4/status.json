@@ -1,0 +1,31 @@
+{
+ "state": "done",
+ "asset": "kar98k",
+ "version": "v4",
+ "build_sha": "adf31c6fb00e5e71",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 7.7,
+ "tris": 5912,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_action.png",
+  "renders/close_muzzle.png",
+  "renders/close_rear_sight.png",
+  "renders/close_butt.png",
+  "renders/close_forend_band.png"
+ ],
+ "checks": {
+  "pass": 10,
+  "warn": 0,
+  "fail": 0
+ }
+}

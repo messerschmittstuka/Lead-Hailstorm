@@ -197,16 +197,16 @@ torus_y('muzzle_crown', 0.0108, 0.0016, 0.730, 0, BZ, STEEL)
 cyl_y('receiver_ring', 0.0185, 0.0185, 0.075, 0.135, 0, BZ, BLUED)
 cyl_y('receiver', 0.0185, 0.0185, -0.085, 0.080, 0, BZ, BLUED, 30)
 box('receiver_floor', 0.032, 0.17, 0.020, 0, -0.005, 0.016, BLUED)
-box('receiver_bridge', 0.026, 0.030, 0.012, 0, 0.03, 0.058, BLUED)          # rear bridge over the bolt way
-box('clip_guide', 0.030, 0.07, 0.006, 0, 0.012, 0.061, PARKER)             # stripper clip guide
+box('receiver_bridge', 0.022, 0.030, 0.012, 0, 0.03, 0.057, BLUED)          # rear bridge over the bolt way
+box('clip_guide', 0.016, 0.07, 0.004, 0, 0.012, 0.0605, BLUED)             # stripper clip guide
 box('safety_wing', 0.006, 0.022, 0.010, 0, -0.105, 0.034, BLUED)           # wing safety on the cocking piece
 
 box('rear_tang', 0.018, 0.060, 0.012, 0, -0.112, 0.0455, BLUED, 0.0035)                 # receiver tang behind the bolt
 for i, y in enumerate((-0.058, -0.040, -0.022)):
     torus_y('bolt_ring_%d' % i, 0.0112, 0.0012, y, 0, BZ + 0.0035, STEEL)                  # grooves on the bolt body
 box('bolt_stop', 0.007, 0.020, 0.008, -0.0215, 0.040, 0.026, BLUED, 0.0006)              # bolt stop on the left
-cyl_x('stock_screw_a', 0.0042, 0.0210, 0.0240, 0.020, 0.036, STEEL, 12)                   # action screws through the stock
-cyl_x('stock_screw_b', 0.0042, 0.0210, 0.0240, -0.075, 0.020, STEEL, 12)
+cyl_x('stock_screw_a', 0.0042, 0.0170, 0.0215, 0.020, 0.036, STEEL, 12)                   # action screws through the stock
+cyl_x('stock_screw_b', 0.0042, 0.0190, 0.0235, -0.075, 0.020, STEEL, 12)
 # ---------------- bolt ----------------
 cyl_y('bolt_body', 0.0108, 0.0108, -0.075, 0.020, 0, BZ + 0.0035, STEEL)
 cyl_y('cocking_piece', 0.0080, 0.0100, -0.125, -0.080, 0, BZ + 0.0035, STEEL)

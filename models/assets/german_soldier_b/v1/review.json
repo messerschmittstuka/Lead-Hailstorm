@@ -1,0 +1,6 @@
+{"version":"v1","reviewer":"Claude (comparison against the user's reference photo)","reviewed_images":["renders/close_head34.png","renders/close_upper.png","renders/q_front.png"],"verdict":"needs_work",
+ "notes":"v1 = german_soldier v5. Compared with the reference portrait.",
+ "defects":[
+ {"id":"F1","severity":"major","category":"geometry","text":"Nose too long and jutting; cheekbones flat; jaw/chin too pointed; ears too small.","evidence":"close_head34","fix":"Shorter nose, stronger cheekbones, narrower softer jaw, larger ears, thicker neck.","status":"open"},
+ {"id":"F2","severity":"major","category":"texture","text":"Skin too dark and even, stubble present (reference is clean-shaven and ruddy); eyes lack lid crease, lashes, tear ducts; brows read as speckled bars.","evidence":"close_head34","fix":"Paler ruddy skin, grey-blue eyes, lids and lashes, pores, smoother brows, thinner natural lips.","status":"open"},
+ {"id":"F3","severity":"major","category":"history","text":"Collar is plain field-grey; no dark-green collar with two-bar collar patches; pocket flaps are not scalloped or buttoned.","evidence":"close_upper","fix":"Dark green collar with Litzen tabs, buttoned pocket flaps.","status":"open"}]}

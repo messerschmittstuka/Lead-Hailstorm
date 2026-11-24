@@ -1,0 +1,7 @@
+{"version":"v3","reviewer":"Claude (visual inspection, plus posed renders of walk and run)","reviewed_images":["renders/close_head.png","renders/close_head34.png","renders/close_upper.png","renders/close_boots.png","pose/walk_00.png","pose/run_05.png"],"verdict":"needs_work",
+ "notes":"v3: 10,308 tris. Head proportions and eyes better, shoulders and boots improved. Posed renders show smooth skinning in walk and run with no collapsing joints.",
+ "defects":[
+ {"id":"S9","severity":"minor","category":"geometry","text":"Collar top is low so the neck looks long.","evidence":"close_head","fix":"Raise the collar 2 cm.","status":"open"},
+ {"id":"S10","severity":"minor","category":"detail","text":"Hands are mittens with only a thumb.","evidence":"close_upper","fix":"Add four short curled fingers.","status":"open"},
+ {"id":"S11","severity":"minor","category":"history","text":"No bayonet and frog on the left hip.","evidence":"q_front","fix":"Add bayonet scabbard and frog.","status":"open"},
+ {"id":"S6","severity":"major","category":"geometry","text":"Head proportions, nose and eyes corrected.","evidence":"close_head","fix":"","status":"fixed"},{"id":"S7","severity":"minor","category":"geometry","text":"Shoulders no longer padded-looking.","evidence":"close_upper","fix":"","status":"fixed"},{"id":"S8","severity":"minor","category":"detail","text":"Boot tongue and laces added.","evidence":"close_boots","fix":"","status":"fixed"}]}

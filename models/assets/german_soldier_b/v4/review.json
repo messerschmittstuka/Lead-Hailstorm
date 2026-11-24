@@ -1,0 +1,5 @@
+{"version":"v4","reviewer":"Claude (visual inspection)","reviewed_images":["renders/close_head34.png"],"verdict":"needs_work",
+ "notes":"v4: my jaw-compression edit was applied inside the per-vertex loop, so it compounded 44 times and collapsed the lower face. Build bug, not a modelling choice.",
+ "defects":[
+ {"id":"F9","severity":"blocker","category":"build","text":"Lower face collapsed (compression applied cumulatively).","evidence":"close_head34","fix":"Apply the compression once per latitude ring.","status":"open"},
+ {"id":"F8","severity":"major","category":"texture","text":"Face still evenly lit; form shading added to the generator but not yet used in this version.","evidence":"close_head34","fix":"Use regenerated face_a.png.","status":"open"}]}

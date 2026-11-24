@@ -1,0 +1,6 @@
+{"version":"v1","reviewer":"Claude (comparison against the reference photo)","reviewed_images":["renders/close_head.png","renders/close_head34.png"],"verdict":"needs_work",
+ "notes":"v1 = german_soldier_b v5. User: keep one shared face but make it look like the reference and less awkward.",
+ "defects":[
+ {"id":"H1","severity":"major","category":"geometry","text":"Head too wide and round; eyes set wider than a natural eye width apart; mouth too small; jaw angle undefined.","evidence":"close_head","fix":"Narrower oval head (RX 0.072), natural eye width, wider mouth, jaw angle bulge.","status":"open"},
+ {"id":"H2","severity":"major","category":"texture","text":"Brows soft and thin; skin has no highlights; lips weak.","evidence":"close_head","fix":"Heavier straighter brows, highlights on forehead/nose/cheeks, defined thin lips.","status":"open"},
+ {"id":"H3","severity":"major","category":"geometry","text":"Neck is wider than the jaw so a hard step shows under the chin.","evidence":"close_head","fix":"Taper neck under jaw.","status":"open"}]}

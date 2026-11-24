@@ -1,0 +1,205 @@
+{
+ "stats": {
+  "tris_total": 12232,
+  "objects": [
+   {
+    "object": "german_soldier",
+    "tris": 12232,
+    "verts": 6463,
+    "materials": [
+     "wool",
+     "skin_body",
+     "face_a",
+     "leather_black",
+     "leather_brown",
+     "collar",
+     "litzen",
+     "canvas",
+     "helmet",
+     "metal"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 0.7057,
+   "y": 0.4325,
+   "z": 1.8006
+  },
+  "bbox_min": [
+   -0.3529,
+   -0.229,
+   0.0004
+  ],
+  "bbox_max": [
+   0.3529,
+   0.2035,
+   1.8009
+  ],
+  "materials": {
+   "wool": {
+    "textured": true,
+    "images": [
+     {
+      "image": "wool.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "skin_body": {
+    "textured": true,
+    "images": [
+     {
+      "image": "skin_body.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "face_a": {
+    "textured": true,
+    "images": [
+     {
+      "image": "face_a.png",
+      "size": [
+       1024,
+       1024
+      ]
+     }
+    ]
+   },
+   "leather_black": {
+    "textured": true,
+    "images": [
+     {
+      "image": "leather_black.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "leather_brown": {
+    "textured": true,
+    "images": [
+     {
+      "image": "leather_brown.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "collar": {
+    "textured": true,
+    "images": [
+     {
+      "image": "collar.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "litzen": {
+    "textured": true,
+    "images": [
+     {
+      "image": "litzen.png",
+      "size": [
+       256,
+       256
+      ]
+     }
+    ]
+   },
+   "canvas": {
+    "textured": true,
+    "images": [
+     {
+      "image": "canvas.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "helmet": {
+    "textured": true,
+    "images": [
+     {
+      "image": "helmet.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   },
+   "metal": {
+    "textured": true,
+    "images": [
+     {
+      "image": "metal.png",
+      "size": [
+       512,
+       512
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 16.29,
+  "loose_verts": 0,
+  "open_edges": 404,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": []
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "pass",
+   "detail": "12232 tris (target 6000-14000, max 18000)"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "pass",
+   "detail": "lowest point z = 0.000 m"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "16.3 MB (mips included)"
+  }
+ ]
+}

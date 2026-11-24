@@ -1,0 +1,30 @@
+{
+ "state": "done",
+ "asset": "veg_wheat",
+ "version": "v1",
+ "build_sha": "5782e9b92dfd51dd",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 10.3,
+ "tris": 11016,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_clump.png",
+  "renders/close_ears.png",
+  "renders/close_patch.png",
+  "renders/close_patch_low.png"
+ ],
+ "checks": {
+  "pass": 3,
+  "warn": 1,
+  "fail": 3
+ }
+}

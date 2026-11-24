@@ -1,0 +1,6 @@
+{"version":"v3","reviewer":"Claude (comparison against the reference photo)","reviewed_images":["renders/close_head.png","renders/close_head34.png","renders/q_front.png"],"verdict":"needs_work",
+ "notes":"v3: nose and nostril wings more defined, neck slimmer, curved collar patches. Face still elongated and flat-lit.",
+ "defects":[
+ {"id":"F7","severity":"major","category":"geometry","text":"Lower face too long: the chin sits too low, making the face look stretched.","evidence":"close_head34","fix":"Compress the jaw region vertically.","status":"open"},
+ {"id":"F8","severity":"major","category":"texture","text":"Skin is evenly lit and flat; no hollows under the cheekbones, nose sides or jaw line.","evidence":"close_head","fix":"Painted form shading in the face texture.","status":"open"},
+ {"id":"F4","severity":"major","category":"geometry","text":"Nose and wings more defined.","evidence":"close_head","fix":"","status":"fixed"},{"id":"F5","severity":"minor","category":"geometry","text":"Collar patches follow the collar.","evidence":"close_head34","fix":"","status":"fixed"},{"id":"F6","severity":"minor","category":"geometry","text":"Neck slimmer.","evidence":"close_head","fix":"","status":"fixed"}]}

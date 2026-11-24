@@ -1,0 +1,312 @@
+{
+ "stats": {
+  "tris_total": 2436,
+  "objects": [
+   {
+    "object": "wheat_clump",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_0",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_1",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_2",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_3",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_4",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_5",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_6",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_7",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_8",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_9",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_10",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_11",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_12",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_13",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_14",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_15",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_16",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_17",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_18",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_19",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_20",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_21",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_22",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_23",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_24",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_25",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_26",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   },
+   {
+    "object": "wp_27",
+    "tris": 84,
+    "verts": 98,
+    "materials": [
+     "wheat"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 70.6806,
+   "y": 1.2225,
+   "z": 1.278
+  },
+  "bbox_min": [
+   -0.256,
+   -0.5855,
+   -0.0124
+  ],
+  "bbox_max": [
+   70.4246,
+   0.637,
+   1.2655
+  ],
+  "materials": {
+   "wheat": {
+    "textured": true,
+    "images": [
+     {
+      "image": "wheat.png",
+      "size": [
+       768,
+       1536
+      ]
+     }
+    ]
+   }
+  },
+  "flat_materials": [],
+  "texture_mem_mb": 5.99,
+  "loose_verts": 0,
+  "open_edges": 2842,
+  "zero_area_faces": 0,
+  "objects_without_uv": [],
+  "collision": []
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "warn",
+   "detail": "2436 tris (target 100-1200, max 3000)  above target but under max: needs justification"
+  },
+  {
+   "name": "materials textured",
+   "status": "pass",
+   "detail": "all materials use image textures"
+  },
+  {
+   "name": "uv maps",
+   "status": "pass",
+   "detail": "all meshes have UVs"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "warn",
+   "detail": "lowest point z = -0.012 m"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "6.0 MB (mips included)"
+  }
+ ]
+}

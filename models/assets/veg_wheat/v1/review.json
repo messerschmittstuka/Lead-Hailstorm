@@ -1,0 +1,12 @@
+{
+ "version": "v1",
+ "reviewer": "Claude (visual inspection and measurement)",
+ "reviewed_images": ["renders/q_front.png", "renders/close_clump.png", "renders/close_patch_low.png"],
+ "verdict": "needs_work",
+ "notes": "v1 is the wheat clump exactly as shipped in dev.game.js: 6 box stalks per clump with box heads.",
+ "defects": [
+  {"id": "W1", "severity": "major", "category": "geometry", "text": "Stalks are 7.5 cm square beams and heads are 15 x 34 cm blocks: roughly 10x too thick; no thin culms.", "evidence": "close_patch_low", "fix": "Alpha-card stalks with real 4-6 mm culms.", "status": "open"},
+  {"id": "W2", "severity": "major", "category": "history", "text": "No ear structure: no spikelets, no awns, no drooping; heads read as bricks.", "evidence": "close_clump", "fix": "Texture with two-row spikelets and long fine awns, ears slightly drooping.", "status": "open"},
+  {"id": "W3", "severity": "major", "category": "material", "text": "Single flat colour, no straw/leaf/node variation.", "evidence": "q_front", "fix": "Textured card: straw culms with nodes, pale sheaths, yellow-green leaves, golden ears.", "status": "open"}
+ ]
+}

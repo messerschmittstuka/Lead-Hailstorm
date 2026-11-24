@@ -1,0 +1,5 @@
+{"version":"v4","reviewer":"Claude (visual inspection)","reviewed_images":["renders/q_front.png","renders/q_rear.png","renders/close_upper.png","renders/close_head34.png"],"verdict":"needs_work",
+ "notes":"v4: 10,684 tris. Collar raised, fingers and bayonet frog added.",
+ "defects":[
+ {"id":"S12","severity":"minor","category":"geometry","text":"Sleeve tops still end in a flat cap that reads as a shoulder pad.","evidence":"close_upper","fix":"Domed sleeve cap (small first ring).","status":"open"},
+ {"id":"S9","severity":"minor","category":"geometry","text":"Collar raised.","evidence":"close_upper","fix":"","status":"fixed"},{"id":"S10","severity":"minor","category":"detail","text":"Fingers added.","evidence":"close_upper","fix":"","status":"fixed"},{"id":"S11","severity":"minor","category":"history","text":"Bayonet and frog added.","evidence":"q_front","fix":"","status":"fixed"}]}

@@ -1,0 +1,14 @@
+{
+ "version": "v2",
+ "reviewer": "Claude (visual inspection and measurement)",
+ "reviewed_images": ["renders/close_ears.png", "renders/close_clump.png", "renders/close_patch.png", "renders/q_front.png"],
+ "verdict": "needs_work",
+ "notes": "v2: 7 crossed alpha cards, 84 tris per clump, single card texture. Thin culms, nodes, arching leaves and awned ears are all present; huge improvement over the boxes.",
+ "defects": [
+  {"id": "W4", "severity": "major", "category": "texture", "text": "Spikelets are separate round orange beads with gaps, not a compact two-row ear; colour too saturated orange.", "evidence": "close_ears", "fix": "Draw a solid rachis body with elongated pale-gold overlapping spikelets and keels.", "status": "open"},
+  {"id": "W5", "severity": "minor", "category": "texture", "text": "Only one texture, so all cards in a clump repeat the same five culms.", "evidence": "close_clump", "fix": "Second texture with a different seed; alternate per card.", "status": "open"},
+  {"id": "W6", "severity": "major", "category": "build", "text": "Patch preview was mispositioned: layout() spread the preview clumps 70 m apart so the patch is not a patch.", "evidence": "q_front", "fix": "Place patch objects after layout().", "status": "open"},
+  {"id": "W1", "severity": "major", "category": "geometry", "text": "Box stalks replaced by thin culms.", "evidence": "close_ears", "fix": "", "status": "fixed"},
+  {"id": "W3", "severity": "major", "category": "material", "text": "Flat colour replaced by textured straw/leaf/ear colours.", "evidence": "close_ears", "fix": "", "status": "fixed"}
+ ]
+}

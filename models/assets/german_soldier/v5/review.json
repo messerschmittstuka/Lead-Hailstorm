@@ -1,0 +1,6 @@
+{"version":"v5","reviewer":"Claude (visual inspection plus posed walk/run renders)","reviewed_images":["renders/q_front.png","renders/q_rear.png","renders/close_head34.png","renders/close_upper.png","pose/walk_08.png","pose/walk_23.png","pose/run_05.png","pose/run_15.png"],"verdict":"pass",
+ "notes":"v5: 10,748 tris, 1.80 m, 14.6 MB textures, 19-bone rig with idle (3 s), walk (1 s) and run (0.67 s) loops. Posed frames show clean skinning.",
+ "defects":[
+ {"id":"S12","severity":"minor","category":"geometry","text":"Sleeve cap now domed.","evidence":"q_front","fix":"","status":"fixed"},
+ {"id":"S13","severity":"minor","category":"detail","text":"Face is stylised-realistic, not photoreal; nose slightly long in 3/4 view; one face variant only.","evidence":"close_head34","fix":"More head variants and nose tuning in a later pass.","status":"accepted"},
+ {"id":"S14","severity":"minor","category":"detail","text":"No facial animation, flat hand pose, feet slide slightly in run (no foot IK).","evidence":"pose/run_05","fix":"Game-side foot/aim layer later.","status":"accepted"}]}

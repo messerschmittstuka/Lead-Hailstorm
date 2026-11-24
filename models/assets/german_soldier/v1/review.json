@@ -1,0 +1,8 @@
+{"version":"v1","reviewer":"Claude (visual inspection)","reviewed_images":["renders/q_front.png","renders/close_head34.png","renders/close_boots.png","renders/close_back_gear.png"],"verdict":"needs_work",
+ "notes":"v1: 9,652 tris, rigged with idle/walk/run. Reads as a German rifleman. Defects below.",
+ "defects":[
+ {"id":"S1","severity":"major","category":"geometry","text":"Helmet front edge sits at the eyebrows and hides the eyes.","evidence":"close_head34","fix":"Raise front edge to ~1.74 m and move shell back.","status":"open"},
+ {"id":"S2","severity":"major","category":"geometry","text":"Face relief is weak (nose, brow, lips barely read) and the jaw is pointy.","evidence":"close_head34","fix":"Stronger nose, brow, cheek, lip and chin displacement; less jaw taper.","status":"open"},
+ {"id":"S3","severity":"major","category":"geometry","text":"Boot top is jagged where the boot shaft intersects the trouser hem; toes are square slippers.","evidence":"close_boots","fix":"Smaller boot shaft, bloused trouser overhang, rounded toe cap.","status":"open"},
+ {"id":"S4","severity":"major","category":"geometry","text":"Sleeves start as open flared tubes that poke above the shoulder line, giving pointed shoulders.","evidence":"close_back_gear","fix":"Widen the tunic shoulder, start sleeves inside and cap them.","status":"open"},
+ {"id":"S5","severity":"minor","category":"geometry","text":"Y-straps form horns above the shoulder; helmet rivets are lumps.","evidence":"close_back_gear","fix":"Lower strap crest, smaller rivets.","status":"open"}]}

@@ -1,0 +1,31 @@
+{
+ "state": "done",
+ "asset": "german_soldier_d",
+ "version": "v5",
+ "build_sha": "da592c12a46a3b3f",
+ "rerendered_with_fixed_harness": false,
+ "seconds": 8.1,
+ "tris": 12232,
+ "renders": [
+  "renders/front.png",
+  "renders/rear.png",
+  "renders/left.png",
+  "renders/right.png",
+  "renders/top.png",
+  "renders/q_front.png",
+  "renders/q_rear.png",
+  "renders/clay_q_front.png",
+  "renders/clay_q_rear.png",
+  "renders/wire_q_front.png",
+  "renders/close_head.png",
+  "renders/close_head34.png",
+  "renders/close_upper.png",
+  "renders/close_back_gear.png",
+  "renders/close_boots.png"
+ ],
+ "checks": {
+  "pass": 7,
+  "warn": 0,
+  "fail": 0
+ }
+}

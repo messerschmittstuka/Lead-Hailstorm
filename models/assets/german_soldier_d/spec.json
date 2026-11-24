@@ -1,0 +1,84 @@
+{
+ "asset": "german_soldier_d",
+ "class": "small_prop",
+ "front_axis": "-Y",
+ "grid_m": 0.1,
+ "budget": {
+  "target": [
+   6000,
+   14000
+  ],
+  "max": 18000
+ },
+ "budget_exception": null,
+ "dims_m": {},
+ "closeups": [
+  {
+   "name": "head",
+   "target": [
+    0,
+    0,
+    1.66
+   ],
+   "dist": 0.75,
+   "az": 0,
+   "el": 3
+  },
+  {
+   "name": "head34",
+   "target": [
+    0,
+    0,
+    1.66
+   ],
+   "dist": 0.8,
+   "az": 40,
+   "el": 5
+  },
+  {
+   "name": "upper",
+   "target": [
+    0,
+    0,
+    1.25
+   ],
+   "dist": 1.9,
+   "az": 25,
+   "el": 8
+  },
+  {
+   "name": "back_gear",
+   "target": [
+    0,
+    0,
+    1.05
+   ],
+   "dist": 1.7,
+   "az": 180,
+   "el": 8
+  },
+  {
+   "name": "boots",
+   "target": [
+    0,
+    0,
+    0.12
+   ],
+   "dist": 1.1,
+   "az": 35,
+   "el": 10
+  }
+ ],
+ "require_textured_materials": true,
+ "require_collision": false,
+ "texture_mem_mb_max": 32,
+ "pieces": {
+  "german_soldier_d": {
+   "x": 0,
+   "height": [
+    1.7,
+    1.9
+   ]
+  }
+ }
+}

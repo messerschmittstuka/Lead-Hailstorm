@@ -1,0 +1,93 @@
+{
+ "stats": {
+  "tris_total": 11016,
+  "objects": [
+   {
+    "object": "wheat_clump",
+    "tris": 216,
+    "verts": 144,
+    "materials": [
+     "wheat_flat"
+    ]
+   },
+   {
+    "object": "wheat_patch_preview",
+    "tris": 10800,
+    "verts": 7200,
+    "materials": [
+     "wheat_flat"
+    ]
+   }
+  ],
+  "dims_m": {
+   "x": 5.7503,
+   "y": 5.3744,
+   "z": 1.997
+  },
+  "bbox_min": [
+   -0.5246,
+   -2.4778,
+   -0.0117
+  ],
+  "bbox_max": [
+   5.2257,
+   2.8966,
+   1.9853
+  ],
+  "materials": {
+   "wheat_flat": {
+    "textured": false,
+    "images": []
+   }
+  },
+  "flat_materials": [
+   "wheat_flat"
+  ],
+  "texture_mem_mb": 0.0,
+  "loose_verts": 0,
+  "open_edges": 0,
+  "zero_area_faces": 0,
+  "objects_without_uv": [
+   "wheat_clump",
+   "wheat_patch_preview"
+  ],
+  "collision": []
+ },
+ "checks": [
+  {
+   "name": "triangle budget",
+   "status": "fail",
+   "detail": "11016 tris (target 100-1200, max 2500)"
+  },
+  {
+   "name": "materials textured",
+   "status": "fail",
+   "detail": "flat-colour materials: wheat_flat"
+  },
+  {
+   "name": "uv maps",
+   "status": "fail",
+   "detail": "no UVs: wheat_clump, wheat_patch_preview"
+  },
+  {
+   "name": "loose geometry",
+   "status": "pass",
+   "detail": "0 loose vertices"
+  },
+  {
+   "name": "zero-area faces",
+   "status": "pass",
+   "detail": "0"
+  },
+  {
+   "name": "sits on ground (z=0)",
+   "status": "warn",
+   "detail": "lowest point z = -0.012 m"
+  },
+  {
+   "name": "texture memory",
+   "status": "pass",
+   "detail": "0.0 MB (mips included)"
+  }
+ ]
+}

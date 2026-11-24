@@ -6049,8 +6049,30 @@ function analyseModel(template){
 function tintMaterial(m,col){ const n=m.clone(); if(n.color) n.color.multiply(new THREE.Color(col)); return n; }
 
 var GUNGLB_unused=0;      // Blender-made rifles for the player's own hands: kar98k, mosin
+/* ---- breaks up visible texture tiling on buildings, wall pieces and debris: a slow colour drift, finer mottling, damp/grime at the foot and rain streaks,
+   all computed from WORLD position so no two houses (or two copies of one house) carry the same pattern ---- */
+const MACRO_GLSL=`
+float mh(vec3 p){ p=fract(p*0.3183099+0.1); p*=17.0; return fract(p.x*p.y*p.z*(p.x+p.y+p.z)); }
+float mvn(vec3 x){ vec3 i=floor(x), f=fract(x); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(mh(i),mh(i+vec3(1,0,0)),f.x),mix(mh(i+vec3(0,1,0)),mh(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(mh(i+vec3(0,0,1)),mh(i+vec3(1,0,1)),f.x),mix(mh(i+vec3(0,1,1)),mh(i+vec3(1,1,1)),f.x),f.y),f.z); }`;
+function macroVary(m,k){
+  if(!m||!m.isMeshStandardMaterial||m.userData.macro) return; m.userData.macro=1; const heavy=!(IS_TOUCH||gfx==='low');
+  m.onBeforeCompile=sh=>{
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vMW;').replace('#include <begin_vertex>','#include <begin_vertex>\n vec4 mw4=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\n mw4=instanceMatrix*mw4;\n#endif\n mw4=modelMatrix*mw4; vMW=mw4.xyz;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vMW;\n'+MACRO_GLSL).replace('#include <map_fragment>',`#include <map_fragment>
+      { float n1=mvn(vMW*0.22), n2=mvn(vMW*1.3+7.0);
+        vec3 drift=mix(vec3(${(1-0.22*k).toFixed(2)},${(1-0.24*k).toFixed(2)},${(1-0.27*k).toFixed(2)}),vec3(${(1+0.16*k).toFixed(2)},${(1+0.13*k).toFixed(2)},${(1+0.08*k).toFixed(2)}),n1);
+        float mot=${(1-0.14*k).toFixed(2)}+${(0.28*k).toFixed(2)}*n2; float low=smoothstep(0.0,1.5,vMW.y);
+        float foot=mix(${(1-0.38*k).toFixed(2)},1.0,low);
+        ${heavy?`float st=mvn(vec3(vMW.x*2.6+vMW.z*2.6,vMW.y*0.18,3.0)); float streak=1.0-${(0.2*k).toFixed(2)}*smoothstep(0.55,0.9,st)*smoothstep(0.4,2.6,vMW.y);`:'float streak=1.0;'}
+        diffuseColor.rgb*=drift*mot*foot*streak; }`);
+  };
+  m.customProgramCacheKey=()=>'macro'+k+(heavy?'h':'l'); m.needsUpdate=true;
+}
 async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-  const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } }
+  const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } 
+  try{ for(const key of ['buildings','walls2','props4']){ const sc=GUNGLB[key]; if(!sc) continue; const seen=new Set(); sc.traverse(o=>{ if(!o.isMesh) return; for(const m of [].concat(o.material)){ if(!m||seen.has(m)||/metal|burlap/i.test(m.name||'')) continue; seen.add(m); macroVary(m,key==='props4'?0.6:1.0); } }); } }catch(e){ console.warn('macro variation skipped',e); } }
 async function loadCharacters(){
   const loader=new GLTFLoader();
   const tryLoad=async url=>{ try{ return await loader.loadAsync(url); }catch(e){ console.warn('Model not loaded:',url); return null; } };

@@ -380,8 +380,13 @@ const buildOak=(()=>{ const mk=(hue)=>()=>{ const sc=0.9+Math.random()*0.5, a=[[
     blobs.forEach((b,i)=>{ const g=roughLump(new THREE.IcosahedronGeometry(b[3]*sc,1),0.18); g.scale(1,0.82,1); a.push([g,cols[i%cols.length],b[0]*sc,b[1]*sc,b[2]*sc]); });
     return a; };
   return [mk([0x4f7a2e,0x5d8a36,0x477029]),mk([0x6a8a30,0x7a9a3a,0x587a2a]),mk([0x3f6a2a,0x4c7832,0x38602a])]; })();
-function oakTree(x,z){ const k=(rnd()*3)|0, s2=0.85+rnd()*0.5; addProp('oak'+k,buildOak[k],x,z,rnd()*6,s2,0.6*s2,6*s2); }
+/* realistic Blender trees (models/veg_4): Scots pine, spruce (plain or snow-laden), oak, birch; falls back to the old procedural ones if the GLB is missing */
+function vegTree(x,z,kind){ vegIndex(); const nm={pine:['tree_pine_a','tree_pine_b'],spruce:['tree_spruce_a','tree_spruce_b'],snow:['tree_spruce_snow_a','tree_spruce_snow_b'],oak:['tree_oak_a','tree_oak_b'],birch:['tree_birch_a','tree_birch_b']}[kind]; if(!nm||!PROPDB[nm[0]]) return false;
+  const s=0.8+rnd()*0.4, n=nm[(rnd()*2)|0]; return placeProp(n,x,z,rnd()*6.283,s)!==undefined; }
+function oakTree(x,z){ if(vegTree(x,z,rnd()<0.75?'oak':'birch')) return; const k=(rnd()*3)|0, s2=0.85+rnd()*0.5; addProp('oak'+k,buildOak[k],x,z,rnd()*6,s2,0.6*s2,6*s2); }
 function pine(x,z){ const s=0.8+rnd()*0.6, v=(rnd()*4)|0, g=summerPine;
+  if(g){ const q=rnd(); if(vegTree(x,z,q<0.3?(rnd()<0.7?'oak':'birch'):q<0.7?'pine':'spruce')) return; }
+  else if(vegTree(x,z,'snow')) return;
   if(g && rnd()<0.28){ oakTree(x,z); return; }
   if(v===3){ const t=0.85+rnd()*0.5; addProp(g?'pineG4':'pine4',g?buildPineG4:buildPine4,x,z,rnd()*6,t,0.45*t,4*t); return; }
   if(v===0){ if(g) addProp('pineG',buildPineG,x,z,rnd()*6,s,0.5*s,4*s); else addProp('pine',buildPine,x,z,rnd()*6,s,0.5*s,4*s); }
@@ -1520,8 +1525,8 @@ function propIndex(){
 /* ---- vegetation (models/veg_2, veg_3): trees, stumps and logs have a closed COL_ hull; shrubs, grass, ferns and reeds are walk-through cards ('soft') ---- */
 let vegDbDone=false;
 function vegIndex(){
-  if(vegDbDone) return; if(!GUNGLB.veg2 && !GUNGLB.veg3) return; vegDbDone=true;
-  for(const key of ['veg2','veg3','props4']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
+  if(vegDbDone) return; if(!GUNGLB.veg2 && !GUNGLB.veg3 && !GUNGLB.veg4) return; vegDbDone=true;
+  for(const key of ['veg2','veg3','veg4','props4']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
     sc.traverse(o=>{
       if(!o.name||!o.name.startsWith('prop_')) return; const name=o.name.slice(5);
       const inv=o.matrixWorld.clone().invert(), tri=[];
@@ -6070,7 +6075,7 @@ function macroVary(m,k){
   };
   m.customProgramCacheKey=()=>'macro'+k+(heavy?'h':'l'); m.needsUpdate=true;
 }
-async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } 
   try{ for(const key of ['buildings','walls2','props4']){ const sc=GUNGLB[key]; if(!sc) continue; const seen=new Set(); sc.traverse(o=>{ if(!o.isMesh) return; for(const m of [].concat(o.material)){ if(!m||seen.has(m)||/metal|burlap/i.test(m.name||'')) continue; seen.add(m); macroVary(m,key==='props4'?0.6:1.0); } }); } }catch(e){ console.warn('macro variation skipped',e); } }
 async function loadCharacters(){

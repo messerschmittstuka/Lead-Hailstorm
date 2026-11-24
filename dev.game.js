@@ -3594,9 +3594,9 @@ const remRailD=(x,z)=>{ let m=1e9; for(let i=0;i<REM_RAIL.length-1;i++){ const a
 let remWater=null;       // the river surface (a mirror on High / Medium, a glossy surface on Low and phones); animated from lookTick
 const REM_WATER_SHADER={name:'RemWater',
   uniforms:{tN:{value:null},tC:{value:null},color:{value:null},tDiffuse:{value:null},textureMatrix:{value:null},uTime:{value:0},uSun:{value:new THREE.Vector3(-0.7,0.3,-0.6)},fogColor:{value:new THREE.Color(0xf0b07a)},fogNear:{value:20},fogFar:{value:180}},
-  vertexShader:`uniform mat4 textureMatrix; varying vec4 vUv; varying vec3 vW; varying float vDepth;
-    void main(){ vUv=textureMatrix*vec4(position,1.0); vec4 wp=modelMatrix*vec4(position,1.0); vW=wp.xyz; vec4 mv=viewMatrix*wp; vDepth=-mv.z; gl_Position=projectionMatrix*mv; }`,
-  fragmentShader:`uniform vec3 color; uniform sampler2D tDiffuse,tN,tC; uniform float uTime,fogNear,fogFar; uniform vec3 uSun,fogColor; varying vec4 vUv; varying vec3 vW; varying float vDepth;
+  vertexShader:`uniform mat4 textureMatrix; attribute float aDeep; varying float vD; varying vec4 vUv; varying vec3 vW; varying float vDepth;
+    void main(){ vD=aDeep; vUv=textureMatrix*vec4(position,1.0); vec4 wp=modelMatrix*vec4(position,1.0); vW=wp.xyz; vec4 mv=viewMatrix*wp; vDepth=-mv.z; gl_Position=projectionMatrix*mv; }`,
+  fragmentShader:`uniform vec3 color; uniform sampler2D tDiffuse,tN,tC; uniform float uTime,fogNear,fogFar; uniform vec3 uSun,fogColor; varying float vD; varying vec4 vUv; varying vec3 vW; varying float vDepth;
     vec2 rip(vec2 p,float t){ return vec2(sin(p.x*0.9+t*1.4)+sin(p.y*1.7-t*1.1)+sin((p.x+p.y)*0.5+t*0.7), cos(p.x*1.5-t*1.2)+sin(p.y*0.8+t*1.0)+cos((p.x-p.y)*0.6-t*0.8)); }
     void main(){
       vec2 r=rip(vW.xz,uTime)*0.12;
@@ -3608,8 +3608,11 @@ const REM_WATER_SHADER={name:'RemWater',
       vec4 uv=vUv; uv.xy+=r*0.018*uv.w;
       vec3 refl=texture2DProj(tDiffuse,uv).rgb;
       vec3 murk=texture2D(tC,vW.xz*0.07+vec2(-uTime*0.006,uTime*0.003)).rgb;
-      vec3 deep=color*(0.55+0.9*murk)*(0.8+0.2*sin(vW.x*0.2+vW.z*0.15+uTime*0.3));
-      vec3 col=mix(deep,refl,clamp(0.16+0.5*fres,0.0,0.7));
+      float dp=smoothstep(0.0,0.55,vD);
+      vec3 shallow=color*(1.5+1.3*murk);
+      vec3 deep=color*(0.22+0.4*murk)*(0.85+0.15*sin(vW.x*0.2+vW.z*0.15+uTime*0.3));
+      vec3 body=mix(shallow,deep,dp);
+      vec3 col=mix(body,refl,clamp((0.05+0.85*fres)*(0.55+0.45*dp),0.0,0.85));
       col=mix(col,vec3(0.78,0.8,0.76),smoothstep(0.82,1.0,murk.g)*0.35);
       vec3 R=reflect(-V,N); float g=pow(max(dot(R,normalize(uSun)),0.0),180.0)*2.6; col+=vec3(1.0,0.72,0.42)*g;
       col=mix(col,fogColor,smoothstep(fogNear,fogFar,vDepth));
@@ -3639,11 +3642,11 @@ function buildRemagen(){
     const gb=new THREE.BufferGeometry(); gb.setAttribute('position',new THREE.Float32BufferAttribute(pb,3)); gb.setIndex(ib); gb.computeVertexNormals(); const mb=new THREE.Mesh(gb,bankM); mb.receiveShadow=true; mb.raycast=()=>{}; mapRoot.add(mb);
     for(let i=0;i<XS.length-1;i++){ const z=zc(XS[i]); noGrass.push(XS[i]-0.2,z-HW-1.2,XS[i]+4.2,z+HW+1.2); }
     // the water lies in a local XY plane (local y = -z); the mesh is turned flat
-    const pw=[], iw=[]; XS.forEach((x,i)=>{ const z=zc(x); pw.push(x,-(z+HW),0,x,-(z-HW),0); if(i){ const a=(i-1)*2; iw.push(a,a+2,a+1,a+2,a+3,a+1); } });
-    const gw=new THREE.BufferGeometry(); gw.setAttribute('position',new THREE.Float32BufferAttribute(pw,3)); gw.setIndex(iw); gw.computeVertexNormals(); { const uv=[]; for(let i=0;i<pw.length;i+=3) uv.push(pw[i],-pw[i+1]); gw.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); }
+    const pw=[], iw=[], dw=[]; XS.forEach((x,i)=>{ const z=zc(x); pw.push(x,-(z+HW),0,x,-z,0,x,-(z-HW),0); dw.push(0,1,0); if(i) for(let j=0;j<2;j++){ const p=(i-1)*3+j, q=i*3+j; iw.push(p,q,p+1,q,q+1,p+1); } });
+    const gw=new THREE.BufferGeometry(); gw.setAttribute('position',new THREE.Float32BufferAttribute(pw,3)); gw.setIndex(iw); gw.computeVertexNormals(); gw.setAttribute('aDeep',new THREE.Float32BufferAttribute(dw,1)); { const uv=[]; for(let i=0;i<pw.length;i+=3) uv.push(pw[i],-pw[i+1]); gw.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); }
     let water=null;
     if(gfx!=='low' && !IS_TOUCH){ try{ const tw=Math.max(256,Math.floor(innerWidth*Math.min(devicePixelRatio||1,1.5)*0.5)), th=Math.max(256,Math.floor(innerHeight*Math.min(devicePixelRatio||1,1.5)*0.5));
-        water=new Reflector(gw,{textureWidth:tw,textureHeight:th,clipBias:0.003,multisample:0,color:0x3d4a3c,shader:REM_WATER_SHADER}); water.userData.reflector=true; water.userData.remW=true; }catch(e){ console.warn('mirror water skipped',e); water=null; } }
+        water=new Reflector(gw,{textureWidth:tw,textureHeight:th,clipBias:0.003,multisample:0,color:0x2f4238,shader:REM_WATER_SHADER}); water.userData.reflector=true; water.userData.remW=true; }catch(e){ console.warn('mirror water skipped',e); water=null; } }
     if(!water) water=new THREE.Mesh(gw,makeWaterMat(0x7a8566,[1/9,1/9],[1/5,1/5]));
     water.rotation.x=-Math.PI/2; water.position.y=0.07; water.renderOrder=1; water.raycast=()=>{}; water.receiveShadow=false; mapRoot.add(water); remWater=water; }
   for(let i=0;i<70;i++){ const x=-L+3+rnd()*(2*L-6), side=rnd()<.5?-1:1, z=zc(x)+side*(HW+0.5+rnd()*1.4); if(Math.abs(x)<8) continue;

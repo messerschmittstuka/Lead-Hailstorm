@@ -490,3 +490,110 @@ def water_colour(n, h, seed=78):
     col = np.stack([l * 1.00, l * 0.98, l * 0.90], -1)                 # faint warm silt
     col = col * (1 - foam[..., None]) + np.array([0.97, 0.98, 0.96]) * foam[..., None]
     return np.clip(col, 0, 1)
+
+# ------------------------------------------------------------------------------------------------ PROP MATERIALS (seamless, linear colour + height)
+def _stretch(n, seed, fx, fy, octaves=4): return fbm(n, seed, fx, fy, octaves)
+
+def brick_wall(n=1024, seed=601, rows=10, cols=5):
+    """running-bond red brick with lime mortar: per-brick colour, soot, chipped edges, recessed sandy mortar"""
+    rng = np.random.default_rng(seed); Y, X = np.mgrid[0:n, 0:n].astype(float)
+    bh = n / rows; bw = n / cols
+    r = np.floor(Y / bh).astype(int); xo = X / bw + (r % 2) * 0.5
+    c = np.floor(xo).astype(int); u = xo - c; v = (Y / bh) - r
+    ID = rng.random((rows, cols)); bid = ID[r % rows, c % cols]
+    warpn = fbm(n, seed + 1, 40, 40, 3) - 0.5
+    mu = 0.045 / (bw / bh) * 3.2; mv = 0.085                       # mortar thickness (u in brick widths, v in brick heights)
+    du = np.minimum(u, 1 - u) + warpn * 0.03; dv = np.minimum(v, 1 - v) + warpn * 0.05
+    edge = np.minimum(du / mu, dv / mv)
+    brick = smooth(edge, 0.85, 1.25)                                 # 1 inside brick, 0 in mortar
+    rim = smooth(edge, 1.0, 3.5)                                     # rounded arrises
+    base = ramp(bid, [(0, (0.30, 0.085, 0.05)), (0.4, (0.40, 0.12, 0.07)), (0.75, (0.34, 0.10, 0.065)), (1, (0.45, 0.17, 0.095))])
+    mott = 0.7 + 0.6 * fbm(n, seed + 2, 90, 60, 4); streak = 0.85 + 0.3 * fbm(n, seed + 3, 8, 70, 3)
+    brick_c = base * (mott * streak)[..., None]
+    pores = smooth(fbm(n, seed + 4, 160, 160, 2), 0.72, 0.8); brick_c = brick_c * (1 - 0.35 * pores[..., None])
+    chip = smooth(fbm(n, seed + 5, 55, 55, 3) + (1 - rim) * 0.55, 0.78, 0.95) * (brick > 0.5)           # chipped corners show paler core
+    brick_c = brick_c * (1 - chip[..., None] * 0.5) + np.array([0.52, 0.30, 0.22]) * 0.5 * chip[..., None] * 0.6
+    sand = ramp(fbm(n, seed + 6, 120, 120, 3), [(0, (0.28, 0.26, 0.22)), (1, (0.50, 0.48, 0.42))])
+    col = brick_c * brick[..., None] + sand * (1 - brick[..., None])
+    soot = smooth(fbm(n, seed + 7, 5, 4, 5), 0.6, 0.85) * 0.42; col = col * (1 - soot[..., None]) + np.array([0.025, 0.022, 0.02]) * soot[..., None]
+    h = 0.55 + 0.45 * brick * (0.7 + 0.3 * rim) + 0.08 * fbm(n, seed + 8, 70, 70, 3) - 0.1 * pores * brick - 0.12 * chip
+    return col, h
+
+def brick_solid(n=512, seed=611):
+    """the face of one fired brick: pitted, mottled, no mortar (for loose bricks)"""
+    base = ramp(fbm(n, seed, 6, 4, 3), [(0, (0.17, 0.05, 0.03)), (0.5, (0.24, 0.07, 0.04)), (1, (0.30, 0.10, 0.055))])
+    mott = 0.7 + 0.6 * fbm(n, seed + 1, 90, 60, 4); col = base * mott[..., None]
+    pores = smooth(fbm(n, seed + 2, 150, 150, 2), 0.70, 0.78); col = col * (1 - 0.4 * pores[..., None])
+    soot = smooth(fbm(n, seed + 3, 4, 4, 5), 0.5, 0.8) * 0.5; col = col * (1 - soot[..., None]) + np.array([0.025, 0.022, 0.02]) * soot[..., None]
+    h = 0.5 + 0.3 * fbm(n, seed + 4, 60, 60, 4) - 0.25 * pores
+    return col, h
+
+def concrete(n=1024, seed=621, tone=(0.19, 0.185, 0.17)):
+    """weathered cast concrete / plaster: aggregate speckle, air pits, rain streaks, hairline cracks, grime"""
+    rng = np.random.default_rng(seed)
+    base = np.array(tone)[None, None, :] * (0.78 + 0.45 * fbm(n, seed, 7, 7, 5)[..., None])
+    fine = 0.88 + 0.24 * fbm(n, seed + 1, 150, 150, 3); col = base * fine[..., None]
+    f1, e, pid = worley(n, seed + 2, 90, 90, 0.95); agg = smooth(0.30 - f1, 0.0, 0.2) * (pid > 0.55)
+    col = col * (1 - 0.18 * agg[..., None]) + np.array([0.12, 0.11, 0.1]) * 0.18 * agg[..., None]
+    pf, pe, pi = worley(n, seed + 3, 36, 36, 0.95); pit = smooth(0.17 - pf, 0.0, 0.17) * (pi > 0.7)
+    col = col * (1 - 0.55 * pit[..., None])
+    streak = smooth(fbm(n, seed + 4, 14, 2, 4), 0.5, 0.78); col = col * (1 - 0.28 * streak[..., None])
+    grime = smooth(fbm(n, seed + 5, 4, 4, 5), 0.55, 0.85) * 0.4; col = col * (1 - grime[..., None]) + np.array([0.04, 0.038, 0.034]) * grime[..., None]
+    cf, ce, _ = worley(n, seed + 6, 7, 7, 0.9); cw = warp(ce, n, seed + 7, 0.12, 8); crack = 1 - smooth(cw, 0.0, 0.035)
+    crack *= smooth(fbm(n, seed + 8, 3, 3, 3), 0.5, 0.6); col = col * (1 - 0.7 * crack[..., None])
+    h = 0.55 + 0.25 * fbm(n, seed + 9, 40, 40, 4) - 0.35 * pit + 0.1 * agg - 0.4 * crack
+    return col, h
+
+def planks(n=1024, seed=631, count=6, paint=None):
+    """weathered vertical boards: grain, knots, nail heads, gaps; paint=(r,g,b) puts worn paint over it (chipped to bare wood)"""
+    rng = np.random.default_rng(seed); Y, X = np.mgrid[0:n, 0:n].astype(float)
+    pw = n / count; pid = np.floor(X / pw).astype(int); u = (X / pw) - pid
+    tone = rng.random(count); ptone = tone[pid % count]
+    gap = 1 - smooth(np.minimum(u, 1 - u), 0.012, 0.035)
+    grain = fbm(n, seed + 1, 90, 3, 4, 0.55); grain = warp(grain, n, seed + 2, 0.05, 3)
+    rings = 0.5 + 0.5 * np.sin((grain * 7.0 + fbm(n, seed + 3, 6, 2, 3) * 4.0) * 6.283)
+    wood = ramp(0.5 * grain + 0.3 * rings * 0.5 + 0.2 * ptone, [(0, (0.10, 0.065, 0.035)), (0.5, (0.27, 0.18, 0.10)), (1, (0.43, 0.31, 0.19))])
+    gray = smooth(fbm(n, seed + 4, 5, 5, 4), 0.45, 0.8) * 0.55; wood = wood * (1 - gray[..., None]) + np.array([0.20, 0.19, 0.17]) * gray[..., None]
+    kf, ke, kid = worley(n, seed + 5, 6, 3, 0.9); knot = smooth(0.15 - kf, 0.0, 0.15) * (kid > 0.6); wood = wood * (1 - 0.6 * knot[..., None])
+    for k in range(count):                                                              # nails near top and bottom of every board
+        for ny in (0.07, 0.93):
+            for dx in (0.28, 0.72):
+                cx = (k + dx) * pw; cy = ny * n; d = np.hypot(((X - cx + n / 2) % n) - n / 2, ((Y - cy + n / 2) % n) - n / 2)
+                nail = smooth(7.0 - d, 0.0, 4.0); wood = wood * (1 - nail[..., None]) + np.array([0.06, 0.05, 0.045]) * nail[..., None]
+    col = wood * (1 - gap[..., None] * 0.9)
+    h = 0.6 + 0.12 * grain + 0.1 * rings - 0.5 * gap - 0.2 * knot
+    if paint is not None:
+        wear = smooth(fbm(n, seed + 6, 10, 10, 5) + 0.35 * fbm(n, seed + 7, 70, 70, 3) + (1 - smooth(np.minimum(u, 1 - u), 0.02, 0.2)) * 0.3, 0.50, 0.66)
+        pc = np.array(paint)[None, None, :] * (0.8 + 0.4 * fbm(n, seed + 8, 40, 40, 3)[..., None])
+        col = col * wear[..., None] + pc * (1 - wear[..., None]) * (1 - gap[..., None] * 0.9)
+        h = h - 0.05 * (1 - wear)
+    return col, h
+
+def metal_paint(n=1024, seed=641, paint=(0.085, 0.10, 0.045)):
+    """painted steel (drums, jerrycans): worn paint, orange rust blooms, drips, scratches, grime"""
+    base = np.array(paint)[None, None, :] * (0.75 + 0.5 * fbm(n, seed, 6, 6, 4)[..., None])
+    base = base * (0.9 + 0.2 * fbm(n, seed + 1, 150, 150, 2)[..., None])
+    rustm = smooth(fbm(n, seed + 2, 6, 5, 5) + 0.3 * fbm(n, seed + 3, 40, 40, 3), 0.74, 0.9) * 0.85
+    rust = ramp(fbm(n, seed + 4, 60, 60, 4), [(0, (0.12, 0.04, 0.015)), (0.5, (0.30, 0.11, 0.035)), (1, (0.45, 0.20, 0.06))])
+    drip = smooth(fbm(n, seed + 5, 30, 2, 4), 0.55, 0.8) * smooth(fbm(n, seed + 6, 5, 4, 3), 0.4, 0.7)
+    col = base * (1 - rustm[..., None]) + rust * rustm[..., None]
+    col = col * (1 - 0.35 * drip[..., None]) + np.array([0.10, 0.04, 0.02]) * 0.35 * drip[..., None]
+    rng = np.random.default_rng(seed + 9); card = new_card(n, n); WRAP[0] = True
+    scatter_strokes(card, rng, n, 140, 14, 60, 0.8, 1.3, [((0.30, 0.28, 0.25), (0.42, 0.40, 0.36))], None); WRAP[0] = False
+    col = col * (1 - 0.35 * card[..., 3:4]) + card[..., :3] * 0.35 * card[..., 3:4]
+    grime = smooth(fbm(n, seed + 7, 3, 3, 5), 0.5, 0.85) * 0.45; col = col * (1 - grime[..., None])
+    h = 0.55 + 0.2 * rustm * fbm(n, seed + 8, 80, 80, 3) - 0.1 * card[..., 3] + 0.06 * fbm(n, seed + 10, 120, 120, 2)
+    return col, h
+
+def burlap(n=1024, seed=651, tone=(0.24, 0.185, 0.105)):
+    """woven sandbag cloth with sand dust and damp stains"""
+    Y, X = np.mgrid[0:n, 0:n].astype(float); T = 128
+    wa = np.sin(X / n * T * 2 * math.pi); wb = np.sin(Y / n * T * 2 * math.pi)
+    over = (np.floor(X / n * T) + np.floor(Y / n * T)) % 2
+    thread = np.where(over > 0, 0.5 + 0.5 * wa, 0.5 + 0.5 * wb)
+    jitter = 0.8 + 0.4 * fbm(n, seed, 160, 160, 2)
+    col = np.array(tone)[None, None, :] * (0.55 + 0.5 * thread[..., None]) * jitter[..., None] * (0.8 + 0.4 * fbm(n, seed + 1, 8, 8, 4)[..., None])
+    damp = smooth(fbm(n, seed + 2, 4, 4, 5), 0.5, 0.78) * 0.5; col = col * (1 - 0.45 * damp[..., None])
+    dust = smooth(fbm(n, seed + 3, 10, 10, 5), 0.55, 0.85) * 0.5; col = col * (1 - dust[..., None]) + np.array([0.42, 0.36, 0.25]) * 0.8 * dust[..., None]
+    h = 0.5 + 0.35 * thread + 0.05 * fbm(n, seed + 4, 80, 80, 2)
+    return col, h

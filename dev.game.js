@@ -1499,7 +1499,7 @@ let _pebMat=null;
 const PROPDB={}; let propDbDone=false;
 function propIndex(){
   if(propDbDone) return; if(!GUNGLB.props1) return; propDbDone=true; window.__props={PROPDB,colliders};
-  for(const key of ['props1','props2','props3']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
+  for(const key of ['props1','props2','props3','props4']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
     sc.traverse(o=>{
       if(!o.name||!o.name.startsWith('prop_')) return; const name=o.name.slice(5);
       const inv=o.matrixWorld.clone().invert(), tri=[]; let pass=false;
@@ -1521,7 +1521,7 @@ function propIndex(){
 let vegDbDone=false;
 function vegIndex(){
   if(vegDbDone) return; if(!GUNGLB.veg2 && !GUNGLB.veg3) return; vegDbDone=true;
-  for(const key of ['veg2','veg3']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
+  for(const key of ['veg2','veg3','props4']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
     sc.traverse(o=>{
       if(!o.name||!o.name.startsWith('prop_')) return; const name=o.name.slice(5);
       const inv=o.matrixWorld.clone().invert(), tri=[];
@@ -1613,9 +1613,10 @@ function scatterBlenderProps(id){
   const city=['stalingrad','berlin','seelow','moscow','cassino','remagen'].includes(id), k=(builtBig?2.2:1)*(gfx==='low'?0.5:1);
   const plan=[['rock_boulder_a',7,[0.8,1.3]],['rock_boulder_b',9,[0.8,1.4]],['rock_slab',5,[0.8,1.3]],['rubble_pile_a',city?9:4,[0.8,1.3]],['barrel_oil',city?7:4,[1,1]],['crate_wood',5,[1,1]],['crate_ammo',6,[1,1]]];
   if(['normandy','lorraine','ardennes','remagen','kursk'].includes(id)) plan.push(['dragons_tooth',3,[1,1]]);
-  const R={rock_boulder_a:1.1,rock_boulder_b:0.8,rock_slab:1.0,rubble_pile_a:1.2,barrel_oil:0.45,crate_wood:0.6,crate_ammo:0.45,dragons_tooth:0.7};
+  if(PROPDB.rubble_pile_b) plan.push(['rubble_pile_b',city?4:1,[0.9,1.2]],['rubble_heap',city?2:0,[0.9,1.15]],['jerrycan',city?5:3,[1,1]],['beams_debris',city?3:1,[0.9,1.2]]);
+  const R={rock_boulder_a:1.1,rock_boulder_b:0.8,rock_slab:1.0,rubble_pile_a:1.2,barrel_oil:0.45,crate_wood:0.6,crate_ammo:0.45,dragons_tooth:0.7,rubble_pile_b:1.7,rubble_heap:2.4,jerrycan:0.3,beams_debris:1.1};
   let made=0;
-  for(const [nm,cnt,sc] of plan){ if(!PROPDB[nm]) continue; const n=Math.round(cnt*k);
+  for(const [nm,cnt,sc] of plan){ if(!PROPDB[nm]) continue; if(!R[nm]) continue; const n=Math.round(cnt*k);
     for(let i=0,t=0;i<n && t<n*14;t++){
       const x=(rr()*2-1)*(L-6), z=(rr()*2-1)*(L-6), s=sc[0]+rr()*(sc[1]-sc[0]), r=R[nm]*s;
       if(Math.hypot(x,z-(L-22))<9 || Math.hypot(x,z+(L-22))<9) continue;
@@ -1624,6 +1625,10 @@ function scatterBlenderProps(id){
       placeProp(nm,x,z,rr()*6.283,s); i++; made++;
       if(nm==='crate_wood' && rr()<0.5){ placeProp('crate_ammo',x+0.1,z,rr()*6.283,1,Math.max(0,groundY(x,z))+0.53); }      // an ammo crate stacked on top
     } }
+  if(PROPDB.debris_bricks_a && propQ){ for(const nm of ['debris_bricks_a','debris_bricks_b']){ const n=Math.round((city?11:4)*k);
+    for(let i=0,t=0;i<n && t<n*14;t++){ const x=(rr()*2-1)*(L-6), z=(rr()*2-1)*(L-6);
+      if(Math.hypot(x,z-(L-22))<9 || Math.hypot(x,z+(L-22))<9 || insideBuilding(x,z) || groundY(x,z)<-0.05) continue;
+      (propQ[nm]||(propQ[nm]=[])).push([x,Math.max(0,groundY(x,z)),z,rr()*6.283,0.9+rr()*0.4,[1,1,1],0,0]); i++; made++; } } }
   window.__propsMade=made;
 }
 /* ---- vegetation scatter: what grows (or is left standing) depends on the map's season and state ----
@@ -6036,7 +6041,7 @@ function analyseModel(template){
 function tintMaterial(m,col){ const n=m.clone(); if(n.color) n.color.multiply(new THREE.Color(col)); return n; }
 
 var GUNGLB_unused=0;      // Blender-made rifles for the player's own hands: kar98k, mosin
-async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } }
 async function loadCharacters(){
   const loader=new GLTFLoader();

@@ -10007,6 +10007,21 @@ function tankDecalMat(type){
     else { x.fillStyle='#e8e4d4'; x.fillRect(86,22,84,212); x.fillRect(22,86,212,84); x.fillStyle='#16140f'; x.fillRect(100,36,56,184); x.fillRect(36,100,184,56); } });
   return _decalMats[k]=new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.9,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3,depthWrite:false});
 }
+function tankNumberize(obj,type){      // every tank gets its own turret number instead of all wearing the baked-in one
+  const ri=n=>Math.floor(Math.random()*n), pz=type==='pz4';
+  const num=pz? ''+(1+ri(3))+ri(5)+(1+ri(9)) : ''+(1+ri(4))+ri(10)+(ri(10));
+  const c=document.createElement('canvas'); c.width=512; c.height=192; const x=c.getContext('2d');
+  x.clearRect(0,0,512,192); x.font='900 170px "Arial Black",Impact,Arial,sans-serif'; x.textAlign='center'; x.textBaseline='middle';
+  if(pz){ x.lineJoin='round'; x.lineWidth=18; x.strokeStyle='#ddd8c6'; x.strokeText(num,256,98); x.fillStyle='#15130f'; x.fillText(num,256,98); }
+  else { x.fillStyle='#e6e2d2'; x.fillText(num,256,98); }
+  const id=x.getImageData(0,0,512,192), d=id.data;                      // worn paint: rub small holes and fade patches
+  for(let k=0;k<420;k++){ const cx=ri(512), cy=ri(192), r=1+Math.random()*5; x.globalCompositeOperation='destination-out'; x.globalAlpha=0.5+Math.random()*0.5; x.beginPath(); x.ellipse(cx,cy,r*(1+Math.random()),r,Math.random()*3,0,7); x.fill(); }
+  x.globalCompositeOperation='source-atop'; x.globalAlpha=0.28; x.fillStyle='#6a5a3c'; for(let k=0;k<14;k++){ x.fillRect(ri(512),ri(192),30+ri(120),10+ri(40)); } x.globalAlpha=1; x.globalCompositeOperation='source-over';
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.flipY=false; t.anisotropy=4;
+  obj.traverse(m=>{ if(!m.isMesh) return; const ms=Array.isArray(m.material)?m.material:[m.material];
+    const out=ms.map(q=>{ if(!q||!/decal_num/.test(q.name)) return q; const nq=q.clone(); nq.map=t; nq.needsUpdate=true; return nq; });
+    m.material=Array.isArray(m.material)?out:out[0]; });
+}
 function tankGlbParts(type){      // Blender-built hull / turret / gun / barrel for the Panzer IV and T-34
   const src=GUNGLB[type]; if(!src) return null;
   if(!tankGlbParts['d'+type]){ tankGlbParts['d'+type]=1;
@@ -10015,7 +10030,7 @@ function tankGlbParts(type){      // Blender-built hull / turret / gun / barrel 
         if(/decal/.test(q.name)){ q.transparent=true; q.alphaTest=0.3; q.depthWrite=false; q.side=THREE.DoubleSide; q.polygonOffset=true; q.polygonOffsetFactor=-3; q.polygonOffsetUnits=-3; q.roughness=0.9; q.metalness=0; }
         else { try{ if(!q.userData.detailed) withDetail(q,'metal',2.5,0.55,true,{bump:2}); }catch(e){} } } }); }
   const get=n=>{ const o=src.getObjectByName(type+'_'+n); if(!o) return null; const c=o.clone(true); c.position.set(0,0,0); c.rotation.set(0,0,0); c.scale.set(1,1,1);
-    c.traverse(m=>{ if(m.isMesh){ const ms=Array.isArray(m.material)?m.material:[m.material]; if(ms.some(q=>/decal/.test(q.name))){ m.userData.decal=true; m.raycast=()=>{}; } } }); return c; };
+    c.traverse(m=>{ if(m.isMesh){ const ms=Array.isArray(m.material)?m.material:[m.material]; if(ms.some(q=>/decal/.test(q.name))){ m.userData.decal=true; m.raycast=()=>{}; } } }); if(n==='turret') tankNumberize(c,type); return c; };
   const G={hull:get('hull'),turret:get('turret'),gun:get('gun'),barrel:get('barrel')};
   return (G.hull&&G.turret&&G.gun&&G.barrel)?G:null;
 }

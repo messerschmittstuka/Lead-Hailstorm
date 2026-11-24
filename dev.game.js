@@ -789,13 +789,7 @@ function bladeGeo(){
   g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3)); g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
   g.setIndex(idx); return _bladeGeo=g;
 }
-let _grassMat=null;
-function grassMat(){
-  if(_grassMat) return _grassMat;
-  const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.85,metalness:0,side:THREE.DoubleSide});
-  m.customProgramCacheKey=()=>'grass';
-  m.onBeforeCompile=sh=>{
-    sh.uniforms.uTime=grassU.uTime; sh.uniforms.uCam=grassU.uCam; sh.uniforms.uWK=grassU.uWK;
+function grassShaderPatch(sh){
     sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uTime; uniform vec3 uCam; uniform float uWK;')
       .replace('#include <begin_vertex>',`#include <begin_vertex>
         { float sw=position.y*position.y*uWK; float ph=instanceMatrix[3][0]*0.45+instanceMatrix[3][2]*0.35;
@@ -805,8 +799,36 @@ function grassMat(){
     // light the blades as if they faced mostly upward, so the carpet reads as one sunlit surface with soft dark roots
     sh.fragmentShader=sh.fragmentShader.replace('#include <normal_fragment_begin>',`#include <normal_fragment_begin>
         { vec3 upV=normalize((viewMatrix*vec4(0.0,1.0,0.0,0.0)).xyz); normal=normalize(mix(normal,upV,0.72)); }`);
-  };
+}
+let _grassMat=null;
+function grassMat(){
+  if(_grassMat) return _grassMat;
+  const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.85,metalness:0,side:THREE.DoubleSide});
+  m.customProgramCacheKey=()=>'grass';
+  m.onBeforeCompile=sh=>{ sh.uniforms.uTime=grassU.uTime; sh.uniforms.uCam=grassU.uCam; sh.uniforms.uWK=grassU.uWK; grassShaderPatch(sh); };
   return _grassMat=m;
+}
+/* ---- tufts: real 3D grass clumps (Poly Haven "Grass Medium 01", CC0) grown near the player on top of the blade carpet ---- */
+const tuftU={uCam:{value:new THREE.Vector3(0,0,30)}};
+const TUFT_DRY=new Set(['stalingrad','moscow','ardennes','berlin']);      // dry maps get the dry-grass texture, the rest the green one (both tinted by the map's palette)
+let _tuft=null;
+function tuftMat(map){
+  const m=new THREE.MeshStandardMaterial({map,roughness:0.92,metalness:0,side:THREE.DoubleSide,alphaTest:0.5});
+  m.customProgramCacheKey=()=>'grasstuft';
+  m.onBeforeCompile=sh=>{ sh.uniforms.uTime=grassU.uTime; sh.uniforms.uCam=tuftU.uCam; sh.uniforms.uWK=grassU.uWK; grassShaderPatch(sh); };
+  return m;
+}
+function tuftAssets(){
+  if(_tuft!==null) return _tuft||null;
+  _tuft=false; const sc=GUNGLB.grass_tufts; if(!sc) return null;
+  sc.updateMatrixWorld(true); const geos=[]; let map=null;
+  sc.traverse(o=>{ if(o.isMesh&&/^tuft_/.test(o.name)){ const g=o.geometry.clone(); g.applyMatrix4(o.matrixWorld);
+    geos.push({name:o.name,g,hr:/tall/.test(o.name)?[0.7,1.1]:/mid/.test(o.name)?[0.45,0.75]:[0.3,0.5]});
+    const m=[].concat(o.material)[0]; if(m&&m.map&&!map) map=m.map; } });
+  if(!geos.length||!map) return null;
+  geos.sort((p,q)=>p.name<q.name?-1:1);
+  let dry=null; try{ const el=document.getElementById('tex_grass_dry'); if(el){ dry=new THREE.TextureLoader().load('data:image/png;base64,'+el.textContent.trim()); dry.colorSpace=THREE.SRGBColorSpace; dry.flipY=false; dry.anisotropy=map.anisotropy||1; } }catch(e){ dry=null; }
+  return _tuft={geos,mats:{green:tuftMat(map),dry:tuftMat(dry||map)}};
 }
 const GRASS_STYLE={
   kursk:{dens:0.95,h:[0.55,1.12],w:[0.1,0.2],pal:['#4a6528','#566f2f','#657c37','#3c5622','#6f8338','#5a7230','#4a6529','#7c8a42','#5f7731']},
@@ -822,7 +844,7 @@ const GRASS_STYLE={
 };
 /* the reference's blades are long, thin and sharp: taller and slimmer than ours were */
 (function(){ const apply=()=>{ for(const id of ['kursk','ardsummer','normandy','lorraine','alps','cassino','remagen','seelow']){ const st=GRASS_STYLE[id]; if(st && !st._lt){ st._lt=1; st.h=[st.h[0]*1.22,st.h[1]*1.38]; st.w=[st.w[0]*0.78,st.w[1]*0.8]; } } }; window.__grassLong=apply; })();
-function clearGrass(){ GRS.on=false; GRS.mesh=null; for(const c of [...grassGroup.children]){ grassGroup.remove(c); if(c.dispose) c.dispose(); } }
+function clearGrass(){ GRS.on=false; GRS.mesh=null; GRS.tf=null; for(const c of [...grassGroup.children]){ grassGroup.remove(c); if(c.dispose) c.dispose(); } }
 function grassMask(){
   const N=480, cs=0.5, half=120, g=new Uint8Array(N*N);
   const mark=(x0,z0,x1,z1,pad)=>{ let i0=Math.max(0,Math.floor((x0-pad+half)/cs)), i1=Math.min(N-1,Math.floor((x1+pad+half)/cs)), j0=Math.max(0,Math.floor((z0-pad+half)/cs)), j1=Math.min(N-1,Math.floor((z1+pad+half)/cs));
@@ -851,10 +873,15 @@ function buildGrass(id){
   im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); im.setColorAt(0,_grc.set('#6f9433')); im.instanceColor.setUsage(THREE.DynamicDrawUsage);
   im.castShadow=false; im.receiveShadow=true; im.userData.grass=true; im.raycast=()=>{};
   grassGroup.add(im); GRS.mesh=im; GRS.on=true;
+  GRS.tf=null; const ta=tuftAssets();
+  if(ta){ const dry=TUFT_DRY.has(id), capT=IS_TOUCH?2500:(gfx==='medium'?4500:9000); GRS.tfFar=IS_TOUCH?16:(gfx==='medium'?20:28); GRS.tfDry=dry;
+    GRS.tf=ta.geos.map(t=>{ const m=new THREE.InstancedMesh(t.g,dry?ta.mats.dry:ta.mats.green,Math.ceil(capT/ta.geos.length*1.8)); m.count=0; m.frustumCulled=false;
+      m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.setColorAt(0,_grc.set('#ffffff')); m.instanceColor.setUsage(THREE.DynamicDrawUsage);
+      m.castShadow=false; m.receiveShadow=true; m.userData.grass=true; m.raycast=()=>{}; grassGroup.add(m); return m; }); }
 }
 function grassChunk(cx,cz){
   const key=cx*100003+cz; let c=GRS.cache.get(key); if(c) return c;
-  const st=GRS.style, mk=GRS.mask, rnd=gSeeded(key*2654435761+GRS.seed), R=120, tries=Math.round(GCH*GCH*st.dens*GRS.k*1.5), out=[];
+  const st=GRS.style, mk=GRS.mask, rnd=gSeeded(key*2654435761+GRS.seed), R=120, tries=Math.round(GCH*GCH*st.dens*GRS.k*1.5), out=[], tfo=GRS.tf?GRS.tf.map(()=>[]):null, tfg=GRS.tf?tuftAssets().geos:null;
   for(let n=0;n<tries;n++){
     const x=(cx+rnd())*GCH, z=(cz+rnd())*GCH;
     const r1=rnd(), r2=rnd();
@@ -865,6 +892,12 @@ function grassChunk(cx,cz){
     if(r1>dens+0.55) continue;
     const gy=groundY(x,z);
     if(gy<-0.02 || groundY(x+0.7,z)<-0.08 || groundY(x-0.7,z)<-0.08 || groundY(x,z+0.7)<-0.08 || groundY(x,z-0.7)<-0.08) continue;
+    if(tfo){ const nt=1+((rnd()*2.4)|0), gain=GRS.tfDry?1.05:2.3;
+      for(let t=0;t<nt;t++){ const v=(rnd()*tfg.length)|0, hr=tfg[v].hr, sc=(hr[0]+rnd()*(hr[1]-hr[0]))*(0.85+0.35*Math.max(0,dens));
+        _grp.set(x+(rnd()-.5)*1.1,gy-0.015,z+(rnd()-.5)*1.1); _gre.set((rnd()-.5)*0.3,rnd()*6.283,(rnd()-.5)*0.3); _grq.setFromEuler(_gre); _grs.set(sc*(0.85+rnd()*0.3),sc,sc*(0.85+rnd()*0.3));
+        _grm.compose(_grp,_grq,_grs); const e=_grm.elements, a=tfo[v]; for(let q=0;q<16;q++) a.push(e[q]);
+        const sh=rnd(); _grc.set(st.pal[(rnd()*st.pal.length)|0]); const mx=Math.max(_grc.r,_grc.g,_grc.b)||1, tr=0.5+0.5*_grc.r/mx, tg=0.5+0.5*_grc.g/mx, tb=0.5+0.5*_grc.b/mx, br=gain*(0.82+sh*0.36);
+        a.push(tr*br,tg*br,tb*br,rnd()); } }
     const nb=11+((rnd()*9)|0), tall=0.95+0.8*Math.max(0,dens);      // thick tall clumps, like the reference
     for(let b=0;b<nb;b++){
       _grp.set(x+(rnd()-.5)*0.6,gy,z+(rnd()-.5)*0.6); _gre.set((rnd()-.2)*0.9,rnd()*6.283,(rnd()-.5)*0.5);
@@ -873,7 +906,7 @@ function grassChunk(cx,cz){
       const sh=rnd(); _grc.set(st.pal[(rnd()*st.pal.length)|0]); _grc.offsetHSL((sh-.5)*0.03,(sh-.5)*0.12-GRS.dl,(sh-.5)*0.14-GRS.dl*0.17); out.push(_grc.r,_grc.g,_grc.b,rnd());
     }
   }
-  c={cx,cz,d:new Float32Array(out)}; GRS.cache.set(key,c); return c;
+  c={cx,cz,d:new Float32Array(out),t:tfo?tfo.map(a=>new Float32Array(a)):null}; GRS.cache.set(key,c); return c;
 }
 // every frame: rebuild the visible set only when the camera moved a square or turned ~12 degrees
 function grassDirty(p){ if(!GRS.on) return; for(let cx=Math.floor((p.x0-1)/GCH);cx<=Math.floor((p.x1+1)/GCH);cx++) for(let cz=Math.floor((p.z0-1)/GCH);cz<=Math.floor((p.z1+1)/GCH);cz++) GRS.cache.delete(cx*100003+cz); GRS.key=''; }
@@ -894,14 +927,19 @@ function grassTick(){
     list.push([cx+ix,cz+iz,d]);
   }
   list.sort((p,q)=>p[2]-q[2]);
-  let budget=IS_TOUCH?25:45, n=0; const cap=GRS.cap;
+  let budget=IS_TOUCH?25:45, n=0; const cap=GRS.cap, tm=GRS.tf, tn=tm?tm.map(()=>0):null, tfar=GRS.tfFar||0; if(tm) tuftU.uCam.value.set(cam.x,cam.z,tfar);
   for(const [ux,uz,d] of list){
     const key2=ux*100003+uz; let c=GRS.cache.get(key2);
     if(!c){ if(budget<=0){ GRS.pending=true; continue; } budget--; c=grassChunk(ux,uz); }
     const share=d<far/3?1:d<far*0.6?0.5:0.25, D=c.d, nb=D.length/GBF;
     for(let b=0;b<nb && n<cap;b++){ const o=b*GBF; if(D[o+19]>=share) continue;
       ma.set(D.subarray(o,o+16),n*16); const o3=n*3; ca[o3]=D[o+16]; ca[o3+1]=D[o+17]; ca[o3+2]=D[o+18]; n++; }
+    if(tm && c.t && d<tfar+GCH){ const ts=d<tfar*0.45?1:d<tfar*0.75?0.55:0.3;
+      for(let v=0;v<tm.length;v++){ const T=c.t[v], tb2=T.length/GBF, im2=tm[v], ma2=im2.instanceMatrix.array, ca2=im2.instanceColor.array, cp=im2.instanceMatrix.count; let k=tn[v];
+        for(let b=0;b<tb2 && k<cp;b++){ const o=b*GBF; if(T[o+19]>=ts) continue; ma2.set(T.subarray(o,o+16),k*16); const q3=k*3; ca2[q3]=T[o+16]; ca2[q3+1]=T[o+17]; ca2[q3+2]=T[o+18]; k++; }
+        tn[v]=k; } }
   }
+  if(tm) for(let v=0;v<tm.length;v++){ const im2=tm[v]; im2.count=tn[v]; im2.instanceMatrix.needsUpdate=true; im2.instanceColor.needsUpdate=true; }
   im.count=n; im.instanceMatrix.needsUpdate=true; im.instanceColor.needsUpdate=true;
   if(GRS.cache.size>list.length*2+150){ const keep=new Set(list.map(p=>p[0]*100003+p[1])); for(const k2 of GRS.cache.keys()) if(!keep.has(k2)) GRS.cache.delete(k2); }
 }
@@ -6070,7 +6108,7 @@ function macroVary(m,k){
   };
   m.customProgramCacheKey=()=>'macro'+k+(heavy?'h':'l'); m.needsUpdate=true;
 }
-async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','grass_tufts']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } 
   try{ for(const key of ['buildings','walls2','props4']){ const sc=GUNGLB[key]; if(!sc) continue; const seen=new Set(); sc.traverse(o=>{ if(!o.isMesh) return; for(const m of [].concat(o.material)){ if(!m||seen.has(m)||/metal|burlap/i.test(m.name||'')) continue; seen.add(m); macroVary(m,key==='props4'?0.6:1.0); } }); } }catch(e){ console.warn('macro variation skipped',e); } }
 async function loadCharacters(){

@@ -81,6 +81,8 @@ def tank_rubber(n=1024, seed=831):
 if __name__ == '__main__' or True:
     SET = [('paint_dg', lambda: tank_paint(1024, 801, (0.40, 0.28, 0.115)), 2.0),
            ('paint_dg_dark', lambda: tank_paint(1024, 802, (0.26, 0.185, 0.08)), 2.0),
+           ('paint_olive', lambda: tank_paint(1024, 803, (0.050, 0.060, 0.026)), 2.0),
+           ('paint_olive_dark', lambda: tank_paint(1024, 804, (0.032, 0.040, 0.018)), 2.0),
            ('track', lambda: tank_track(1024), 3.0), ('steel', lambda: tank_steel(1024), 2.0), ('rubber', lambda: tank_rubber(512), 2.0)]
     tiles = []
     for name, fn, st in SET:
@@ -88,7 +90,7 @@ if __name__ == '__main__' or True:
         save_rgb(OUT + name + '_c.jpg', srgb); save_rgb(OUT + name + '_n.jpg', nrm)
         k = srgb.shape[0] // 256; t = srgb.reshape(256, k, 256, k, 3).mean((1, 3)); tiles.append(np.tile(t, (2, 2, 1)))
         print(name, 'seam', seam(srgb), 'mean', np.round(srgb.mean((0, 1)), 2))
-    tiles.append(tiles[0] * 0 + 0.5)
-    rows = [np.concatenate(tiles[i:i + 3], 1) for i in range(0, 6, 3)]
+    while len(tiles) % 3: tiles.append(tiles[0] * 0 + 0.5)
+    rows = [np.concatenate(tiles[i:i + 3], 1) for i in range(0, len(tiles), 3)]
     save_rgb(D + '/tank_tiles_preview.jpg', np.concatenate(rows, 0)[::-1])
     print('DONE')

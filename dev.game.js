@@ -1526,7 +1526,7 @@ function propIndex(){
 let vegDbDone=false;
 function vegIndex(){
   if(vegDbDone) return; if(!GUNGLB.veg2 && !GUNGLB.veg3 && !GUNGLB.veg4) return; vegDbDone=true;
-  for(const key of ['veg2','veg3','veg4','props4']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
+  for(const key of ['veg2','veg3','veg4','props4','vegsh','veggr','vegco','vegbr']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
     sc.traverse(o=>{
       if(!o.name||!o.name.startsWith('prop_')) return; const name=o.name.slice(5);
       const inv=o.matrixWorld.clone().invert(), tri=[];
@@ -6076,7 +6076,7 @@ function macroVary(m,k){
   };
   m.customProgramCacheKey=()=>'macro'+k+(heavy?'h':'l'); m.needsUpdate=true;
 }
-async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4','vegsh','veggr','vegco','vegbr']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } 
   try{ for(const key of ['buildings','walls2','props4']){ const sc=GUNGLB[key]; if(!sc) continue; const seen=new Set(); sc.traverse(o=>{ if(!o.isMesh) return; for(const m of [].concat(o.material)){ if(!m||seen.has(m)||/metal|burlap/i.test(m.name||'')) continue; seen.add(m); macroVary(m,key==='props4'?0.6:1.0); } }); } }catch(e){ console.warn('macro variation skipped',e); } }
 async function loadCharacters(){

@@ -5509,11 +5509,11 @@ function makeWeapon(type,hero){
     add2.forEach(m=>g.add(m)); }
   // your own Kar98k is the Blender model (real stock profile, grain, bolt group); the game's own iron sights, muzzle point and bayonet stay
   if(hero && GUNGLB[orig]){ try{
-    const keep=new Set([mz,bayonet]); g.children.slice().forEach((c,i)=>{ if(keep.has(c)||(sgA>=0&&i>=sgA&&i<sgB)) return; g.remove(c); });
+    const ownSights=(orig==='kar98k'); const keep=new Set([mz,bayonet]); g.children.slice().forEach((c,i)=>{ if(keep.has(c)||(!ownSights&&sgA>=0&&i>=sgA&&i<sgB)) return; g.remove(c); });
     const km=GUNGLB[orig].clone(true);
     if(orig==='arisaka' && bayonet && km.getObjectByName('bayo_blade')){ bayonet.children.slice().forEach(c=>bayonet.remove(c)); bayonet.visible=true; bayonet.userData.fixed=1; }      // the Blender rifle carries its own fixed Type 30 bayonet
-    for(const n of ['RearSight','rs_base','clip_guide']){ const o=km.getObjectByName(n); if(o) o.removeFromParent(); }
-    for(const o of km.children.filter(o=>/^fs_/.test(o.name))) o.removeFromParent();
+    if(!ownSights){ for(const n of ['RearSight','rs_base','clip_guide']){ const o=km.getObjectByName(n); if(o) o.removeFromParent(); }
+    for(const o of km.children.filter(o=>/^fs_/.test(o.name))) o.removeFromParent(); }      // the Kar98k keeps its own Blender sights (tangent leaf with a V notch, hooded post); the other rifles still use the game's
     km.traverse(o=>{ if(o.isMesh){ o.castShadow=o.receiveShadow=true; } });
     const bn=km.getObjectByName('Bolt'); boltH=new THREE.Group(); boltH.position.set(0,0.04,0.03);
     if(bn){ bn.removeFromParent(); bn.position.set(0,0.0385-0.04,-0.03); boltH.add(bn); }

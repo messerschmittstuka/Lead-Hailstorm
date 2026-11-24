@@ -249,9 +249,20 @@ box('fs_hood_top', 0.0044, 0.019, 0.0036, 0, 0.700, 0.0878, BLUED, 0.0005)
 # ---------------- rear sight: base on the handguard + tangent leaf with a V notch (centre of the notch at z = 0.088) ----------------
 box('rs_base', 0.034, 0.075, 0.012, 0, 0.275, 0.058, BLUED, 0.0012)
 box('rs_slider', 0.024, 0.014, 0.014, 0, 0.275, 0.071, STEEL, 0.001)
-box('rs_leaf_L', 0.0105, 0.004, 0.034, -0.0090, 0.272, 0.0765, BLUED, 0.0006)
-box('rs_leaf_R', 0.0105, 0.004, 0.034, 0.0090, 0.272, 0.0765, BLUED, 0.0006)
-box('rs_leaf_bot', 0.028, 0.004, 0.026, 0, 0.272, 0.0685, BLUED, 0.0006)
+def poly_xz(name, pts, thick, y, m):
+    """flat plate cut from an outline in the x-z plane (front view), thickness along y"""
+    me = bpy.data.meshes.new(name); ob = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(ob)
+    bm = bmesh.new(); vs = [bm.verts.new((x, y - thick / 2, z)) for x, z in pts]; f = bm.faces.new(vs)
+    ext = bmesh.ops.extrude_face_region(bm, geom=[f]); vv = [v for v in ext['geom'] if isinstance(v, bmesh.types.BMVert)]
+    bmesh.ops.translate(bm, vec=(0, thick, 0), verts=vv); bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me); bm.free(); me.materials.append(m); ob.parent = root
+    md = ob.modifiers.new('bev', 'BEVEL'); md.width = 0.0004; md.segments = 1; md.limit_method = 'ANGLE'
+    return ob
+# tangent leaf: one plate with the real V notch, apex on the line of sight (z = 0.088), top edge a little above it
+poly_xz('rs_leaf', [(-0.0135, 0.0585), (0.0135, 0.0585), (0.0135, 0.0935), (0.0058, 0.0935), (0.0, 0.0880), (-0.0058, 0.0935), (-0.0135, 0.0935)], 0.004, 0.272, BLUED)
+box('rs_leaf_ramp', 0.026, 0.010, 0.006, 0, 0.268, 0.0612, BLUED, 0.0008)          # the leaf's hinge block on the ramp
+for i, dz in enumerate((0.066, 0.072, 0.078)):                                      # range graduations along the leaf's back edge
+    box('rs_tick_%d' % i, 0.004, 0.0012, 0.0010, 0.0105, 0.2695, dz, STEEL, 0)
 
 # ---------------- screws, swivel, small details ----------------
 for x in (-0.0195, 0.0195):
@@ -272,7 +283,7 @@ def group(name, pivot, members):
 # Bolt pivot sits on the bore axis: slide along Y to cycle, rotate about Y to lift the handle
 group('Bolt', (0, 0, BZ + 0.0035), ['bolt_body', 'bolt_ring_0', 'bolt_ring_1', 'bolt_ring_2', 'cocking_piece', 'bolt_arm', 'bolt_arm_2', 'bolt_knob', 'safety_wing'])
 group('Trigger', (0, -0.040, -0.030), ['trigger'])
-group('RearSight', (0, 0.275, 0.058), ['rs_slider', 'rs_leaf_L', 'rs_leaf_R', 'rs_leaf_bot'])
+group('RearSight', (0, 0.275, 0.058), ['rs_slider', 'rs_leaf', 'rs_leaf_ramp', 'rs_tick_0', 'rs_tick_1', 'rs_tick_2'])
 group('FloorPlate', (0, -0.040, -0.0285), ['floor_plate', 'trigger_guard'])
 
 # ---------------- UVs: metal parts get box-projected world-metre UVs (the stock has its own, lofted) ----------------

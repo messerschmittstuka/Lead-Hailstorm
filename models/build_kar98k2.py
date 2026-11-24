@@ -205,8 +205,8 @@ box('rear_tang', 0.018, 0.060, 0.012, 0, -0.112, 0.0455, BLUED, 0.0035)         
 for i, y in enumerate((-0.058, -0.040, -0.022)):
     torus_y('bolt_ring_%d' % i, 0.0112, 0.0012, y, 0, BZ + 0.0035, STEEL)                  # grooves on the bolt body
 box('bolt_stop', 0.007, 0.020, 0.008, -0.0215, 0.040, 0.026, BLUED, 0.0006)              # bolt stop on the left
-cyl_x('stock_screw_a', 0.0042, 0.0170, 0.0215, 0.020, 0.036, STEEL, 12)                   # action screws through the stock
-cyl_x('stock_screw_b', 0.0042, 0.0190, 0.0235, -0.075, 0.020, STEEL, 12)
+# removed (read as floating specks from behind): cyl_x('stock_screw_a', 0.0042, 0.0170, 0.0215, 0.020, 0.036, STEEL, 12)                   # action screws through the stock
+# removed (read as floating specks from behind): cyl_x('stock_screw_b', 0.0042, 0.0190, 0.0235, -0.075, 0.020, STEEL, 12)
 # ---------------- bolt ----------------
 cyl_y('bolt_body', 0.0108, 0.0108, -0.075, 0.020, 0, BZ + 0.0035, STEEL)
 cyl_y('cocking_piece', 0.0080, 0.0100, -0.125, -0.080, 0, BZ + 0.0035, STEEL)

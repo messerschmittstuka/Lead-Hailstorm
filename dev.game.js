@@ -381,8 +381,8 @@ const buildOak=(()=>{ const mk=(hue)=>()=>{ const sc=0.9+Math.random()*0.5, a=[[
     return a; };
   return [mk([0x4f7a2e,0x5d8a36,0x477029]),mk([0x6a8a30,0x7a9a3a,0x587a2a]),mk([0x3f6a2a,0x4c7832,0x38602a])]; })();
 /* realistic Blender trees (models/veg_4): Scots pine, spruce (plain or snow-laden), oak, birch; falls back to the old procedural ones if the GLB is missing */
-function vegTree(x,z,kind){ vegIndex(); const nm={pine:['tree_pine_a','tree_pine_b'],spruce:['tree_spruce_a','tree_spruce_b'],snow:['tree_spruce_snow_a','tree_spruce_snow_b'],oak:['tree_oak_a','tree_oak_b'],birch:['tree_birch_a','tree_birch_b']}[kind]; if(!nm||!PROPDB[nm[0]]) return false;
-  const s=0.8+rnd()*0.4, n=nm[(rnd()*2)|0]; return placeProp(n,x,z,rnd()*6.283,s)!==undefined; }
+function vegTree(x,z,kind,sm=1){ vegIndex(); const nm={pine:['tree_pine_a','tree_pine_b'],spruce:['tree_spruce_a','tree_spruce_b'],snow:['tree_spruce_snow_a','tree_spruce_snow_b'],oak:['tree_oak_a','tree_oak_b'],birch:['tree_birch_a','tree_birch_b']}[kind]; if(!nm||!PROPDB[nm[0]]) return false;
+  const s=(0.8+rnd()*0.4)*Math.max(0.85,Math.min(sm,1.25)), n=nm[(rnd()*2)|0]; return placeProp(n,x,z,rnd()*6.283,s)!==undefined; }
 function oakTree(x,z){ if(vegTree(x,z,rnd()<0.75?'oak':'birch')) return; const k=(rnd()*3)|0, s2=0.85+rnd()*0.5; addProp('oak'+k,buildOak[k],x,z,rnd()*6,s2,0.6*s2,6*s2); }
 function pine(x,z){ const s=0.8+rnd()*0.6, v=(rnd()*4)|0, g=summerPine;
   if(g){ const q=rnd(); if(vegTree(x,z,q<0.3?(rnd()<0.7?'oak':'birch'):q<0.7?'pine':'spruce')) return; }
@@ -2764,6 +2764,7 @@ function buildKursk(){
   const buildTree2=mkTree(3.6,0.3,[[1.15,0,4.0,0,0x3a6e2a],[1.0,0.45,4.9,0.2,0x4a7e2e],[0.9,-0.4,5.7,-0.2,0x5a9234],[0.75,0.1,6.4,0.05,0x6fae3a],[0.85,0.7,3.7,-0.35,0x355f26],[0.8,-0.7,4.4,0.4,0x44782c]]);   // tall and narrow
   const buildTree3=mkTree(2.4,0.38,[[1.9,0,3.3,0,0x4d7a2a],[1.4,1.4,3.0,0.5,0x5f8a30],[1.35,-1.3,3.1,-0.6,0x436f28],[1.3,0.2,4.1,0.9,0x6b9a38],[1.1,-0.4,4.3,-0.9,0x56892f],[0.9,0.9,4.4,-0.6,0x74a43c]]);          // broad and low
   function tree(x,z,s=1){ const v=rnd();
+    if(vegTree(x,z,v<0.3?'oak':v<0.4?'birch':v<0.68?'pine':'spruce',s)) return;
     if(v<0.2) addProp('ktree',buildTree,x,z,rnd()*6,s,0.5*s,3*s);
     else if(v<0.32) addProp('ktree2',buildTree2,x,z,rnd()*6,s,0.45*s,3*s);
     else if(v<0.4) addProp('ktree3',buildTree3,x,z,rnd()*6,s,0.6*s,3*s);
@@ -3339,7 +3340,7 @@ function buildNormandy(){
   const buildOak=()=>{ const a=[[new THREE.CylinderGeometry(0.3,0.5,3.4,8),0x4d3a28,0,1.7,0]];
     a.push([new THREE.CylinderGeometry(0.1,0.2,2.4,6),0x4d3a28,0.8,3.7,0.2,0,0,-0.75]); a.push([new THREE.CylinderGeometry(0.1,0.2,2.2,6),0x4d3a28,-0.7,3.6,-0.3,0,0,0.8]);
     a.push(lobe(1.9,1.15,0.8,1.15,0x3f6e24,0,4.0,0)); a.push(lobe(1.4,1.1,0.8,1.1,0x5f8e34,1.5,4.4,0.5)); a.push(lobe(1.3,1.1,0.8,1.1,0x2f5a1c,-1.4,4.2,-0.6)); a.push(lobe(1.2,1,0.8,1,0x4f7d2c,0.2,5.1,-0.2)); return a; };
-  const oak=(x,z,s=1)=>addProp('oak',buildOak,x,z,rnd()*6,s,0.45*s,5*s);
+  const oak=(x,z,s=1)=>{ if(vegTree(x,z,rnd()<0.8?'oak':'birch',s)) return; addProp('oak',buildOak,x,z,rnd()*6,s,0.45*s,5*s); };
   const buildApple=()=>{ const a=[[new THREE.CylinderGeometry(0.14,0.24,1.9,7),0x4d3a28,0,0.95,0]]; a.push([new THREE.CylinderGeometry(0.06,0.1,1.1,5),0x4d3a28,0.4,2.0,0,0,0,-0.7]); a.push(lobe(1.2,1.15,0.7,1.15,0x5a8a34,0,2.2,0)); a.push(lobe(0.7,1,0.7,1,0x6f9f3c,0.8,2.0,0.4)); return a; };
   const nearBld=(x,z)=>roofZones.some(r=>x>r[0]-3&&x<r[2]+3&&z>r[1]-3&&z<r[3]+3);
   for(let x=-84;x<=-66;x+=7) for(let z=-34;z<=-14;z+=7) if(!nearBld(x,z)) addProp('apple',buildApple,x+(rnd()-.5)*1.5,z+(rnd()-.5)*1.5,rnd()*6,1,0.25,2.4);
@@ -3408,7 +3409,7 @@ function buildLorraine(){
     a.push(lobe(1.2,1.15,0.7,1.15,0x8a8a2e,0,2.2,0)); a.push(lobe(0.7,1,0.7,1,0xa8852a,0.8,2.0,0.4)); a.push(lobe(0.6,1,0.7,1,0xc2602a,-0.7,2.1,-0.3)); return a; };
   const buildPoplar=()=>{ const a=[[new THREE.CylinderGeometry(0.1,0.3,9,6),0x5a4a38,0,4.5,0]];                                   // one trunk right up through the crown
     a.push(lobe(1.0,1.15,2.6,1.15,0xcfae2a,0,6.0,0)); a.push(lobe(0.8,1.05,1.7,1.05,0xb98a22,0.15,7.6,0.1)); a.push([new THREE.ConeGeometry(0.7,1.8,7),dimC(0xd6b832),0,9.6,0]); return a; };
-  const oakA=(x,z,s=1)=>addProp('oakA',buildOakA,x,z,rnd()*6,s,0.45*s,5*s);
+  const oakA=(x,z,s=1)=>{ if(vegTree(x,z,rnd()<0.8?'oak':'birch',s)) return; addProp('oakA',buildOakA,x,z,rnd()*6,s,0.45*s,5*s); };
   for(let x=-84;x<=-48;x+=7) for(let z=-14;z<=24;z+=7) if(!nearBld(x,z)&&!nearTrack(x,z,5)) addProp('appleA',buildAppleA,x+(rnd()-.5)*1.5,z+(rnd()-.5)*1.5,rnd()*6,1,0.25,2.4);
   for(let x=64;x<=84;x+=7) for(let z=-30;z<=-12;z+=7) if(!nearBld(x,z)) addProp('appleA',buildAppleA,x+(rnd()-.5)*1.5,z+(rnd()-.5)*1.5,rnd()*6,1,0.25,2.4);
   along(MAIN,9,(x,z,nx,nz)=>{ if(z>60) return; for(const sd of [-1,1]){ const px=x+nx*sd*4.6, pz=z+nz*sd*4.6; if(!nearBld(px,pz)) addProp('poplar',buildPoplar,px+(rnd()-.5)*0.4,pz,rnd()*6,1,0.25,10); } });
@@ -4087,7 +4088,7 @@ function bigExtras(id){
     for(const c of [-(L-4),-(L-14),-(L-28)]) bigHedge('z',c,-L+2,L-2,cut('z',c)); for(const c of [L-28,L-14,L-4]) bigHedge('z',c,-L+2,L-2,cut('z',c));
     for(const c of [-76,76]){ bigHedge('x',c,-L+2,L-2,cut('x',c)); bigHedge('z',c,-L+2,L-2,cut('z',c)); }
     const buildOak=()=>{ const a=[[new THREE.CylinderGeometry(0.2,0.3,3.4,7),0x4d3a28,0,1.7,0]]; a.push([new THREE.IcosahedronGeometry(2.1,1),0x4f7d2c,0,4.6,0]); a.push([new THREE.IcosahedronGeometry(1.5,1),0x5f8e34,1.1,3.9,0.5]); a.push([new THREE.IcosahedronGeometry(1.4,1),0x41701f,-1,4.1,-0.6]); return a; };
-    for(let i=0;i<Math.round(37*SC);i++){ const x=(rnd()-.5)*2*(L-4), z=(rnd()-.5)*2*(L-4); if(!inRing(x,z)||nearZone(x,z,3)||nearBld(x,z)||Math.abs(x)<5||Math.abs(z+8)<4) continue; const s=0.9+rnd()*0.5; addProp('oak',buildOak,x,z,rnd()*6,s,0.45*s,5*s); }
+    for(let i=0;i<Math.round(37*SC);i++){ const x=(rnd()-.5)*2*(L-4), z=(rnd()-.5)*2*(L-4); if(!inRing(x,z)||nearZone(x,z,3)||nearBld(x,z)||Math.abs(x)<5||Math.abs(z+8)<4) continue; const s=0.9+rnd()*0.5; if(vegTree(x,z,rnd()<0.8?'oak':'birch',s)) continue; addProp('oak',buildOak,x,z,rnd()*6,s,0.45*s,5*s); }
     for(let i=0;i<Math.round(3*SC);i++){ const x=(rnd()-.5)*2*(L-14), z=(rnd()-.5)*2*(L-14); if(!inRing(x,z)||nearZone(x,z,6)||Math.abs(x)<8||Math.abs(z+8)<7) continue; ruinedBuilding(x-4.5,z-3.5,x+4.5,z+3.5,1,'brick',{s:[3]}); }
     const hay=mat(0xc9a95a,{roughness:1});
     for(let i=0;i<Math.round(4*SC);i++){ const x=(rnd()-.5)*2*(L-6), z=(rnd()-.5)*2*(L-6); if(!inRing(x,z)||nearZone(x,z,4)||nearBld(x,z)) continue; addGeo(new THREE.CylinderGeometry(1.1,1.2,2.2,10),hay,x,1.1,z); addCollider(new THREE.Box3(new V3(x-1.2,0,z-1.2),new V3(x+1.2,2.2,z+1.2))); }

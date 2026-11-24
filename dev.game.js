@@ -874,7 +874,7 @@ function buildGrass(id){
   im.castShadow=false; im.receiveShadow=true; im.userData.grass=true; im.raycast=()=>{};
   grassGroup.add(im); GRS.mesh=im; GRS.on=true;
   GRS.tf=null; const ta=tuftAssets();
-  if(ta){ const dry=TUFT_DRY.has(id), capT=IS_TOUCH?2500:(gfx==='medium'?4500:9000); GRS.tfFar=IS_TOUCH?16:(gfx==='medium'?20:28); GRS.tfDry=dry;
+  if(ta){ const dry=TUFT_DRY.has(id), capT=IS_TOUCH?3500:(gfx==='medium'?6500:12000); GRS.tfFar=IS_TOUCH?18:(gfx==='medium'?24:34); GRS.tfDry=dry;
     GRS.tf=ta.geos.map(t=>{ const m=new THREE.InstancedMesh(t.g,dry?ta.mats.dry:ta.mats.green,Math.ceil(capT/ta.geos.length*1.8)); m.count=0; m.frustumCulled=false;
       m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.setColorAt(0,_grc.set('#ffffff')); m.instanceColor.setUsage(THREE.DynamicDrawUsage);
       m.castShadow=false; m.receiveShadow=true; m.userData.grass=true; m.raycast=()=>{}; grassGroup.add(m); return m; }); }
@@ -892,9 +892,9 @@ function grassChunk(cx,cz){
     if(r1>dens+0.55) continue;
     const gy=groundY(x,z);
     if(gy<-0.02 || groundY(x+0.7,z)<-0.08 || groundY(x-0.7,z)<-0.08 || groundY(x,z+0.7)<-0.08 || groundY(x,z-0.7)<-0.08) continue;
-    if(tfo){ const nt=1+((rnd()*2.4)|0), gain=GRS.tfDry?1.05:2.3;
-      for(let t=0;t<nt;t++){ const v=(rnd()*tfg.length)|0, hr=tfg[v].hr, sc=(hr[0]+rnd()*(hr[1]-hr[0]))*(0.85+0.35*Math.max(0,dens));
-        _grp.set(x+(rnd()-.5)*1.1,gy-0.015,z+(rnd()-.5)*1.1); _gre.set((rnd()-.5)*0.3,rnd()*6.283,(rnd()-.5)*0.3); _grq.setFromEuler(_gre); _grs.set(sc*(0.85+rnd()*0.3),sc,sc*(0.85+rnd()*0.3));
+    if(tfo){ const nt=3+((rnd()*3)|0), gain=GRS.tfDry?1.05:2.3;
+      for(let t=0;t<nt;t++){ const v=(rnd()*tfg.length)|0, hr=tfg[v].hr, sc=(hr[0]+rnd()*(hr[1]-hr[0]))*(0.85+0.35*Math.max(0,dens))*1.35;
+        _grp.set(x+(rnd()-.5)*1.6,gy-0.015,z+(rnd()-.5)*1.6); _gre.set((rnd()-.5)*0.3,rnd()*6.283,(rnd()-.5)*0.3); _grq.setFromEuler(_gre); _grs.set(sc*(0.85+rnd()*0.3),sc,sc*(0.85+rnd()*0.3));
         _grm.compose(_grp,_grq,_grs); const e=_grm.elements, a=tfo[v]; for(let q=0;q<16;q++) a.push(e[q]);
         const sh=rnd(); _grc.set(st.pal[(rnd()*st.pal.length)|0]); const mx=Math.max(_grc.r,_grc.g,_grc.b)||1, tr=0.5+0.5*_grc.r/mx, tg=0.5+0.5*_grc.g/mx, tb=0.5+0.5*_grc.b/mx, br=gain*(0.82+sh*0.36);
         a.push(tr*br,tg*br,tb*br,rnd()); } }
@@ -927,12 +927,12 @@ function grassTick(){
     list.push([cx+ix,cz+iz,d]);
   }
   list.sort((p,q)=>p[2]-q[2]);
-  let budget=IS_TOUCH?25:45, n=0; const cap=GRS.cap, tm=GRS.tf, tn=tm?tm.map(()=>0):null, tfar=GRS.tfFar||0; if(tm) tuftU.uCam.value.set(cam.x,cam.z,tfar);
+  let budget=IS_TOUCH?25:45, n=0; const cap=GRS.cap, tm=GRS.tf, tn=tm?tm.map(()=>0):null, tfar=GRS.tfFar||0, bk=tm?0.4:1; if(tm) tuftU.uCam.value.set(cam.x,cam.z,tfar);
   for(const [ux,uz,d] of list){
     const key2=ux*100003+uz; let c=GRS.cache.get(key2);
     if(!c){ if(budget<=0){ GRS.pending=true; continue; } budget--; c=grassChunk(ux,uz); }
     const share=d<far/3?1:d<far*0.6?0.5:0.25, D=c.d, nb=D.length/GBF;
-    for(let b=0;b<nb && n<cap;b++){ const o=b*GBF; if(D[o+19]>=share) continue;
+    for(let b=0;b<nb && n<cap;b++){ const o=b*GBF; if(D[o+19]>=share*bk) continue;
       ma.set(D.subarray(o,o+16),n*16); const o3=n*3; ca[o3]=D[o+16]; ca[o3+1]=D[o+17]; ca[o3+2]=D[o+18]; n++; }
     if(tm && c.t && d<tfar+GCH){ const ts=d<tfar*0.45?1:d<tfar*0.75?0.55:0.3;
       for(let v=0;v<tm.length;v++){ const T=c.t[v], tb2=T.length/GBF, im2=tm[v], ma2=im2.instanceMatrix.array, ca2=im2.instanceColor.array, cp=im2.instanceMatrix.count; let k=tn[v];

@@ -1,0 +1,11 @@
+{
+ "version": "v4",
+ "reviewer": "Claude (visual inspection and measurement)",
+ "reviewed_images": ["renders/close_ears.png", "renders/close_patch.png", "renders/close_patch_low.png"],
+ "verdict": "pass",
+ "notes": "v4: awns tightened to near-parallel, ears droop slightly. Reads as ripe awned winter wheat at ear distance and as a dense field at standing height. 84 tris per clump; texture memory 6 MB per texture pair.",
+ "defects": [
+  {"id": "W7", "severity": "minor", "category": "texture", "text": "Awn fans tightened.", "evidence": "close_ears", "fix": "", "status": "fixed"},
+  {"id": "W8", "severity": "minor", "category": "texture", "text": "Colour variation between culms is mild (two textures); a field-scale tint will come from per-instance colour in the game.", "evidence": "close_patch", "fix": "Handled by instance colour in dev.game.js.", "status": "accepted"}
+ ]
+}

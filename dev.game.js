@@ -1526,7 +1526,7 @@ function propIndex(){
 let vegDbDone=false;
 function vegIndex(){
   if(vegDbDone) return; if(!GUNGLB.veg2 && !GUNGLB.veg3 && !GUNGLB.veg4) return; vegDbDone=true;
-  for(const key of ['veg2','veg3','veg4','props4','vegsh','veggr','vegco','vegbr']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
+  for(const key of ['veg2','veg3','veg4','props4','vegsh','veggr','vegco','vegbr','wheat']){ const sc=GUNGLB[key]; if(!sc) continue; sc.updateMatrixWorld(true);
     sc.traverse(o=>{
       if(!o.name||!o.name.startsWith('prop_')) return; const name=o.name.slice(5);
       const inv=o.matrixWorld.clone().invert(), tri=[];
@@ -2823,24 +2823,31 @@ function buildKursk(){
     return mergeGeometries(parts,false);
   }catch(e){ console.warn('wheat clump failed',e); return new THREE.BoxGeometry(0.4,1,0.4).translate(0,0.5,0); } })();
   const wheatMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95});
-  wheatMat.onBeforeCompile=sh=>{ sh.uniforms.uWT=grassU.uTime; sh.uniforms.uWK=grassU.uWK;
+  const wheatSway=sh=>{ sh.uniforms.uWT=grassU.uTime; sh.uniforms.uWK=grassU.uWK;
     sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float uWT; uniform float uWK;').replace('#include <begin_vertex>',`#include <begin_vertex>
       #ifdef USE_INSTANCING
       vec4 ip=instanceMatrix[3]; float sw=position.y*position.y*uWK;
       transformed.x+=sin(uWT*1.7+ip.x*0.33+ip.z*0.21)*0.07*sw; transformed.z+=cos(uWT*1.3+ip.z*0.29+ip.x*0.17)*0.05*sw;
       { float gu=sin(dot(ip.xz,vec2(0.8,0.6))*0.09-uWT*0.9)*0.5+0.5; transformed.x+=gu*0.09*sw; transformed.z+=gu*0.07*sw; }
       #endif`); };
+  wheatMat.onBeforeCompile=wheatSway;
+  // the approved Blender wheat: seven crossed alpha-card stalk fans per clump (two textures = two parts), same sway shader as before
+  const wheatParts=(()=>{ try{ const sc=GUNGLB.wheat; if(!sc) return null; const out=[];
+    sc.traverse(o=>{ if(o.isMesh){ const m=o.material.clone(); m.side=THREE.DoubleSide; m.alphaTest=0.5; m.transparent=false; m.roughness=0.92; m.onBeforeCompile=wheatSway; m.customProgramCacheKey=()=>'wheatsway'; out.push({geo:o.geometry,mat:m}); } });
+    return out.length?out:null; }catch(e){ console.warn('wheat model failed, using blocks',e); return null; } })();
   function wheat(x0,z0,x1,z1,dens){
     const kq=({ultra:1,high:1,medium:0.75,low:0.5})[gfx]*(IS_TOUCH?0.65:1);
     const n=Math.round((x1-x0)*(z1-z0)*dens*0.42*kq);
-    const im=new THREE.InstancedMesh(wheatGeo,wheatMat,n);
     const mtx=new THREE.Matrix4(), q=new THREE.Quaternion(), c=new THREE.Color();
+    const parts=wheatParts||[{geo:wheatGeo,mat:wheatMat}], ims=parts.map(p=>new THREE.InstancedMesh(p.geo,p.mat,n));
     for(let i=0;i<n;i++){
-      const x=x0+rnd()*(x1-x0), z=z0+rnd()*(z1-z0), sc=0.85+rnd()*0.5;
-      mtx.compose(new V3(x,0,z),q.setFromEuler(new THREE.Euler((rnd()-.5)*0.12,rnd()*6.28,(rnd()-.5)*0.12)),new V3(sc,sc*(0.9+rnd()*0.25),sc));
-      im.setMatrixAt(i,mtx); im.setColorAt(i,c.setHSL(0.13+rnd()*0.02,0.12+rnd()*0.2,0.58+rnd()*0.2));
+      const x=x0+rnd()*(x1-x0), z=z0+rnd()*(z1-z0), sc=wheatParts?0.9+rnd()*0.5:0.85+rnd()*0.5;
+      mtx.compose(new V3(x,0,z),q.setFromEuler(new THREE.Euler((rnd()-.5)*0.12,rnd()*6.28,(rnd()-.5)*0.12)),new V3(sc,sc*(0.9+rnd()*0.3),sc));
+      if(wheatParts) c.setRGB(0.88+rnd()*0.22,0.86+rnd()*0.2,0.8+rnd()*0.2); else c.setHSL(0.13+rnd()*0.02,0.12+rnd()*0.2,0.58+rnd()*0.2);
+      for(const im of ims){ im.setMatrixAt(i,mtx); im.setColorAt(i,c); }
     }
-    im.receiveShadow=true; im.castShadow=false; im.raycast=()=>{}; im.userData.wheat=true; mapRoot.add(im); wheatZones.push([x0,z0,x1,z1]);
+    for(const im of ims){ im.receiveShadow=true; im.castShadow=false; im.raycast=()=>{}; im.userData.wheat=true; mapRoot.add(im); }
+    wheatZones.push([x0,z0,x1,z1]);
   }
   wheat(9,-21,62,20,1.3); wheat(-62,28,-24,62,1.2); wheat(-60,-60,-14,-32,1.2); wheat(22,28,62,62,1.0);
 

@@ -4943,7 +4943,7 @@ function updateArtillery(dt,t){
 
 /* ================= FACTIONS & WEAPONS ================= */
 const SIDES = {
-  soviet:{ title:'SOVIET UNION', uniform:0x7f7651, pants:0x6c6547, helmet:0x4a5537, boots:0x2a2018, color:'#e0604f',
+  soviet:{ title:'SOVIET UNION', uniform:0x777048, pants:0x6f6944, helmet:0x525a3e, boots:0x2a2018, color:'#e0604f',
     weapons:['ppsh','mosin'], names:['Pvt. Volkov','Sgt. Petrov','Pvt. Sokolov','Cpl. Morozov','Pvt. Lebedev','Pvt. Orlov','Pvt. Kuznetsov','Pvt. Popov','Cpl. Vasiliev','Pvt. Pavlov','Pvt. Semyonov','Pvt. Golubev','Sgt. Vinogradov','Pvt. Bogdanov','Pvt. Fyodorov','Pvt. Nikitin','Cpl. Zaitsev','Pvt. Belov','Pvt. Komarov','Pvt. Gusev','Sgt. Titov'] },
   france:{ title:'FRANCE', uniform:0x6f8296, pants:0x5f7084, helmet:0x5a6f85, boots:0x3a2a1c, color:'#8fb0d8',
     weapons:['mas38','mas36'], names:['Cpl. Dubois','Sgt. Lefèvre','Sdt. Moreau','Cpl. Girard','Sdt. Roux','Sdt. Fournier','Sdt. Mercier','Cpl. Bonnet','Sdt. Lambert','Sdt. Faure','Sgt. Chevalier','Sdt. Garnier','Sdt. Perrin','Cpl. Blanc','Sdt. Henry','Sdt. Masson','Sdt. Rousseau','Sdt. Gauthier','Sdt. Colin','Sdt. Vidal','Sdt. Marchand','Cpl. Benoit','Sdt. Renard','Sdt. Lemoine'] },
@@ -5646,16 +5646,17 @@ function cosSide(side){
   const k=side+'|'+id; return _cosC[k]||(_cosC[k]=Object.assign({},base,COSMETICS.find(x=>x.id===id).f(base)));
 }
 function drawShirt(x,s,sideKey,weaponKey,back){
-  const S=cosSide(sideKey), german=sideKey==='german';
+  const S=cosSide(sideKey), german=sideKey==='german', soviet=sideKey==='soviet';
   {
     const base='#'+new THREE.Color(S.uniform).getHexString(), dark='#'+new THREE.Color(S.uniform).multiplyScalar(0.72).getHexString();
     x.fillStyle=base; x.fillRect(0,0,s,s);
     // fabric noise
     for(let i=0;i<900;i++){ x.fillStyle=`rgba(0,0,0,${Math.random()*0.06})`; x.fillRect(Math.random()*s,Math.random()*s,3,3); }
-    if(german){ const gr=x.createLinearGradient(0,0,0,s); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(0.7,'rgba(70,55,38,0.10)'); gr.addColorStop(1,'rgba(60,46,30,0.22)'); x.fillStyle=gr; x.fillRect(0,0,s,s);      // field wear: dust and mud toward the hem
+    if(soviet){ x.fillStyle='rgba(45,36,22,0.13)'; for(const sx of [34,222]){ x.beginPath(); x.ellipse(sx,70,16,30,0,0,7); x.fill(); } x.beginPath(); x.ellipse(128,96,34,44,0,0,7); x.fill(); }      // sweat stains under the arms and down the chest
+    if(german||soviet){ const gr=x.createLinearGradient(0,0,0,s); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(0.7,'rgba(70,55,38,0.10)'); gr.addColorStop(1,'rgba(60,46,30,0.22)'); x.fillStyle=gr; x.fillRect(0,0,s,s);      // field wear: dust and mud toward the hem
       x.fillStyle='rgba(30,36,26,0.10)'; for(let i=0;i<6;i++){ x.fillRect(0,40+i*34,s,2); }     // faint fabric weave lines
       x.fillStyle='rgba(255,255,255,0.035)'; for(let i=0;i<14;i++){ x.fillRect(Math.random()*s,Math.random()*s,24,2); } }
-    const belt=german?'#151210':'#4d3220', metal=german?'#8b8d86':'#c9a640';
+    const belt=german?'#151210':soviet?'#46301e':'#4d3220', metal=german?'#8b8d86':soviet?'#ad984a':'#c9a640';
     if(!back){
       // collar
       x.fillStyle=german?'#34452f':base; x.fillRect(78,0,100,22); x.strokeStyle=german?'#26331f':dark; x.lineWidth=4; x.strokeRect(78,0,100,22);
@@ -5664,12 +5665,13 @@ function drawShirt(x,s,sideKey,weaponKey,back){
         x.fillStyle='#d6d6c8'; x.beginPath(); x.ellipse(0,2,4,8,0,0,7); x.fill();
         for(const sg of [-1,1]){ x.beginPath(); x.moveTo(sg*3,-2); x.quadraticCurveTo(sg*22,-12,sg*24,2); x.quadraticCurveTo(sg*14,0,sg*4,6); x.fill(); }
         x.strokeStyle='#d6d6c8'; x.lineWidth=2.2; x.beginPath(); x.arc(0,9,5,0,7); x.stroke(); x.restore(); }
+      if(soviet){ for(const cx of [84,140]){ x.fillStyle='#6b683c'; x.fillRect(cx,2,32,18); x.strokeStyle='#9a3a2e'; x.lineWidth=2.5; x.strokeRect(cx+1,3,30,16); x.fillStyle=metal; x.beginPath(); x.arc(cx+16,11,3,0,7); x.fill(); } }      // gymnastiorka collar tabs (infantry crimson edging)
       // placket + buttons
-      x.fillStyle=dark; x.fillRect(122,22,12,german?170:80);
-      x.fillStyle=metal; for(let i=0;i<(german?4:3);i++){ x.beginPath(); x.arc(128,40+i*(german?40:22),6,0,7); x.fill(); }
+      x.fillStyle=dark; x.fillRect(122,22,12,german?170:soviet?150:80);
+      x.fillStyle=metal; for(let i=0;i<(german?4:soviet?5:3);i++){ x.beginPath(); x.arc(128,40+i*(german?40:soviet?30:22),6,0,7); x.fill(); }
       // chest pockets
       x.strokeStyle=dark; x.lineWidth=5;
-      for(const px of [44,152]){ x.strokeRect(px,58,60,52); x.fillStyle=dark; x.fillRect(px-3,52,66,16); x.fillStyle=metal; x.beginPath(); x.arc(px+30,62,5,0,7); x.fill(); }
+      if(!soviet) for(const px of [44,152]){ x.strokeRect(px,58,60,52); x.fillStyle=dark; x.fillRect(px-3,52,66,16); x.fillStyle=metal; x.beginPath(); x.arc(px+30,62,5,0,7); x.fill(); }
       if(german){ for(const px of [30,166]){ x.strokeRect(px,150,60,48); x.fillStyle=dark; x.fillRect(px-3,144,66,14); } }
       if(german){ x.fillStyle=dark; for(const [px,py] of [[44,68],[152,68],[30,158],[166,158]]){ x.beginPath(); x.moveTo(px-3,py-2); x.lineTo(px+30,py+9); x.lineTo(px+63,py-2); x.closePath(); x.fill(); }      // scalloped pocket flaps
         x.fillStyle='#8b8d86'; for(const [px,py] of [[44,66],[152,66],[30,156],[166,156]]){ x.beginPath(); x.arc(px+30,py+4,4,0,7); x.fill(); } }      // flap buttons
@@ -5679,6 +5681,7 @@ function drawShirt(x,s,sideKey,weaponKey,back){
       // belt + buckle + pouches
       x.fillStyle=belt; x.fillRect(0,200,s,26);
       x.fillStyle=metal; x.fillRect(110,198,36,30); x.fillStyle=belt; x.fillRect(118,205,20,16);
+      if(soviet){ x.fillStyle='#d4bd58'; x.beginPath(); for(let k=0;k<10;k++){ const r=k%2?4:10, a=-Math.PI/2+k*Math.PI/5; x.lineTo(128+Math.cos(a)*r,213+Math.sin(a)*r); } x.closePath(); x.fill(); }      // brass star on the belt plate
       if(weaponKey==='mp40'){ x.fillStyle='#8a7f5c'; for(const px of [30,190]){ x.fillRect(px,196,36,60); x.strokeStyle='#5f573e'; x.lineWidth=3; for(let k=0;k<3;k++) x.strokeRect(px,196+k*20,36,20); } }
       else if(german){ x.fillStyle='#0f0d0b'; for(const px of [22,58,162,198]){ x.fillRect(px,190,30,36); } }
       else if(weaponKey==='ppsh'){ x.fillStyle='#8a8060'; x.beginPath(); x.arc(212,214,30,0,7); x.fill(); }
@@ -5770,7 +5773,7 @@ function bakeNode(node,opt){
 }
 function makeBoxSoldier(sideKey,weaponKey,label){
   const german=sideKey==='german', french=sideKey==='france', usa=sideKey==='usa', italy=sideKey==='italy', japan=sideKey==='japan';
-  const v={skinHex:pickR(SKIN_TONES), puttees:french||usa||italy||japan||german||(Math.random()<0.4), face:(Math.random()*4)|0, hat:Math.random()};
+  const v={skinHex:pickR(SKIN_TONES), puttees:french||usa||italy||japan||german||(Math.random()<(sideKey==='soviet'?0.8:0.4)), face:(Math.random()*4)|0, hat:Math.random()};
   v.hatK=(german||french||usa||italy||japan||v.hat<0.6)?0:(v.hat<0.82?1:2);
   let root;
   if(BAKE_SOLDIERS){
@@ -5798,7 +5801,7 @@ function makeBoxSoldier(sideKey,weaponKey,label){
 }
 
 function buildBoxSoldier(sideKey,weaponKey,v,bake){
-  const S=cosSide(sideKey), german=sideKey==='german', french=sideKey==='france', usa=sideKey==='usa', japan=sideKey==='japan';
+  const S=cosSide(sideKey), german=sideKey==='german', soviet=sideKey==='soviet', french=sideKey==='france', usa=sideKey==='usa', japan=sideKey==='japan';
   const root=new THREE.Group(), body=new THREE.Group(); root.add(body); body.name='body';
   const uni=mat(S.uniform,{roughness:.9}), pants=mat(S.pants,{roughness:.9});
   const bootM=mat(german?0x15120f:0x2a1d14,{roughness:.55});
@@ -5817,7 +5820,7 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     const p=rbox(ST*0.98,-KY+0.02,ST*0.98,pants,0.03); p.position.y=KY/2-0.01; hip.add(p);                       // thigh
     const sh=rbox(ST*0.94,L2*0.46,ST*0.94,pants,0.03); sh.position.y=-L2*0.2; kn.add(sh);                           // shin trousers
     if(puttees){
-      const pw=rbox(ST*0.94,L2*0.22,ST*0.94,mat(german?0x4a4639:0x7a7055,{roughness:1}),0.03); pw.position.y=-L2*0.72-KY; kn.add(pw);
+      const pw=rbox(ST*0.94,L2*0.22,ST*0.94,mat(german?0x4a4639:soviet?0x6a6445:0x7a7055,{roughness:1}),0.03); pw.position.y=-L2*0.72-KY; kn.add(pw);
       const b=rbox(ST,L2*0.12,ST*1.15,bootM,0.03); b.position.set(0,-L2*0.94-AY,-0.03); ft.add(b);
     } else {
       const b=rbox(ST*1.04,L2*0.4,ST*1.04,bootM,0.035); b.position.y=-L2*0.8-AY; ft.add(b);
@@ -5843,8 +5846,8 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   }
   torso.castShadow=torso.receiveShadow=true; torso.position.y=L2/2; upper.add(torso);
   // relief details (merged into the torso/arm meshes on bake): chunky Roblox-style gear
-  const leather=mat(german?0x1c1814:0x5b3d24,{roughness:.8}), brass=german?mat(0x8e9188,{roughness:.5,metalness:.55}):mat(0xd8b24a,{roughness:.35,metalness:.6});
-  const pipeM=mat(german?0x9aa384:0xb23a2e,{roughness:.9}), unid=mat(new THREE.Color(S.uniform).multiplyScalar(0.78).getHex(),{roughness:.9});
+  const leather=mat(german?0x1c1814:0x5b3d24,{roughness:.8}), brass=german?mat(0x8e9188,{roughness:.5,metalness:.55}):soviet?mat(0xb09a48,{roughness:.5,metalness:.4}):mat(0xd8b24a,{roughness:.35,metalness:.6});
+  const pipeM=mat(german?0x9aa384:soviet?new THREE.Color(S.uniform).multiplyScalar(0.9).getHex():0xb23a2e,{roughness:.9}), unid=mat(new THREE.Color(S.uniform).multiplyScalar(0.78).getHex(),{roughness:.9});
   { const belt=rbox(L2*1.02,0.075,ST*1.04,leather,0.025); belt.position.set(0,0.1,0); upper.add(belt);
     const buck=rbox(german?0.11:0.075,0.075,0.02,brass,0.01); buck.position.set(0,0.1,-ST/2-0.028); upper.add(buck);
     if(german){ const rg=scyl(0.026,0.026,0.012,mat(0x6f7269,{roughness:.5,metalness:.5}),12); rg.rotation.x=Math.PI/2; rg.position.set(0,0.1,-ST/2-0.04); upper.add(rg);      // embossed circle on the buckle plate
@@ -5852,8 +5855,8 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
       const gd=scyl(0.042,0.042,0.13,mat(0x666b62,{roughness:.55,metalness:.35}),10); gd.position.set(0.21,0.2,-ST/2-0.06); gd.rotation.z=-0.28; upper.add(gd); }       // ...and steel head
     for(const px of (german?[-0.295,-0.205,-0.115,0.115,0.205,0.295]:[-0.24,0.24])){ const pch=rbox(german?0.082:0.125,0.13,0.085,leather,0.03); pch.position.set(px,0.145,-ST/2-0.04); upper.add(pch);
       const fl=rbox(german?0.082:0.125,0.045,0.095,leather,0.015); fl.position.set(px,0.2,-ST/2-0.042); upper.add(fl); const bt=rbox(0.022,0.022,0.012,brass,0.006); bt.position.set(px,0.19,-ST/2-0.09); upper.add(bt); }
-    // braces over the shoulders, front and back
-    for(const sg of [-1,1]){ const f=rbox(0.075,0.8,0.026,leather,0.01); f.position.set(sg*0.22,0.44,-ST/2-0.016); if(german){ f.rotation.z=-sg*0.16; f.position.x=sg*0.215; const yb=rbox(0.05,0.045,0.014,brass,0.005); yb.position.set(sg*0.185,0.34,-ST/2-0.036); upper.add(yb); } upper.add(f);
+    // braces over the shoulders, front and back (the Soviets wear none: just the belt and the rolled greatcoat)
+    if(!soviet) for(const sg of [-1,1]){ const f=rbox(0.075,0.8,0.026,leather,0.01); f.position.set(sg*0.22,0.44,-ST/2-0.016); if(german){ f.rotation.z=-sg*0.16; f.position.x=sg*0.215; const yb=rbox(0.05,0.045,0.014,brass,0.005); yb.position.set(sg*0.185,0.34,-ST/2-0.036); upper.add(yb); } upper.add(f);
       const bk=rbox(0.075,0.8,0.026,leather,0.01); bk.position.set(sg*0.22,0.44,ST/2+0.016); upper.add(bk); }
     // brass buttons, pocket flaps, piping down the placket
     for(let k=0;k<5;k++){ const bt=sph(0.018,brass,false,6,5); bt.position.set(0,0.2+k*0.1,-ST/2-0.006); upper.add(bt); }
@@ -5862,7 +5865,8 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
       const pp=rbox(0.016,0.72,0.012,pipeM,0.005); pp.position.set(sg*0.045,0.43,-ST/2-0.008); upper.add(pp); }
     const col=rbox(0.28,0.05,ST*1.0,german?mat(0x34452f,{roughness:.95}):unid,0.012); col.position.set(0,L2-0.03,0); upper.add(col);            // standing collar
     const colp=rbox(0.28,0.014,ST*1.02,pipeM,0.005); colp.position.set(0,L2-0.058,0); upper.add(colp);
-    if(!german){ for(const sg of [-1,1]){ const tab=rbox(0.07,0.045,0.02,pipeM,0.008); tab.position.set(sg*0.1,L2-0.05,-ST/2-0.006); upper.add(tab); } }
+    if(!german){ for(const sg of [-1,1]){ const tab=rbox(0.07,0.045,0.02,soviet?mat(0x6b683c,{roughness:.95}):pipeM,0.008); tab.position.set(sg*0.1,L2-0.05,-ST/2-0.006); upper.add(tab);
+      if(soviet){ const te=rbox(0.07,0.008,0.022,mat(0x9a3a2e,{roughness:.8}),0.003); te.position.set(sg*0.1,L2-0.07,-ST/2-0.007); upper.add(te); } } }
   }
   // Soviet troops carry a rolled greatcoat over the shoulder
   if(!german){ const roll=scyl(0.065,0.065,0.85,mat(0x7a755c,{roughness:1}),10); roll.rotation.z=0.95; roll.position.set(0.02,0.4,-ST/2-0.075); upper.add(roll);
@@ -5894,6 +5898,9 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
       const scr=mat(0x5a5a3e,{roughness:1}); for(const [rz,ry] of [[0.5,0.3],[-0.5,0.9],[0.1,-0.5],[0.9,-1.0]]){ const lp=rbox(0.03,0.012,0.2,scr,0.004); lp.rotation.set(0,ry,0); lp.position.set(0,0.332,0); head.add(lp); }   // scrim loops over the crown
       const dc=rbox(0.012,0.07,0.075,mat(0x2c2c28,{roughness:.8}),0.004); dc.position.set(-0.258,0.04,-0.01); head.add(dc); }                                 // the national shield decal, dulled to a dark patch
     if(usa){ const net=rbox(0.49,0.05,0.49,mat(0x3f4a2a,{roughness:1}),0.012); net.position.y=0.085; head.add(net); }      // M1 helmet: the netting band round the shell
+    if(soviet){   // SSh-40: red star on the front, three rivets round the side
+      const st=redStar(0.048); st.position.set(0,0.165,-0.27); head.add(st);
+      const rv=mat(0x8a8a7c,{roughness:.5,metalness:.5}); for(const sg of [-1,1]) for(const [rx,ry,rz] of [[0.275,0.12,0.0],[0.27,0.12,0.12],[0.27,0.12,-0.12]]){ const r=scyl(0.012,0.012,0.012,rv,8); r.rotation.z=Math.PI/2; r.position.set(sg*rx,ry,rz); head.add(r); } }
     if(japan){   // Type 90 helmet: a brass star on the front and a cloth neck flap hanging behind
       const star=rbox(0.07,0.07,0.02,brass,0.01); star.position.set(0,0.17,-0.262); head.add(star);
       const flap=mat(0x8a8050,{roughness:1});
@@ -5939,6 +5946,15 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     const scb=rbox(0.034,0.3,0.03,mat(0x15120f,{roughness:.55,metalness:.3}),0.006); scb.position.set(-0.3,0.08,-ST/2-0.015); scb.rotation.z=0.08; upper.add(scb);
     const frg=rbox(0.05,0.07,0.04,leatherB,0.008); frg.position.set(-0.3,0.2,-ST/2-0.012); upper.add(frg);
     const bhl=rbox(0.03,0.06,0.03,mat(0x18150f,{roughness:.7}),0.006); bhl.position.set(-0.3,0.26,-ST/2-0.015); upper.add(bhl);
+  } else if(soviet){
+    const khaki=mat(0x7d7a58,{roughness:1}), steel=mat(0x77786f,{roughness:.45,metalness:.5}), wood=mat(0x6b5236,{roughness:.7}), lth=mat(0x4a2f1d,{roughness:.8});
+    const gb=rbox(0.26,0.22,0.1,khaki,0.03); gb.position.set(-0.2,0.1,ST/2+0.055); upper.add(gb);                                  // gas-mask bag on the left hip
+    const gf=rbox(0.26,0.08,0.108,mat(0x757253,{roughness:1}),0.02); gf.position.set(-0.2,0.18,ST/2+0.058); upper.add(gf);
+    const gs=rbox(0.03,0.1,0.112,lth,0.005); gs.position.set(-0.2,0.15,ST/2+0.06); upper.add(gs);
+    const blade=rbox(0.13,0.17,0.02,steel,0.01); blade.position.set(0.22,0.02,ST/2+0.03); upper.add(blade);                              // sapper spade on the right hip
+    const sh2=rbox(0.026,0.15,0.022,wood,0.006); sh2.position.set(0.22,0.19,ST/2+0.03); upper.add(sh2);
+    const can=scyl(0.062,0.062,0.17,mat(0x7a7a58,{roughness:1}),12); can.position.set(0.37,0.08,0.05); upper.add(can);                  // felt-covered canteen
+    const cap=rbox(0.04,0.03,0.04,mat(0x2a2a26,{roughness:.6}),0.01); cap.position.set(0.37,0.185,0.05); upper.add(cap);
   } else {
     const bag=rbox(0.38,0.34,0.16,canvasM,0.07); bag.position.set(0,0.42,ST/2+0.08); upper.add(bag);
     const can=scyl(0.06,0.06,0.16,mat(0x4a4a32)); can.position.set(0.37,0.08,0.05); upper.add(can);
@@ -5962,7 +5978,7 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     const wy=AL2-0.074, fh=wy+0.01;
     const fore=rbox(ST*0.92,fh+0.02,ST*0.92,uni,0.045); fore.position.y=(0.02-fh)/2; el.add(fore);                                // forearm
     const cuff=rbox(ST*0.97,0.07,ST*0.97,trim,0.015); cuff.position.y=-wy+0.035; el.add(cuff);                                     // cuff
-    { const cp=rbox(ST*1.0,0.016,ST*1.0,mat(german?0x9aa384:0xb23a2e,{roughness:.9}),0.006); cp.position.y=-wy+0.078; el.add(cp);   // cuff piping
+    { const cp=rbox(ST*1.0,0.016,ST*1.0,mat(german?0x9aa384:soviet?new THREE.Color(S.uniform).multiplyScalar(0.9).getHex():0xb23a2e,{roughness:.9}),0.006); cp.position.y=-wy+0.078; el.add(cp);   // cuff piping
       const bt=rbox(0.03,0.03,0.012,mat(0xd8b24a,{roughness:.35,metalness:.6}),0.006); bt.position.set(0,-wy+0.04,-ST/2-0.01); el.add(bt); }
     const wr=new THREE.Group(); wr.name='wr'+nm; wr.position.y=-wy; el.add(wr);                                                    // wrist
     const hand=rbox(ST*0.84,L2*0.22,ST*0.84,skin,0.048); hand.position.y=-0.074; wr.add(hand);                                    // hand

@@ -5631,14 +5631,7 @@ function shirtTex(sideKey,weaponKey,back){
 /* ================= COSMETIC LOOKS: unlocked by rank, chosen on the Stats page, worn by you and your squad ================= */
 const _cm=(c,k)=>new THREE.Color(c).multiplyScalar(k).getHex();
 const COSMETICS=[
-  {id:'std',   name:'Standard issue', r:0, f:S=>({})},
-  {id:'dark',  name:'Darkened kit',   r:1, f:S=>({uniform:_cm(S.uniform,0.78),pants:_cm(S.pants,0.78),helmet:_cm(S.helmet,0.72)})},
-  {id:'earth', name:'Earth-brown',    r:2, f:S=>({uniform:0x7a6a48,pants:0x665a3e,helmet:0x6a5a3a})},
-  {id:'winter',name:'Winter whites',  r:3, f:S=>({uniform:0xd9dcd7,pants:0xc9ccc6,helmet:0xe9ecea})},
-  {id:'desert',name:'Desert tan',     r:4, f:S=>({uniform:0xb59a6a,pants:0xa88f60,helmet:0x9c8556})},
-  {id:'midnight',name:'Night patrol', r:5, f:S=>({uniform:0x2f3a40,pants:0x283138,helmet:0x1f262b})},
-  {id:'dress', name:'Dress uniform',  r:6, f:S=>({uniform:0x4a4f3a,pants:0x3a3d2e,helmet:0x1b1b1b})},
-  {id:'gold',  name:'Gold helmet',    r:8, f:S=>({helmet:0xd4af37})}
+  {id:'std',   name:'Standard issue', r:0, f:S=>({})}      // rank looks removed: every soldier wears the standard issue uniform
 ];
 function cosPromo(side,r0,r1){
   if(r1<=r0) return '';
@@ -12649,9 +12642,6 @@ function showStats(){
       <div class="xpbar"><div style="width:${Math.round(rl.frac*100)}%"></div></div>
       <div style="font-size:12px">${rl.xp} XP${rl.next?` · next rank at ${rl.next}`:' · highest rank'}</div>
       <div style="font-size:12px;margin-top:6px">Total kills: <b>${rec.kills}</b></div>
-      <div style="font-size:11px;letter-spacing:2px;opacity:.75;margin-top:8px">LOOK · <span class="cosName">${cosPickOf(rec,rl.r).name}</span></div>
-      <div class="cosRow" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">${COSMETICS.map(k=>{ const have=rl.r>=k.r, cur=cosPickOf(rec,rl.r).id===k.id, sw=k.id==='std'?S:Object.assign({},S,k.f(S)); const hx=n=>'#'+new THREE.Color(n).getHexString();
-        return `<span class="cos" data-id="${k.id}" title="${k.name}${have?'':' (rank '+(k.r+1)+')'}" style="width:26px;height:26px;border-radius:5px;border:2px solid ${cur?'#b8860b':'#0006'};display:inline-block;cursor:${have?'pointer':'not-allowed'};opacity:${have?1:0.35};background:linear-gradient(135deg,${hx(sw.helmet)} 0 38%,${hx(sw.uniform)} 38% 70%,${hx(sw.pants)} 70%)"></span>`; }).join('')}</div>
       <div style="font-size:12px;margin-top:2px">Weapons unlocked: <b>${unl}/${UNLOCKS[sd].length}</b>${msn===null?'':` · Missions won: <b>${msn}/${MISSION_IDS.length}</b>`}</div>
       ${med.length?`<div class="case"><div style="font-size:11px;letter-spacing:2px;opacity:.75;margin-bottom:4px">MEDALS · ${got.length}/${med.length}</div>${med.map(m=>`<span class="cm ${rec.medals&&rec.medals[m.id]?'':'no'}" title="${m.name}: ${m.why}">${medalSVG(m,26)}</span>`).join('')}</div>`:'<div style="font-size:12px;opacity:.6;margin-top:8px">No medals for this army yet.</div>'}`;
     c.querySelectorAll('.cos').forEach(el=>el.onclick=()=>{ const k=COSMETICS.find(x=>x.id===el.dataset.id); if(!k||rl.r<k.r) return;

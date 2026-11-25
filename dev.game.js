@@ -6284,11 +6284,108 @@ function spawnWorld(side,weapon,withAvatar){
   }
 }
 
+// ---- AI navigation: walk straight when the way is clear, otherwise A* over a 1 m grid built on demand around the soldier ----
+// Wire: teammates treat it as (almost) a wall, enemies will cut through it if the detour is long.
+const NAV_N=64, NAV_H=32;
+const _navBS=new Uint32Array(NAV_N*NAV_N), _navBk=new Int8Array(NAV_N*NAV_N), _navVS=new Uint32Array(NAV_N*NAV_N);
+const _navG=new Float32Array(NAV_N*NAV_N), _navF=new Float32Array(NAV_N*NAV_N), _navP=new Int16Array(NAV_N*NAV_N), _navHp=new Int32Array(NAV_N*NAV_N+8);
+let _navStamp=0, _navPlans=0, _navLastT=0, _navOX=0, _navOZ=0, _navY=0, _navAlly=false;
+const _navTmp={x:0,y:0,z:0};
+function navSolid(x,z,y){
+  _navTmp.x=x; _navTmp.y=y; _navTmp.z=z;
+  for(const b of colsNear(x-0.4,z-0.4,x+0.4,z+0.4)){ if((b.max.y<0.95 && !b.solidAI) || !overlaps(_navTmp,0.35,1.8,b)) continue; return true; }
+  return false;
+}
+// cell cost: -1 wall, 0 free, >0 wire
+function navCell(i,j){
+  if(i<0||j<0||i>=NAV_N||j>=NAV_N) return -1;
+  const k=j*NAV_N+i;
+  if(_navBS[k]!==_navStamp){
+    _navBS[k]=_navStamp; const x=_navOX+i+0.5, z=_navOZ+j+0.5;
+    _navBk[k]= navSolid(x,z,_navY) ? -1 : (wireZones.length && inWire(x,z) ? (_navAlly?40:5) : 0);
+  }
+  return _navBk[k];
+}
+function navGridClear(i0,j0,i1,j1){
+  const dx=i1-i0, dz=j1-j0, n=Math.ceil(Math.hypot(dx,dz)*2)+1;
+  for(let s=0;s<=n;s++){ const f=s/n; if(navCell(Math.floor(i0+0.5+dx*f),Math.floor(j0+0.5+dz*f))!==0) return false; }
+  return true;
+}
+// is the straight line free for the next 'maxD' metres? (decides whether a path is needed at all)
+function navLineClear(s,tx,tz,maxD){
+  const px=s.pos.x, pz=s.pos.z, dx=tx-px, dz=tz-pz, d=Math.hypot(dx,dz); if(d<0.5) return true;
+  const L=Math.min(d,maxD), n=Math.ceil(L/0.5), ux=dx/d, uz=dz/d, noWire=s.inWire||!wireZones.length;
+  for(let k=1;k<=n;k++){ const x=px+ux*L*k/n, z=pz+uz*L*k/n; if(navSolid(x,z,s.pos.y)) return false; if(!noWire && k*L/n>1.2 && inWire(x,z)) return false; }
+  return true;
+}
+function navPlan(s,gx,gz){
+  const px=s.pos.x, pz=s.pos.z;
+  _navStamp++; _navOX=Math.floor(px)-NAV_H; _navOZ=Math.floor(pz)-NAV_H; _navY=s.pos.y; _navAlly=s.team==='ally';
+  let tx=gx, tz=gz; const dx=gx-px, dz=gz-pz, m=Math.max(Math.abs(dx),Math.abs(dz));
+  if(m>NAV_H-3){ const f=(NAV_H-3)/m; tx=px+dx*f; tz=pz+dz*f; }          // goal outside the window: aim at the window edge in its direction
+  const si=Math.floor(px-_navOX), sj=Math.floor(pz-_navOZ), gi=Math.max(0,Math.min(NAV_N-1,Math.floor(tx-_navOX))), gj=Math.max(0,Math.min(NAV_N-1,Math.floor(tz-_navOZ)));
+  const H=(i,j)=>{ const a=Math.abs(i-gi), b=Math.abs(j-gj); return Math.max(a,b)+0.414*Math.min(a,b); };
+  let hn=0; const push=k=>{ let c=hn++; while(c>0){ const p=(c-1)>>1; if(_navF[_navHp[p]]<=_navF[k]) break; _navHp[c]=_navHp[p]; c=p; } _navHp[c]=k; };
+  const pop=()=>{ const top=_navHp[0], last=_navHp[--hn]; if(hn>0){ let c=0; while(true){ let l=2*c+1; if(l>=hn) break; if(l+1<hn && _navF[_navHp[l+1]]<_navF[_navHp[l]]) l++; if(_navF[_navHp[l]]>=_navF[last]) break; _navHp[c]=_navHp[l]; c=l; } _navHp[c]=last; } return top; };
+  const sk=sj*NAV_N+si, gk=gj*NAV_N+gi;
+  _navVS[sk]=_navStamp; _navG[sk]=0; _navF[sk]=H(si,sj); _navP[sk]=-1; push(sk);
+  let best=sk, bestH=H(si,sj), found=false, exp=0;
+  const DI=[1,-1,0,0,1,1,-1,-1], DJ=[0,0,1,-1,1,-1,1,-1];
+  while(hn>0 && exp<2200){
+    const k=pop(); exp++;
+    if(k===gk){ found=true; best=k; break; }
+    const i=k%NAV_N, j=(k/NAV_N)|0, h=H(i,j); if(h<bestH){ bestH=h; best=k; }
+    for(let n=0;n<8;n++){
+      const ni=i+DI[n], nj=j+DJ[n]; if(ni<0||nj<0||ni>=NAV_N||nj>=NAV_N) continue;
+      const c=navCell(ni,nj); if(c<0) continue;
+      if(n>=4 && (navCell(i+DI[n],j)<0 || navCell(i,j+DJ[n])<0)) continue;      // no cutting wall corners
+      const nk=nj*NAV_N+ni, g=_navG[k]+(n<4?1:1.414)+c;
+      if(_navVS[nk]===_navStamp && g>=_navG[nk]) continue;
+      _navVS[nk]=_navStamp; _navG[nk]=g; _navP[nk]=k; _navF[nk]=g+H(ni,nj); push(nk);
+    }
+  }
+  if(best===sk) return null;
+  const cells=[]; for(let k=best;k>=0;k=_navP[k]) cells.push(k); cells.reverse();
+  const out=[]; let a=0;                                                      // string-pull: jump to the furthest later cell that is a clear straight line
+  while(a<cells.length-1){
+    let b=Math.min(cells.length-1,a+14);
+    for(;b>a+1;b--){ if(navGridClear(cells[a]%NAV_N,(cells[a]/NAV_N)|0,cells[b]%NAV_N,(cells[b]/NAV_N)|0)) break; }
+    out.push({x:_navOX+cells[b]%NAV_N+0.5, z:_navOZ+((cells[b]/NAV_N)|0)+0.5}); a=b;
+  }
+  if(found && out.length) out[out.length-1]={x:gx,z:gz};
+  return out.length?out:null;
+}
+// the point to walk to right now: the target itself, or the next corner of a path round whatever is in the way
+function navStep(s,tx,tz,maxSpd,dt){
+  let n=s.nav; if(!n) n=s.nav={path:null,pi:0,chk:Math.random()*0.3,rep:0,sT:0,lx:s.pos.x,lz:s.pos.z,force:false,clear:true,gx:1e9,gz:1e9,res:{x:tx,z:tz}};
+  const px=s.pos.x, pz=s.pos.z, out=n.res; out.x=tx; out.z=tz;
+  n.chk-=dt; n.rep-=dt; n.sT+=dt;
+  if(n.sT>=0.5){            // wanted to move but barely did: stuck on something, plan round it
+    const mv=Math.hypot(px-n.lx,pz-n.lz); n.lx=px; n.lz=pz; n.sT=0;
+    if(maxSpd>0.8 && mv<0.1*maxSpd && Math.hypot(tx-px,tz-pz)>1.2){ n.force=true; n.chk=0; n.rep=Math.min(n.rep,0); }
+  }
+  if(n.chk<=0){ n.chk=0.25+Math.random()*0.1; n.clear=navLineClear(s,tx,tz,14); }
+  if(n.clear && !n.force){ n.path=null; return out; }
+  if(!n.path || n.force || Math.hypot(tx-n.gx,tz-n.gz)>3){
+    if(n.rep<=0){
+      const now=performance.now(); if(now-_navLastT>16){ _navLastT=now; _navPlans=0; }
+      if(_navPlans<3){ _navPlans++; n.rep=0.8+Math.random()*0.4; n.gx=tx; n.gz=tz; n.path=navPlan(s,tx,tz); n.pi=0; n.force=false; }
+    }
+  }
+  if(n.path){
+    while(n.pi<n.path.length && Math.hypot(n.path[n.pi].x-px,n.path[n.pi].z-pz)<0.9) n.pi++;
+    if(n.pi>=n.path.length){ n.path=null; n.chk=0; n.clear=true; return out; }
+    out.x=n.path[n.pi].x; out.z=n.path[n.pi].z;
+  }
+  return out;
+}
 function moveSoldierToward(s,tx,tz,maxSpd,dt,faceIdle){
   if(s.inWire) maxSpd*=0.35;
   const dx=tx-s.pos.x, dz=tz-s.pos.z, d=Math.hypot(dx,dz);
   const want = d>0.5 ? Math.min(maxSpd,d*1.6) : 0;
-  const desired = d>0.01 ? new V3(dx/d*want,0,dz/d*want) : new V3();
+  let wx=dx, wz=dz, wd=d;
+  if(d>1.2 && maxSpd>0.5 && !s.fixed){ const w=navStep(s,tx,tz,maxSpd,dt); wx=w.x-s.pos.x; wz=w.z-s.pos.z; wd=Math.hypot(wx,wz); }
+  const desired = wd>0.01 ? new V3(wx/wd*want,0,wz/wd*want) : new V3();
   s.vel.lerp(desired,1-Math.exp(-6*dt));
   const ox=s.pos.x, oz=s.pos.z;
   moveAxisAI(s.pos,0.3,1.8,'x',s.vel.x*dt);

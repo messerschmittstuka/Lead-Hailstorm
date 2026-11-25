@@ -4953,7 +4953,7 @@ const SIDES = {
     weapons:['thompson','m1903'], names:['Pvt. Miller','Sgt. Carter','Pfc. Davis','Cpl. Johnson','Pvt. Wilson','Pfc. Anderson','Pvt. Taylor','Cpl. Thomas','Pvt. Moore','Pfc. Jackson','Sgt. Harris','Pvt. Martin','Pvt. Thompson','Cpl. White','Pfc. Lewis','Pvt. Walker','Pvt. Hall','Cpl. Allen','Pfc. Young','Pvt. King','Pvt. Wright','Sgt. Scott','Pfc. Green','Pvt. Baker','Pvt. Adams','Cpl. Nelson','Pfc. Hill','Pvt. Mitchell'] },
   japan:{ title:'JAPAN', uniform:0x8a8050, pants:0x7c7448, helmet:0x6d6a42, boots:0x3a2a1a, color:'#d8a46a',
     weapons:['type100','arisaka'], names:['Pvt. Tanaka','Sgt. Sato','Pvt. Suzuki','Cpl. Watanabe','Pvt. Ito','Pvt. Yamamoto','Pvt. Nakamura','Cpl. Kobayashi','Pvt. Kato','Pvt. Yoshida','Sgt. Yamada','Pvt. Sasaki','Pvt. Matsumoto','Cpl. Inoue','Pvt. Kimura','Pvt. Hayashi','Pvt. Shimizu','Cpl. Mori','Pvt. Abe','Pvt. Ikeda','Sgt. Hashimoto','Pvt. Ishikawa'] },
-  german:{ title:'GERMANY', uniform:0x565d4c, pants:0x5c5d53, helmet:0x4b5144, boots:0x191715, color:'#b9c2b0',
+  german:{ title:'GERMANY', uniform:0x565d4c, pants:0x5c5d53, helmet:0x4d554b, boots:0x191715, color:'#b9c2b0',
     weapons:['mp40','kar98k'], names:['Gefr. Becker','Uffz. Krüger','Schütze Hartmann','Obgefr. Lang','Schütze Vogel','Gefr. Braun','Schütze Weber','Gefr. Fischer','Schütze Schulz','Obgefr. Wolf','Schütze Neumann','Gefr. Schwarz','Uffz. Zimmermann','Schütze Koch','Gefr. Richter','Schütze Klein','Gefr. Wagner','Obgefr. Hoffmann','Schütze Schäfer','Gefr. Bauer','Uffz. Krause'] }
 };
 const WEAPONS = {
@@ -5770,7 +5770,7 @@ function bakeNode(node,opt){
 }
 function makeBoxSoldier(sideKey,weaponKey,label){
   const german=sideKey==='german', french=sideKey==='france', usa=sideKey==='usa', italy=sideKey==='italy', japan=sideKey==='japan';
-  const v={skinHex:pickR(SKIN_TONES), puttees:french||usa||italy||japan||(!german&&Math.random()<0.4), face:(Math.random()*4)|0, hat:Math.random()};
+  const v={skinHex:pickR(SKIN_TONES), puttees:french||usa||italy||japan||german||(Math.random()<0.4), face:(Math.random()*4)|0, hat:Math.random()};
   v.hatK=(german||french||usa||italy||japan||v.hat<0.6)?0:(v.hat<0.82?1:2);
   let root;
   if(BAKE_SOLDIERS){
@@ -5817,7 +5817,7 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     const p=rbox(ST*0.98,-KY+0.02,ST*0.98,pants,0.03); p.position.y=KY/2-0.01; hip.add(p);                       // thigh
     const sh=rbox(ST*0.94,L2*0.46,ST*0.94,pants,0.03); sh.position.y=-L2*0.2; kn.add(sh);                           // shin trousers
     if(puttees){
-      const pw=rbox(ST*0.94,L2*0.22,ST*0.94,mat(0x7a7055,{roughness:1}),0.03); pw.position.y=-L2*0.72-KY; kn.add(pw);
+      const pw=rbox(ST*0.94,L2*0.22,ST*0.94,mat(german?0x4a4639:0x7a7055,{roughness:1}),0.03); pw.position.y=-L2*0.72-KY; kn.add(pw);
       const b=rbox(ST,L2*0.12,ST*1.15,bootM,0.03); b.position.set(0,-L2*0.94-AY,-0.03); ft.add(b);
     } else {
       const b=rbox(ST*1.04,L2*0.4,ST*1.04,bootM,0.035); b.position.y=-L2*0.8-AY; ft.add(b);
@@ -5843,14 +5843,17 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   }
   torso.castShadow=torso.receiveShadow=true; torso.position.y=L2/2; upper.add(torso);
   // relief details (merged into the torso/arm meshes on bake): chunky Roblox-style gear
-  const leather=mat(german?0x2a211a:0x5b3d24,{roughness:.8}), brass=mat(0xd8b24a,{roughness:.35,metalness:.6});
+  const leather=mat(german?0x1c1814:0x5b3d24,{roughness:.8}), brass=german?mat(0x8e9188,{roughness:.5,metalness:.55}):mat(0xd8b24a,{roughness:.35,metalness:.6});
   const pipeM=mat(german?0x9aa384:0xb23a2e,{roughness:.9}), unid=mat(new THREE.Color(S.uniform).multiplyScalar(0.78).getHex(),{roughness:.9});
   { const belt=rbox(L2*1.02,0.075,ST*1.04,leather,0.025); belt.position.set(0,0.1,0); upper.add(belt);
-    const buck=rbox(0.075,0.075,0.02,brass,0.01); buck.position.set(0,0.1,-ST/2-0.028); upper.add(buck);
-    for(const px of (german?[-0.26,-0.13,0.13,0.26]:[-0.24,0.24])){ const pch=rbox(0.125,0.13,0.085,leather,0.03); pch.position.set(px,0.145,-ST/2-0.04); upper.add(pch);
-      const fl=rbox(0.125,0.045,0.095,leather,0.015); fl.position.set(px,0.2,-ST/2-0.042); upper.add(fl); const bt=rbox(0.022,0.022,0.012,brass,0.006); bt.position.set(px,0.19,-ST/2-0.09); upper.add(bt); }
+    const buck=rbox(german?0.11:0.075,0.075,0.02,brass,0.01); buck.position.set(0,0.1,-ST/2-0.028); upper.add(buck);
+    if(german){ const rg=scyl(0.026,0.026,0.012,mat(0x6f7269,{roughness:.5,metalness:.5}),12); rg.rotation.x=Math.PI/2; rg.position.set(0,0.1,-ST/2-0.04); upper.add(rg);      // embossed circle on the buckle plate
+      const gh=rbox(0.03,0.3,0.03,mat(0xb89a66,{roughness:.7}),0.008); gh.position.set(0.13,0.02,-ST/2-0.06); gh.rotation.z=-0.28; upper.add(gh);          // stick grenade tucked in the belt: wooden handle...
+      const gd=scyl(0.042,0.042,0.13,mat(0x666b62,{roughness:.55,metalness:.35}),10); gd.position.set(0.21,0.2,-ST/2-0.06); gd.rotation.z=-0.28; upper.add(gd); }       // ...and steel head
+    for(const px of (german?[-0.295,-0.205,-0.115,0.115,0.205,0.295]:[-0.24,0.24])){ const pch=rbox(german?0.082:0.125,0.13,0.085,leather,0.03); pch.position.set(px,0.145,-ST/2-0.04); upper.add(pch);
+      const fl=rbox(german?0.082:0.125,0.045,0.095,leather,0.015); fl.position.set(px,0.2,-ST/2-0.042); upper.add(fl); const bt=rbox(0.022,0.022,0.012,brass,0.006); bt.position.set(px,0.19,-ST/2-0.09); upper.add(bt); }
     // braces over the shoulders, front and back
-    for(const sg of [-1,1]){ const f=rbox(0.075,0.8,0.026,leather,0.01); f.position.set(sg*0.22,0.44,-ST/2-0.016); upper.add(f);
+    for(const sg of [-1,1]){ const f=rbox(0.075,0.8,0.026,leather,0.01); f.position.set(sg*0.22,0.44,-ST/2-0.016); if(german){ f.rotation.z=-sg*0.16; f.position.x=sg*0.215; const yb=rbox(0.05,0.045,0.014,brass,0.005); yb.position.set(sg*0.185,0.34,-ST/2-0.036); upper.add(yb); } upper.add(f);
       const bk=rbox(0.075,0.8,0.026,leather,0.01); bk.position.set(sg*0.22,0.44,ST/2+0.016); upper.add(bk); }
     // brass buttons, pocket flaps, piping down the placket
     for(let k=0;k<5;k++){ const bt=sph(0.018,brass,false,6,5); bt.position.set(0,0.2+k*0.1,-ST/2-0.006); upper.add(bt); }
@@ -5931,7 +5934,7 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     const cst=rbox(0.012,0.1,0.14,leatherB,0.004); cst.position.set(0.36,0.14,0.06); upper.add(cst);
     // entrenching tool: wooden handle and blade in a black carrier on the left hip
     const sh=rbox(0.17,0.24,0.03,mat(0x16130f),0.01); sh.position.set(-0.25,0.12,ST/2+0.02); upper.add(sh);
-    const hdl=rbox(0.03,0.2,0.026,mat(0x6b5236,{roughness:.7}),0.008); hdl.position.set(-0.25,0.31,ST/2+0.02); upper.add(hdl);
+    const hdl=rbox(0.03,0.22,0.026,mat(0xcdb98e,{roughness:.7}),0.008); hdl.position.set(-0.25,-0.1,ST/2+0.03); hdl.rotation.z=0.12; upper.add(hdl);
     // bayonet in its scabbard on a frog at the left hip
     const scb=rbox(0.034,0.3,0.03,mat(0x15120f,{roughness:.55,metalness:.3}),0.006); scb.position.set(-0.3,0.08,-ST/2-0.015); scb.rotation.z=0.08; upper.add(scb);
     const frg=rbox(0.05,0.07,0.04,leatherB,0.008); frg.position.set(-0.3,0.2,-ST/2-0.012); upper.add(frg);

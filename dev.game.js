@@ -6031,7 +6031,7 @@ function animateBoxSoldier(s,dt,t){
 // If they are missing, the detailed built-in soldiers below are used.
 const MODEL_CONFIG = {
   soviet: { url:'models/soviet.glb', addHelmet:false, addWeapon:true },
-  german: { url:'models/german.glb', embed:'glb_german_soldier', addHelmet:false, addWeapon:true, poses:true },
+  german: { url:'models/german.glb', addHelmet:false, addWeapon:true },
   standin:{ urls:['https://threejs.org/examples/models/gltf/Soldier.glb',
                   'https://raw.githubusercontent.com/mrdoob/three.js/r160/examples/models/gltf/Soldier.glb'],
             addHelmet:true, addWeapon:true, tint:{ soviet:0xdccd9a, german:0xb2bcaa } }
@@ -6085,10 +6085,7 @@ async function loadCharacters(){
   let standin=null;
   for(const side of ['soviet','german']){
     const cfg=MODEL_CONFIG[side];
-    let g=null;
-    if(cfg.embed){ try{ const el=document.getElementById(cfg.embed); if(el){ const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-      g=await new Promise((ok,no)=>loader.parse(u.buffer,'',ok,no)); } }catch(e){ console.warn('embedded soldier not loaded',cfg.embed,e); g=null; } }
-    if(!g) g = location.protocol.startsWith('http') ? await tryLoad(cfg.url) : null;
+    const g = location.protocol.startsWith('http') ? await tryLoad(cfg.url) : null;
     if(g){ CHAR[side]={template:g.scene,clips:g.animations,cfg}; }
     else {
       continue; // no model file: use the detailed built-in soldiers
@@ -6138,16 +6135,14 @@ function makeModelSoldier(sideKey,weaponKey,label){
     const helmet=makeHelmet(sideKey);
     if(head) attachTo(head,helmet,hp,new THREE.Quaternion(),root); else { helmet.position.copy(hp); root.add(helmet); }
   }
-  let gun=null, gunSpine=null, slung=null;
   if(cfg.addWeapon){ // weapon slung across the back
-    const spine=findBone(model,[/spine2$/i,/spine1$/i,/chest/i,/spine/i]); gunSpine=spine;
+    const spine=findBone(model,[/spine2$/i,/spine1$/i,/chest/i,/spine/i]);
     const sp=new V3(0,1.35,0); if(spine){ root.updateMatrixWorld(true); spine.getWorldPosition(sp); }
     const w=liteGun(makeWeapon(weaponKey));
     const q=new THREE.Quaternion().setFromAxisAngle(new V3(0,0,1),0.5)
       .multiply(new THREE.Quaternion().setFromAxisAngle(new V3(1,0,0),Math.PI/2));
     const pos=new V3(sp.x,sp.y-0.05,sp.z+0.2);
     if(spine) attachTo(spine,w,pos,q,root); else { w.position.copy(pos); w.quaternion.copy(q); root.add(w); }
-    gun=w; slung={pos:pos.clone(),quat:q.clone()};
   }
   if(label) root.add(makeLabel(label,'#7db4ff'));
 
@@ -6159,10 +6154,8 @@ function makeModelSoldier(sideKey,weaponKey,label){
     const a=mixer.clipAction(clips[k]); a.play(); a.time=Math.random()*clips[k].duration;
     w[k]=k==='idle'?1:0; a.setEffectiveWeight(w[k]); acts[k]=a; }
 
-  const s={root,holder,model,mixer,acts,w,side:sideKey,weapon:weaponKey,pos:root.position,vel:new V3(),speed:0,heading:0,
-           flinch:0,flinchDir:1,phase:Math.random()*6,seedT:Math.random()*10};
-  if(cfg.poses && gun){ const B={}; for(const n of ['Hips','Spine','Spine1','Spine2','Head','LeftUpLeg','LeftLeg','RightUpLeg','RightLeg','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand']) B[n]=findBone(model,[new RegExp('^'+n+'$')]);
-    if(B.Hips&&B.Spine2&&B.RightArm&&B.LeftArm&&B.RightForeArm&&B.LeftForeArm&&B.RightHand&&B.LeftHand){ s.pose={B,gun,gunSpine,slung,held:false,heldT:0,baseY:model.position.y}; s.weaponObj=gun; } }
+  const s={root,holder,mixer,acts,w,side:sideKey,weapon:weaponKey,pos:root.position,vel:new V3(),speed:0,heading:0,
+           flinch:0,flinchDir:1};
   root.traverse(o=>{ o.userData.soldier=s; });
   return s;
 }
@@ -6176,48 +6169,6 @@ function soldierShadowLOD(s){      // a man far from you casts a shadow of a few
   const dx=s.root.position.x-camera.position.x, dz=s.root.position.z-camera.position.z, lim=gfx==='low'?22:gfx==='medium'?38:55, far=(dx*dx+dz*dz)>lim*lim;
   if(s._shFar===far) return; s._shFar=far;
   s.root.traverse(o=>{ if(!o.isMesh) return; if(o.userData._cs===undefined) o.userData._cs=o.castShadow; o.castShadow=far?false:o.userData._cs; });
-}
-
-/* ---- code poses for the model soldiers: rifle carried slung, brought up to the shoulder to fight (two-bone arm IK onto the rifle), spine pitch for aiming, crouch ---- */
-const _pQa=new THREE.Quaternion(), _pQb=new THREE.Quaternion(), _pQc=new THREE.Quaternion(), _pQd=new THREE.Quaternion(), _pP1=new V3(), _pP2=new V3(), _pP3=new V3(), _pP4=new V3(), _pP5=new V3(), _pAx=new V3();
-function poseRot(bone,qw){ bone.parent.getWorldQuaternion(_pQa); _pQb.copy(_pQa).invert().multiply(qw).multiply(_pQa); bone.quaternion.premultiply(_pQb); bone.updateMatrixWorld(true); }
-function poseAxis(bone,rootQ,ax,ay,az,ang){ _pAx.set(ax,ay,az).applyQuaternion(rootQ); _pQd.setFromAxisAngle(_pAx,ang); poseRot(bone,_pQd); }
-function poseAim(bone,child,target){ bone.getWorldPosition(_pP1); child.getWorldPosition(_pP2); _pP2.sub(_pP1).normalize(); _pP3.copy(target).sub(_pP1).normalize(); _pQd.setFromUnitVectors(_pP2,_pP3); poseRot(bone,_pQd); }
-function poseIK(up,lo,hand,target,pole){
-  up.getWorldPosition(_pP1); lo.getWorldPosition(_pP2); hand.getWorldPosition(_pP3);
-  const L1=_pP1.distanceTo(_pP2), L2=_pP2.distanceTo(_pP3); _pP4.copy(target).sub(_pP1); let d=_pP4.length(); if(d<0.05) return; _pP4.multiplyScalar(1/d); d=Math.min(d,L1+L2-0.004);
-  const a=(L1*L1-L2*L2+d*d)/(2*d), h=Math.sqrt(Math.max(0,L1*L1-a*a));
-  _pP5.copy(pole).addScaledVector(_pP4,-pole.dot(_pP4)).normalize();
-  const E=new V3().copy(_pP1).addScaledVector(_pP4,a).addScaledVector(_pP5,h);
-  const T=new V3().copy(_pP1).addScaledVector(_pP4,d);
-  poseAim(up,lo,E); poseAim(lo,hand,T);
-}
-const _poleR=new V3(), _poleL=new V3(), _tgtR=new V3(), _tgtL=new V3(), _gunQ=new THREE.Quaternion();
-function modelPose(s,dt){
-  const P=s.pose; if(!P) return; const B=P.B;
-  s.crouchK=(s.crouchK||0)+((s.wantCrouch?1:0)-(s.crouchK||0))*Math.min(1,dt*8); const ck=s.crouchK;
-  if(s.aimHold>0) s.aimHold-=dt;
-  const fight = !s.dead && ((s.flashT>0)||(s.aimHold>0)||(s.ai&&s.ai.state==='combat')||ck>0.4||(s.wallK>0.2));
-  if(fight) P.heldT=0.5; else if(P.heldT>0) P.heldT-=dt;
-  const held=P.heldT>0;
-  s.root.updateMatrixWorld(true);
-  if(held!==P.held){ P.held=held;      // the rifle moves between the sling and the shoulder (positions are in the soldier's own space; attachTo wants world space)
-    const lp=held?new V3(0.055,1.37,-0.19):P.slung.pos, lq=held?new THREE.Quaternion():P.slung.quat, rwq=s.root.getWorldQuaternion(new THREE.Quaternion());
-    attachTo(P.gunSpine,P.gun,lp.clone().applyMatrix4(s.root.matrixWorld),rwq.multiply(lq),s.root); }
-  const pitch=Math.max(-0.7,Math.min(0.8,s.aimPitch||0));
-  const far=s.root.position.distanceToSquared(camera.position)>2500;
-  s.model.position.y=P.baseY-0.33*ck;
-  if(!held && ck<0.02) return;
-  s.root.getWorldQuaternion(_pQc); const rq=_pQc.clone();
-  if(ck>0.02){      // crouch: thighs forward, shins back, a lean over the knees
-    for(const side of ['Left','Right']){ const u=B[side+'UpLeg'], l=B[side+'Leg']; if(u){ poseAxis(u,rq,1,0,0,1.05*ck); } if(l){ poseAxis(l,rq,1,0,0,-1.7*ck); } }
-    if(B.Spine) poseAxis(B.Spine,rq,1,0,0,-0.25*ck); }
-  if(held){
-    if(B.Spine1) poseAxis(B.Spine1,rq,1,0,0,pitch*0.5); if(B.Spine2) poseAxis(B.Spine2,rq,1,0,0,pitch*0.5);
-    if(!far){ const g=P.gun; g.updateWorldMatrix(true,false);
-      _tgtR.set(0,-0.06,0.02); g.localToWorld(_tgtR); const fo=g.userData.fore; if(fo) _tgtL.copy(fo); else _tgtL.set(0,-0.03,-0.32); g.localToWorld(_tgtL);
-      _poleR.set(0.5,-1,0.35).applyQuaternion(rq); _poleL.set(-0.5,-1,0.35).applyQuaternion(rq);
-      poseIK(B.RightArm,B.RightForeArm,B.RightHand,_tgtR,_poleR); poseIK(B.LeftArm,B.LeftForeArm,B.LeftHand,_tgtL,_poleL); } }
 }
 function animateSoldier(s,dt,t){
   soldierShadowLOD(s);
@@ -6235,7 +6186,6 @@ function animateSoldier(s,dt,t){
   if(A.walk) A.walk.setEffectiveTimeScale(Math.max(0.6,Math.min(1.8,sp/1.6)));
   if(A.run)  A.run.setEffectiveTimeScale(Math.max(0.7,Math.min(1.4,sp/5.5)));
   s.mixer.update(dt);
-  if(s.pose){ try{ modelPose(s,dt); }catch(e){ console.warn('soldier pose layer off',e); s.pose=null; } }
   s.flinch=Math.max(0,s.flinch-dt*3);
   s.holder.rotation.x=-s.flinch*0.2;
   s.holder.rotation.z=s.flinch*0.12*s.flinchDir;

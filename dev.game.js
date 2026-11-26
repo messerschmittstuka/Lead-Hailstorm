@@ -5862,7 +5862,7 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   torso.castShadow=torso.receiveShadow=true; torso.position.y=L2/2; upper.add(torso);
   // relief details (merged into the torso/arm meshes on bake): chunky Roblox-style gear
   const leather=mat(german?0x1c1814:0x5b3d24,{roughness:.8}), brass=german?mat(0x8e9188,{roughness:.5,metalness:.55}):soviet?mat(0xb09a48,{roughness:.5,metalness:.4}):mat(0xd8b24a,{roughness:.35,metalness:.6});
-  const pipeM=mat(german?0x9aa384:soviet?new THREE.Color(S.uniform).multiplyScalar(0.9).getHex():0xb23a2e,{roughness:.9}), unid=mat(new THREE.Color(S.uniform).multiplyScalar(0.78).getHex(),{roughness:.9});
+  const pipeM=mat(german?new THREE.Color(S.uniform).multiplyScalar(0.95).getHex():soviet?new THREE.Color(S.uniform).multiplyScalar(0.9).getHex():0xb23a2e,{roughness:.9}), unid=mat(new THREE.Color(S.uniform).multiplyScalar(0.78).getHex(),{roughness:.9});
   { const belt=rbox(L2*1.02,0.075,ST*1.04,leather,0.025); belt.position.set(0,0.1,0); upper.add(belt);
     const buck=rbox(german?0.11:0.075,0.075,0.02,brass,0.01); buck.position.set(0,0.1,-ST/2-0.028); upper.add(buck);
     if(german){ const rg=scyl(0.026,0.026,0.012,mat(0x6f7269,{roughness:.5,metalness:.5}),12); rg.rotation.x=Math.PI/2; rg.position.set(0,0.1,-ST/2-0.04); upper.add(rg);      // embossed circle on the buckle plate
@@ -6011,19 +6011,18 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   const AL1=0.2, AL2=0.255, AD=L2*0.9-ST/2, AFI=Math.acos(Math.max(-1,Math.min(1,(AD*AD-AL1*AL1-AL2*AL2)/(2*AL1*AL2)))), AAL=Math.asin(Math.min(1,AL2*Math.sin(AFI)/AD));
   function arm(x){
     const nm=x>0?'R':'L', g=new THREE.Group(); g.name='arm'+nm; g.position.set(x,shY,0);
-    const trim=mat(new THREE.Color(S.uniform).multiplyScalar(0.68).getHex(),{roughness:.9});
+    const trim=mat(new THREE.Color(S.uniform).multiplyScalar(german?0.9:0.68).getHex(),{roughness:.9});
     const ua=new THREE.Group(); ua.name='ua'+nm; ua.rotation.x=-AAL; g.add(ua);
     const sleeve=rbox(ST*0.98,ST/2+AL1+0.02,ST*0.98,uni,0.045); sleeve.position.y=(ST/2-AL1-0.02)/2; ua.add(sleeve);              // upper arm
     const ep=rbox(ST*1.0,0.035,ST*1.03,german?mat(new THREE.Color(S.uniform).multiplyScalar(0.92).getHex(),{roughness:.95}):trim,0.012); ep.position.y=ST/2+0.004; ua.add(ep);                                         // shoulder board
     { const sb=sph(0.013,german?mat(0x8e9188,{roughness:.5,metalness:.55}):mat(0xb09a48,{roughness:.5,metalness:.4}),false,6,5); sb.position.set(0,ST/2+0.03,-ST*0.3); ua.add(sb); }   // board button
-    if(german){ const wp=mat(0xdcdccf,{roughness:.9}); for(const sz of [-1,1]){ const pp=rbox(ST*1.02,0.012,0.012,wp,0.004); pp.position.set(0,ST/2+0.024,sz*ST*0.5); ua.add(pp); }      // white infantry piping on the Schulterklappe
-      const pp2=rbox(0.012,0.012,ST*1.03,wp,0.004); pp2.position.set(ST*0.5*(x>0?1:-1),ST/2+0.024,0); ua.add(pp2); }
+    // (no white piping on the German shoulder boards: the reference has plain field-grey sleeves)
     { const pa=rbox(ST*0.9,0.09,0.02,trim,0.01); pa.position.set(0,-AL1+0.075,ST/2+0.004); ua.add(pa); }                            // elbow patch
     const el=new THREE.Group(); el.name='el'+nm; el.position.y=-AL1; el.rotation.x=AFI; ua.add(el);                                // elbow
     const wy=AL2-0.074, fh=wy+0.01;
     const fore=rbox(ST*0.92,fh+0.02,ST*0.92,uni,0.045); fore.position.y=(0.02-fh)/2; el.add(fore);                                // forearm
     const cuff=rbox(ST*0.97,0.07,ST*0.97,trim,0.015); cuff.position.y=-wy+0.035; el.add(cuff);                                     // cuff
-    { const cp=rbox(ST*1.0,0.016,ST*1.0,mat(german?0x9aa384:soviet?new THREE.Color(S.uniform).multiplyScalar(0.9).getHex():0xb23a2e,{roughness:.9}),0.006); cp.position.y=-wy+0.078; el.add(cp);   // cuff piping
+    { const cp=rbox(ST*1.0,0.016,ST*1.0,mat(german?new THREE.Color(S.uniform).multiplyScalar(0.95).getHex():soviet?new THREE.Color(S.uniform).multiplyScalar(0.9).getHex():0xb23a2e,{roughness:.9}),0.006); cp.position.y=-wy+0.078; el.add(cp);   // cuff piping
       const bt=rbox(0.03,0.03,0.012,mat(0xd8b24a,{roughness:.35,metalness:.6}),0.006); bt.position.set(0,-wy+0.04,-ST/2-0.01); el.add(bt); }
     const wr=new THREE.Group(); wr.name='wr'+nm; wr.position.y=-wy; el.add(wr);                                                    // wrist
     const hand=rbox(ST*0.84,L2*0.22,ST*0.84,skin,0.048); hand.position.y=-0.074; wr.add(hand);                                    // hand

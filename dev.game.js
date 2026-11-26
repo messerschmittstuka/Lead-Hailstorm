@@ -5841,6 +5841,10 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
       const kp=rbox(ST*0.8,0.12,0.022,mat(new THREE.Color(S.pants).multiplyScalar(0.84).getHex(),{roughness:.95}),0.012); kp.position.set(0,-L2*0.43-KY,-ST/2-0.008); kn.add(kp);
       const sm=rbox(0.018,L2*0.58,0.012,mat(new THREE.Color(S.pants).multiplyScalar(0.8).getHex(),{roughness:.9}),0.005); sm.position.set(sx*ST*0.48,-L2*0.31,-ST/2-0.006); hip.add(sm); }
     const sole=rbox(ST*1.07,0.04,ST*1.2,mat(0x0d0b09,{roughness:.95}),0.015); sole.position.set(0,-L2*0.995+0.02-AY,-0.03); ft.add(sole);
+    { const heel=rbox(ST*0.92,0.06,0.11,mat(0x0d0b09,{roughness:.95}),0.015); heel.position.set(0,-L2*0.995+0.05-AY,0.12); ft.add(heel);              // heel block
+      if(!puttees){ const rim=rbox(ST*1.09,0.028,ST*1.09,mat(german?0x0d0b09:0x1a1410,{roughness:.6}),0.012); rim.position.y=-L2*0.6-AY-0.014; ft.add(rim); }      // boot-top rim
+      if(german||soviet){ const bk=rbox(ST*0.58,0.055,0.02,mat(new THREE.Color(S.pants).multiplyScalar(0.8).getHex(),{roughness:.9}),0.008); bk.position.set(0,-L2*0.13,ST/2+0.008); hip.add(bk);   // back pocket
+        const bb=sph(0.011,mat(0x8a8d86,{roughness:.5,metalness:.5}),false,6,5); bb.position.set(0,-L2*0.13+0.012,ST/2+0.02); hip.add(bb); } }
     legs.push(hip);
   }
 
@@ -5879,6 +5883,25 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     if(!german){ for(const sg of [-1,1]){ const tab=rbox(0.07,0.045,0.02,soviet?mat(0x6b683c,{roughness:.95}):pipeM,0.008); tab.position.set(sg*0.1,L2-0.05,-ST/2-0.006); upper.add(tab);
       if(soviet){ const te=rbox(0.07,0.008,0.022,mat(0x9a3a2e,{roughness:.8}),0.003); te.position.set(sg*0.1,L2-0.07,-ST/2-0.007); upper.add(te); } } }
   }
+  // tunic skirt over the trousers + the German lower bellows pockets and collar Litzen (details taken from the reference models)
+  if(german||soviet){
+    const sk=rbox(L2*1.04,0.12,ST*1.075,uni,0.03); sk.position.set(0,-0.03,0); upper.add(sk);
+    const hem=rbox(L2*1.05,0.014,ST*1.09,unid,0.005); hem.position.set(0,-0.088,0); upper.add(hem);                                   // hem stitching band
+    const pkM=mat(new THREE.Color(S.uniform).multiplyScalar(0.92).getHex(),{roughness:.95}), btM=german?mat(0x8a8d86,{roughness:.45,metalness:.55}):brass;
+    if(german){
+      for(const sg of [-1,1]){
+        const bp=rbox(0.15,0.095,0.026,pkM,0.012); bp.position.set(sg*0.2,-0.035,-ST*0.5375-0.012); upper.add(bp);                 // bellows pocket
+        const fl=rbox(0.158,0.04,0.034,pkM,0.012); fl.position.set(sg*0.2,0.005,-ST*0.5375-0.014); upper.add(fl);                       // flap
+        const tip=rbox(0.045,0.045,0.034,pkM,0.01); tip.rotation.z=Math.PI/4; tip.position.set(sg*0.2,-0.01,-ST*0.5375-0.014); upper.add(tip);   // scalloped point
+        const bb=sph(0.013,btM,false,6,5); bb.position.set(sg*0.2,-0.012,-ST*0.5375-0.034); upper.add(bb);
+        const pt=rbox(0.075,0.052,0.018,mat(0x2f3f2a,{roughness:.95}),0.006); pt.position.set(sg*0.1,L2-0.05,-ST/2-0.008); upper.add(pt);   // dark green collar patch
+        for(const dy of [-0.012,0.012]){ const lz=rbox(0.056,0.008,0.02,mat(0xc9cabf,{roughness:.6}),0.003); lz.position.set(sg*0.1,L2-0.05+dy,-ST/2-0.012); upper.add(lz); }   // Litzen bars
+        const lb=rbox(0.012,0.04,0.02,mat(0xc9cabf,{roughness:.6}),0.003); lb.position.set(sg*0.1,L2-0.05,-ST/2-0.012); upper.add(lb);
+      }
+    } else {
+      for(const sg of [-1,1]){ const bt=sph(0.012,brass,false,6,5); bt.position.set(sg*0.09,-0.02,-ST*0.5375-0.012); upper.add(bt); }   // gymnastyorka: two hem buttons
+    }
+  }
   // Soviet troops carry a rolled greatcoat over the shoulder
   if(!german){ const roll=scyl(0.065,0.065,0.85,mat(0x7a755c,{roughness:1}),10); roll.rotation.z=0.95; roll.position.set(0.02,0.4,-ST/2-0.075); upper.add(roll);
     for(const t of [-0.25,0,0.25]){ const strap=scyl(0.07,0.07,0.03,leather,10); strap.rotation.z=0.95; strap.position.set(0.02+t*Math.sin(0.95)*0.85*0.5,0.4-t*Math.cos(0.95)*0.85*0.5,-ST/2-0.075); upper.add(strap); } }
@@ -5894,6 +5917,11 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   // head + face
   const head=new THREE.Group(); head.name='head'; head.position.y=L2+0.215; upper.add(head);
   const hm=rbox(0.44,0.42,0.42,skin,0.14); head.add(hm);
+  { for(const sg of [-1,1]){ const ear=rbox(0.034,0.085,0.065,skin,0.014); ear.position.set(sg*0.226,-0.02,0.02); head.add(ear); }                // ears
+    const nose=rbox(0.052,0.075,0.05,skin,0.02); nose.position.set(0,-0.015,-0.236); head.add(nose);                                              // nose
+    const hairM=mat(german?0x6e5532:soviet?0x3b2b1d:0x4a3a28,{roughness:1});
+    const nape=rbox(0.43,0.11,0.05,hairM,0.02); nape.position.set(0,0.0,0.205); head.add(nape);                                                   // hair at the nape and over the ears
+    for(const sg of [-1,1]){ const sb=rbox(0.03,0.1,0.15,hairM,0.012); sb.position.set(sg*0.222,0.05,0.06); head.add(sb); } }
   // headgear
   const hatK=v.hatK;
   if(hatK===0){
@@ -5933,6 +5961,11 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
   } else { // pilotka
     const pc=rbox(0.3,0.1,0.46,mat(S.uniform,{roughness:1}),0.04); pc.position.set(0.03,0.24,0); pc.rotation.z=0.12; head.add(pc);
     const st=redStar(0.03); st.position.set(0.02,0.24,-0.232); head.add(st);
+    { const cg=new THREE.Group(); cg.position.set(0.03,0.24,0); cg.rotation.z=0.12; head.add(cg);
+      const cm=mat(new THREE.Color(S.uniform).multiplyScalar(0.8).getHex(),{roughness:1});
+      const ridge=rbox(0.035,0.02,0.44,cm,0.008); ridge.position.y=0.055; cg.add(ridge);                                                         // fold along the top
+      const pipe=rbox(0.31,0.014,0.47,mat(new THREE.Color(S.uniform).multiplyScalar(0.62).getHex(),{roughness:1}),0.005); pipe.position.y=-0.04; cg.add(pipe);   // edge piping
+      const sbn=sph(0.012,mat(0xb09a48,{roughness:.5,metalness:.4}),false,6,5); sbn.position.set(0.152,-0.005,-0.08); cg.add(sbn); }
   }
 
   // gear on the back/hips
@@ -5982,6 +6015,7 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
     const ua=new THREE.Group(); ua.name='ua'+nm; ua.rotation.x=-AAL; g.add(ua);
     const sleeve=rbox(ST*0.98,ST/2+AL1+0.02,ST*0.98,uni,0.045); sleeve.position.y=(ST/2-AL1-0.02)/2; ua.add(sleeve);              // upper arm
     const ep=rbox(ST*1.0,0.035,ST*1.03,german?mat(new THREE.Color(S.uniform).multiplyScalar(0.92).getHex(),{roughness:.95}):trim,0.012); ep.position.y=ST/2+0.004; ua.add(ep);                                         // shoulder board
+    { const sb=sph(0.013,german?mat(0x8e9188,{roughness:.5,metalness:.55}):mat(0xb09a48,{roughness:.5,metalness:.4}),false,6,5); sb.position.set(0,ST/2+0.03,-ST*0.3); ua.add(sb); }   // board button
     if(german){ const wp=mat(0xdcdccf,{roughness:.9}); for(const sz of [-1,1]){ const pp=rbox(ST*1.02,0.012,0.012,wp,0.004); pp.position.set(0,ST/2+0.024,sz*ST*0.5); ua.add(pp); }      // white infantry piping on the Schulterklappe
       const pp2=rbox(0.012,0.012,ST*1.03,wp,0.004); pp2.position.set(ST*0.5*(x>0?1:-1),ST/2+0.024,0); ua.add(pp2); }
     { const pa=rbox(ST*0.9,0.09,0.02,trim,0.01); pa.position.set(0,-AL1+0.075,ST/2+0.004); ua.add(pa); }                            // elbow patch
@@ -5993,6 +6027,9 @@ function buildBoxSoldier(sideKey,weaponKey,v,bake){
       const bt=rbox(0.03,0.03,0.012,mat(0xd8b24a,{roughness:.35,metalness:.6}),0.006); bt.position.set(0,-wy+0.04,-ST/2-0.01); el.add(bt); }
     const wr=new THREE.Group(); wr.name='wr'+nm; wr.position.y=-wy; el.add(wr);                                                    // wrist
     const hand=rbox(ST*0.84,L2*0.22,ST*0.84,skin,0.048); hand.position.y=-0.074; wr.add(hand);                                    // hand
+    { const gr=mat(new THREE.Color(skinHex).multiplyScalar(0.62).getHex(),{roughness:.8});
+      for(const gx of [-0.07,0,0.07]){ const fg=rbox(0.008,0.075,0.01,gr,0.003); fg.position.set(gx,-0.1,-ST*0.42-0.003); wr.add(fg); }                  // finger grooves
+      const th=rbox(0.05,0.1,0.055,skin,0.022); th.position.set(x>0?-0.15:0.15,-0.06,-0.03); wr.add(th); }                                        // thumb
     upper.add(g); return g;
   }
   const armR=arm(ST*1.5), armL=arm(-ST*1.5);
@@ -6093,7 +6130,7 @@ function animateBoxSoldier(s,dt,t){
 // If they are missing, the detailed built-in soldiers below are used.
 const MODEL_CONFIG = {
   soviet: { url:'models/soviet.glb', addHelmet:false, addWeapon:true },
-  german: { url:'models/german.glb', embed:'glb_wehrmacht', addHelmet:false, addWeapon:true, poses:true },
+  german: { url:'models/german.glb', addHelmet:false, addWeapon:true },
   standin:{ urls:['https://threejs.org/examples/models/gltf/Soldier.glb',
                   'https://raw.githubusercontent.com/mrdoob/three.js/r160/examples/models/gltf/Soldier.glb'],
             addHelmet:true, addWeapon:true, tint:{ soviet:0xdccd9a, german:0xb2bcaa } }
@@ -6147,10 +6184,7 @@ async function loadCharacters(){
   let standin=null;
   for(const side of ['soviet','german']){
     const cfg=MODEL_CONFIG[side];
-    let g=null;
-    if(cfg.embed){ try{ const el=document.getElementById(cfg.embed); if(el){ const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
-      g=await new Promise((ok,no)=>loader.parse(u.buffer,'',ok,no)); } }catch(e){ console.warn('embedded soldier not loaded',cfg.embed,e); g=null; } }
-    if(!g) g = location.protocol.startsWith('http') ? await tryLoad(cfg.url) : null;
+    const g = location.protocol.startsWith('http') ? await tryLoad(cfg.url) : null;
     if(g){ CHAR[side]={template:g.scene,clips:g.animations,cfg}; }
     else {
       continue; // no model file: use the detailed built-in soldiers
@@ -6200,16 +6234,14 @@ function makeModelSoldier(sideKey,weaponKey,label){
     const helmet=makeHelmet(sideKey);
     if(head) attachTo(head,helmet,hp,new THREE.Quaternion(),root); else { helmet.position.copy(hp); root.add(helmet); }
   }
-  let gun=null, gunSpine=null, slung=null, gunBack=0.3;
   if(cfg.addWeapon){ // weapon slung across the back
-    const spine=findBone(model,[/spine2$/i,/spine1$/i,/chest/i,/spine/i]); gunSpine=spine;
+    const spine=findBone(model,[/spine2$/i,/spine1$/i,/chest/i,/spine/i]);
     const sp=new V3(0,1.35,0); if(spine){ root.updateMatrixWorld(true); spine.getWorldPosition(sp); }
-    const w=liteGun(makeWeapon(weaponKey)); try{ gunBack=Math.max(0.12,new THREE.Box3().setFromObject(w).max.z); }catch(e){}
+    const w=liteGun(makeWeapon(weaponKey));
     const q=new THREE.Quaternion().setFromAxisAngle(new V3(0,0,1),0.5)
       .multiply(new THREE.Quaternion().setFromAxisAngle(new V3(1,0,0),Math.PI/2));
     const pos=new V3(sp.x,sp.y-0.05,sp.z+0.2);
     if(spine) attachTo(spine,w,pos,q,root); else { w.position.copy(pos); w.quaternion.copy(q); root.add(w); }
-    gun=w; slung={pos:pos.clone(),quat:q.clone()};
   }
   if(label) root.add(makeLabel(label,'#7db4ff'));
 
@@ -6221,10 +6253,8 @@ function makeModelSoldier(sideKey,weaponKey,label){
     const a=mixer.clipAction(clips[k]); a.play(); a.time=Math.random()*clips[k].duration;
     w[k]=k==='idle'?1:0; a.setEffectiveWeight(w[k]); acts[k]=a; }
 
-  const s={root,holder,model,mixer,acts,w,side:sideKey,weapon:weaponKey,pos:root.position,vel:new V3(),speed:0,heading:0,
-           flinch:0,flinchDir:1,phase:Math.random()*6,seedT:Math.random()*10};
-  if(cfg.poses && gun){ const B={}; for(const n of ['Hips','Spine','Spine1','Spine2','Head','LeftUpLeg','LeftLeg','RightUpLeg','RightLeg','LeftArm','LeftForeArm','LeftHand','RightArm','RightForeArm','RightHand']) B[n]=findBone(model,[new RegExp('^'+n+'$')]);
-    if(B.Hips&&B.Spine2&&B.RightArm&&B.LeftArm&&B.RightForeArm&&B.LeftForeArm&&B.RightHand&&B.LeftHand){ s.pose={B,gun,gunSpine,slung,gunBack,held:false,heldT:0,baseY:model.position.y}; s.weaponObj=gun; } }
+  const s={root,holder,mixer,acts,w,side:sideKey,weapon:weaponKey,pos:root.position,vel:new V3(),speed:0,heading:0,
+           flinch:0,flinchDir:1};
   root.traverse(o=>{ o.userData.soldier=s; });
   return s;
 }
@@ -6239,50 +6269,6 @@ function soldierShadowLOD(s){      // a man far from you casts a shadow of a few
   if(s._shFar===far) return; s._shFar=far;
   s.root.traverse(o=>{ if(!o.isMesh) return; if(o.userData._cs===undefined) o.userData._cs=o.castShadow; o.castShadow=far?false:o.userData._cs; });
 }
-
-/* ---- code poses for the model soldiers: rifle carried slung, brought up to the shoulder to fight (two-bone arm IK onto the rifle), spine pitch for aiming, crouch ---- */
-const _pQa=new THREE.Quaternion(), _pQb=new THREE.Quaternion(), _pQc=new THREE.Quaternion(), _pQd=new THREE.Quaternion(), _pP1=new V3(), _pP2=new V3(), _pP3=new V3(), _pP4=new V3(), _pP5=new V3(), _pAx=new V3();
-function poseRot(bone,qw){ bone.parent.getWorldQuaternion(_pQa); _pQb.copy(_pQa).invert().multiply(qw).multiply(_pQa); bone.quaternion.premultiply(_pQb); bone.updateMatrixWorld(true); }
-function poseAxis(bone,rootQ,ax,ay,az,ang){ _pAx.set(ax,ay,az).applyQuaternion(rootQ); _pQd.setFromAxisAngle(_pAx,ang); poseRot(bone,_pQd); }
-function poseAim(bone,child,target){ bone.getWorldPosition(_pP1); child.getWorldPosition(_pP2); _pP2.sub(_pP1).normalize(); _pP3.copy(target).sub(_pP1).normalize(); _pQd.setFromUnitVectors(_pP2,_pP3); poseRot(bone,_pQd); }
-function poseIK(up,lo,hand,target,pole){
-  up.getWorldPosition(_pP1); lo.getWorldPosition(_pP2); hand.getWorldPosition(_pP3);
-  const L1=_pP1.distanceTo(_pP2), L2=_pP2.distanceTo(_pP3); _pP4.copy(target).sub(_pP1); let d=_pP4.length(); if(d<0.05) return; _pP4.multiplyScalar(1/d); d=Math.min(d,L1+L2-0.004);
-  const a=(L1*L1-L2*L2+d*d)/(2*d), h=Math.sqrt(Math.max(0,L1*L1-a*a));
-  _pP5.copy(pole).addScaledVector(_pP4,-pole.dot(_pP4)).normalize();
-  const E=new V3().copy(_pP1).addScaledVector(_pP4,a).addScaledVector(_pP5,h);
-  const T=new V3().copy(_pP1).addScaledVector(_pP4,d);
-  poseAim(up,lo,E); poseAim(lo,hand,T);
-}
-const _poleR=new V3(), _poleL=new V3(), _tgtR=new V3(), _tgtL=new V3(), _gunQ=new THREE.Quaternion();
-function modelPose(s,dt){
-  const P=s.pose; if(!P) return; const B=P.B;
-  s.crouchK=(s.crouchK||0)+((s.wantCrouch?1:0)-(s.crouchK||0))*Math.min(1,dt*8); const ck=s.crouchK;
-  if(s.aimHold>0) s.aimHold-=dt;
-  const fight = !s.dead && ((s.flashT>0)||(s.aimHold>0)||(s.ai&&s.ai.state==='combat')||ck>0.4||(s.wallK>0.2));
-  if(fight) P.heldT=0.5; else if(P.heldT>0) P.heldT-=dt;
-  const held=P.heldT>0;
-  s.root.updateMatrixWorld(true);
-  if(held!==P.held){ P.held=held;      // the rifle moves between the sling and the shoulder (positions are in the soldier's own space; attachTo wants world space)
-    const lp=held?new V3(0.065,1.40,-P.gunBack+0.02):P.slung.pos, lq=held?new THREE.Quaternion():P.slung.quat, rwq=s.root.getWorldQuaternion(new THREE.Quaternion());
-    attachTo(P.gunSpine,P.gun,lp.clone().applyMatrix4(s.root.matrixWorld),rwq.multiply(lq),s.root); }
-  const pitch=Math.max(-0.7,Math.min(0.8,s.aimPitch||0));
-  const far=s.root.position.distanceToSquared(camera.position)>2500;
-  s.model.position.y=P.baseY-0.33*ck;
-  if(!held && ck<0.02) return;
-  s.root.getWorldQuaternion(_pQc); const rq=_pQc.clone();
-  if(ck>0.02){      // crouch: thighs forward, shins back, a lean over the knees
-    for(const side of ['Left','Right']){ const u=B[side+'UpLeg'], l=B[side+'Leg']; if(u){ poseAxis(u,rq,1,0,0,1.05*ck); } if(l){ poseAxis(l,rq,1,0,0,-1.7*ck); } }
-    if(B.Spine) poseAxis(B.Spine,rq,1,0,0,-0.25*ck); }
-  if(held){
-    if(B.Spine1) poseAxis(B.Spine1,rq,1,0,0,pitch*0.5); if(B.Spine2) poseAxis(B.Spine2,rq,1,0,0,pitch*0.5);
-    if(!far){ const g=P.gun; g.updateWorldMatrix(true,false);
-      _tgtR.set(0,-0.06,0.02); g.localToWorld(_tgtR); const fo=g.userData.fore, fz=fo?fo.z:-0.32, fy=fo?fo.y:-0.03;
-      { B.LeftArm.getWorldPosition(_pP1); B.LeftForeArm.getWorldPosition(_pP2); B.LeftHand.getWorldPosition(_pP3); const reach=_pP1.distanceTo(_pP2)+_pP2.distanceTo(_pP3)-0.05;
-        for(let k=0;k<=8;k++){ const u=k/8; _tgtL.set(0,fy+(-0.06-fy)*u,fz+(0.02-fz)*u); g.localToWorld(_tgtL); if(_tgtL.distanceTo(_pP1)<=reach) break; } }
-      _poleR.set(0.5,-1,0.35).applyQuaternion(rq); _poleL.set(-0.5,-1,0.35).applyQuaternion(rq);
-      poseIK(B.RightArm,B.RightForeArm,B.RightHand,_tgtR,_poleR); poseIK(B.LeftArm,B.LeftForeArm,B.LeftHand,_tgtL,_poleL); } }
-}
 function animateSoldier(s,dt,t){
   soldierShadowLOD(s);
   if(s.dirtMats) dirtTick(s,dt);
@@ -6292,14 +6278,13 @@ function animateSoldier(s,dt,t){
       if(d2>3600){ s._lodN=((s._lodN||0)+1)|0; s._lodDt=(s._lodDt||0)+dt; const every=d2>14400?4:2; if(s._lodN%every){ return; } dt=s._lodDt; s._lodDt=0; } else s._lodDt=0; }
     animateBoxSoldier(s,dt,t); return; }
   const sp=s.speed, A=s.acts;
-  const tw={idle:sp<0.3?1:0, walk:sp>=0.3&&sp<(s.pose?2.7:3.4)?1:0, run:sp>=(s.pose?2.7:3.4)?1:0};
+  const tw={idle:sp<0.3?1:0, walk:sp>=0.3&&sp<3.4?1:0, run:sp>=3.4?1:0};
   if(!A.run){ tw.walk+=tw.run; tw.run=0; }
   if(!A.walk){ tw.idle+=tw.walk; tw.walk=0; }
   for(const k in A){ s.w[k]+=(tw[k]-s.w[k])*Math.min(1,dt*8); A[k].setEffectiveWeight(s.w[k]); }
-  if(A.walk) A.walk.setEffectiveTimeScale(s.pose?Math.max(0.6,Math.min(2.4,sp/1.12)):Math.max(0.6,Math.min(1.8,sp/1.6)));
-  if(A.run)  A.run.setEffectiveTimeScale(s.pose?Math.max(0.65,Math.min(1.7,sp/4.2)):Math.max(0.7,Math.min(1.4,sp/5.5)));
+  if(A.walk) A.walk.setEffectiveTimeScale(Math.max(0.6,Math.min(1.8,sp/1.6)));
+  if(A.run)  A.run.setEffectiveTimeScale(Math.max(0.7,Math.min(1.4,sp/5.5)));
   s.mixer.update(dt);
-  if(s.pose){ try{ modelPose(s,dt); }catch(e){ console.warn('soldier pose layer off',e); s.pose=null; } }
   s.flinch=Math.max(0,s.flinch-dt*3);
   s.holder.rotation.x=-s.flinch*0.2;
   s.holder.rotation.z=s.flinch*0.12*s.flinchDir;
@@ -7361,7 +7346,7 @@ function updateAI(s,dt,slot){
   moveSoldierToward(s,mx,mz,spd,dt,slot&&!faceT?(squadMode==='free'?(s.lookYaw??spawnYaw):player.yaw):undefined);
   if(faceT) faceToward(s,faceT.x,faceT.z,dt);
   // aim the gun arm at the target
-  if(s.armR||s.pose){
+  if(s.armR){
     let pitch=0;
     const aimT=ai.target||s.fmTgt;
     if(faceT && aimT){ s.aimHold=Math.max(s.aimHold||0,0.6); const tp=targetPoint(aimT), d=Math.hypot(tp.x-s.pos.x,tp.z-s.pos.z); pitch=Math.atan2(tp.y-(s.pos.y+1.2),d); }

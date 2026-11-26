@@ -9150,43 +9150,155 @@ function airMakeClouds(root){
   mk(930,0.00052,0.52,0.8,0.5,0.02,40.0);         // low torn scud
   return out;
 }
+// ---------- the city: a street grid with varied buildings (pitched-roof houses, flat-roof blocks, burnt-out shells), all instanced ----------
+function airWinTex(burnt){
+  const t=canvasTex(256,(x,s)=>{
+    x.fillStyle='#ffffff'; x.fillRect(0,0,s,s);                                   // walls take the instance colour
+    for(let i=0;i<2;i++) for(let j=0;j<2;j++){
+      const cx=i*128+64, cy=j*128+66, k=(i*3+j*5)%4;
+      x.fillStyle='rgba(0,0,0,.14)'; x.fillRect(cx-31,cy-42,62,7);                    // lintel shadow
+      x.fillStyle=burnt&&k<2?'#0b0a09':(k===3?'#262c32':'#3a444e'); x.fillRect(cx-22,cy-34,44,66);   // the opening / glass
+      if(!burnt||k>=2){ x.fillStyle='rgba(255,255,255,.26)'; x.fillRect(cx-22,cy-34,44,9); x.fillStyle='rgba(14,18,24,.9)'; x.fillRect(cx-1,cy-34,3,66); x.fillRect(cx-22,cy-3,44,3); }   // glazing bars
+      x.fillStyle='rgba(238,238,232,.85)'; x.fillRect(cx-27,cy+32,54,5);               // snow on the sill
+      if(burnt){ const g=x.createLinearGradient(0,cy-34,0,cy-120); g.addColorStop(0,'rgba(8,6,4,.62)'); g.addColorStop(1,'rgba(8,6,4,0)'); x.fillStyle=g; x.fillRect(cx-26,cy-120,52,86); }   // soot above the window
+    }
+    for(let n=0;n<(burnt?70:36);n++){ x.fillStyle=burnt?`rgba(${50+((n*37)%40)},${28+((n*17)%20)},18,.2)`:'rgba(90,80,70,.07)'; x.fillRect((n*97)%s,(n*53)%s,8+(n*29)%28,4+(n*13)%14); }   // stains and weathering
+  });
+  t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;
+}
+function airWallGeo(cols,floors){
+  const g=new THREE.BoxGeometry(1,1,1), uv=g.attributes.uv;
+  for(let f=0;f<6;f++) for(let v=0;v<4;v++){ const i=f*4+v; if(f===2||f===3) uv.setXY(i,0.5,0.5); else uv.setXY(i,uv.getX(i)*cols/2,uv.getY(i)*floors/2); }
+  return g;
+}
+let _gableGeo=null;
+function airGableGeo(){      // unit footprint, ridge along X at height 1
+  if(_gableGeo) return _gableGeo;
+  const V=[[-.5,0,-.5],[.5,0,-.5],[.5,0,.5],[-.5,0,.5],[-.5,1,0],[.5,1,0]], T=[[0,5,1],[0,4,5],[3,2,5],[3,5,4],[0,3,4],[1,5,2]], p=[];
+  for(const t of T) for(const k of t) p.push(...V[k]);
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(p,3)); g.computeVertexNormals();
+  return _gableGeo=g;
+}
+const AIR_KLS=[
+  {id:'low',  fl:2,cols:3,hr:[6.5,8.5],burnt:false,roof:'gable'},
+  {id:'mid',  fl:4,cols:5,hr:[13,16],  burnt:false,roof:'flat'},
+  {id:'high', fl:6,cols:5,hr:[20,26],  burnt:false,roof:'flat'},
+  {id:'rlow', fl:2,cols:3,hr:[3.5,7],  burnt:true, roof:'broken'},
+  {id:'rmid', fl:4,cols:5,hr:[8,15],   burnt:true, roof:'broken'},
+  {id:'rhigh',fl:6,cols:5,hr:[12,22],  burnt:true, roof:'broken'}
+];
+const AIR_WALL=[0xe6d6c0,0xd9c5a0,0xc9b8a0,0xe8e0d0,0xb8a58a,0xd0c0a8,0xc4aa7e,0xcdd3c4];
+const AIR_RUIN=[0x6a5f55,0x7a6a5c,0x5a5048,0x8a7868,0x4d4640];
+const AIR_ROOF=[0x8a4a38,0x6e7476,0x4c4f52,0x7a5a46,0xe2e8ec,0xe2e8ec,0xdde3e8];
+function airBuildCity(root){
+  const C=AIR.CITY, CELL=46, nx=Math.floor((C.x1-C.x0)/CELL), nz=Math.floor((C.z1-C.z0)/CELL), list=[];
+  const isAve=(gx,gz)=>gz%8===3||gx%6===2||gx===nx-1;               // avenues, cross streets and the embankment road: no buildings
+  const rub=[];
+  for(let gx=0;gx<nx;gx++) for(let gz=0;gz<nz;gz++){
+    const cx=C.x0+(gx+0.5)*CELL, cz=C.z0+(gz+0.5)*CELL;
+    if(isAve(gx,gz)) continue;
+    let bad=false; for(const t of air.T){ if(t.moving||t.kind==='gun') continue; if(Math.abs(cx-t.x)<t.hw+26 && Math.abs(cz-t.z)<t.hd+26){ bad=true; break; } }
+    if(bad) continue;
+    const zone=1-Math.min(1,Math.hypot((cx-380)/560,cz/1300));         // 1 in the centre, 0 at the edge
+    if(rnd()<0.12){ for(let q=0;q<4;q++) rub.push({x:cx+(rnd()-.5)*30,z:cz+(rnd()-.5)*30,s:1.5+rnd()*3.5}); continue; }       // an empty lot of rubble
+    const p=rnd(), type=zone>0.5?(p<0.42?'high':p<0.78?'mid':'low'):zone>0.25?(p<0.15?'high':p<0.5?'mid':'low'):(p<0.2?'mid':'low');
+    const ruined=rnd()<0.26+0.12*(1-zone);
+    const kid=AIR_KLS.findIndex(k=>k.id===(ruined?'r':'')+type);
+    const K=AIR_KLS[kid], put=(x,z,w,d)=>{ const h=K.hr[0]+rnd()*(K.hr[1]-K.hr[0]); list.push({gx,gz,x,z,w,d,h,rh:K.roof==='gable'?Math.min(w,d)*0.3:0,kid,ruin:K.burnt,cs:rnd()}); return list.length-1; };
+    if(type==='low'){                                                  // two houses to a cell
+      const i1=put(cx+(rnd()-.5)*4,cz-11+(rnd()-.5)*2,18+rnd()*10,12+rnd()*4);
+      const kid2=ruined&&rnd()<0.5?AIR_KLS.findIndex(k=>k.id==='low'):kid;
+      list[i1].second=-1;
+      const K2=AIR_KLS[kid2], w2=18+rnd()*10, d2=12+rnd()*4, h2=K2.hr[0]+rnd()*(K2.hr[1]-K2.hr[0]);
+      list.push({gx,gz,x:cx+(rnd()-.5)*4,z:cz+11+(rnd()-.5)*2,w:w2,d:d2,h:h2,rh:K2.roof==='gable'?Math.min(w2,d2)*0.3:0,kid:kid2,ruin:K2.burnt,cs:rnd(),second:1});
+    } else put(cx+(rnd()-.5)*5,cz+(rnd()-.5)*5,24+rnd()*12,22+rnd()*12);
+  }
+  // one instanced wall mesh + roof mesh per class
+  const tex=[airWinTex(false),airWinTex(true)], dm=new THREE.Object3D(), col=new THREE.Color();
+  const walls=[], roofs=[], boxG=new THREE.BoxGeometry(1,1,1), gab=airGableGeo();
+  for(let k=0;k<AIR_KLS.length;k++){
+    const K=AIR_KLS[k], n=list.filter(b=>b.kid===k).length||1;
+    const wm=new THREE.InstancedMesh(airWallGeo(K.cols,K.fl),new THREE.MeshLambertMaterial({map:tex[K.burnt?1:0],color:0xffffff}),n);
+    const rm=new THREE.InstancedMesh(K.roof==='gable'?gab:boxG,new THREE.MeshLambertMaterial({color:0xffffff}),n);
+    wm.count=0; rm.count=0; wm.frustumCulled=false; rm.frustumCulled=false; root.add(wm); root.add(rm); walls.push(wm); roofs.push(rm);
+  }
+  const chim=new THREE.InstancedMesh(boxG,new THREE.MeshLambertMaterial({color:0x7a5242}),list.length+1); chim.count=0; chim.frustumCulled=false; root.add(chim);
+  const grid=new Int16Array(nx*nz).fill(-1), grid2=new Int16Array(nx*nz).fill(-1);
+  list.forEach((b,i)=>{
+    const K=AIR_KLS[b.kid], wm=walls[b.kid], rm=roofs[b.kid], wi=wm.count++, ri=rm.count++;
+    b.i=i; b.alive=true; b.wm=wm; b.wi=wi; b.rm=rm; b.ri=ri; b.cm=null; b.ci=-1;
+    if(b.second===1) grid2[b.gx*nz+b.gz]=i; else grid[b.gx*nz+b.gz]=i;
+    dm.rotation.set(0,0,0); dm.position.set(b.x,b.h/2,b.z); dm.scale.set(b.w,b.h,b.d); dm.updateMatrix(); wm.setMatrixAt(wi,dm.matrix);
+    const pal=K.burnt?AIR_RUIN:AIR_WALL; wm.setColorAt(wi,col.setHex(pal[Math.floor(b.cs*pal.length)%pal.length]));
+    if(K.roof==='gable'){ dm.position.set(b.x,b.h,b.z); dm.scale.set(b.w+1.2,b.rh,b.d+1.2); dm.updateMatrix(); rm.setMatrixAt(ri,dm.matrix); rm.setColorAt(ri,col.setHex(AIR_ROOF[Math.floor(b.cs*977)%AIR_ROOF.length]));
+      b.cm=chim; b.ci=chim.count++; dm.position.set(b.x+b.w*0.22,b.h+b.rh*0.55+1.3,b.z); dm.scale.set(1.2,3.2,1.2); dm.updateMatrix(); chim.setMatrixAt(b.ci,dm.matrix); }
+    else if(K.roof==='flat'){ dm.position.set(b.x,b.h+0.4,b.z); dm.scale.set(b.w+0.8,0.8,b.d+0.8); dm.updateMatrix(); rm.setMatrixAt(ri,dm.matrix); rm.setColorAt(ri,col.setHex(i%3?0xdfe4e8:0x55575a)); }
+    else { dm.position.set(b.x,b.h,b.z); dm.rotation.set((rnd()-.5)*0.25,0,(rnd()-.5)*0.3); dm.scale.set(b.w*0.9,1.1,b.d*0.9); dm.updateMatrix(); rm.setMatrixAt(ri,dm.matrix); rm.setColorAt(ri,col.setHex(0x33302d)); }   // a collapsed roof slab
+    b.h+=b.rh*0.6;      // what a plane can hit: the ridge, not just the eaves
+  });
+  for(const m of [...walls,...roofs,chim]){ m.instanceMatrix.needsUpdate=true; if(m.instanceColor) m.instanceColor.needsUpdate=true; }
+  air.bld={nx,nz,CELL,list,grid,grid2,walls,roofs,chim};
+  // streets: dark, trampled slush strips with a snow verge on each side
+  const stM=airMat(0x4f4d4a), vergeM=airMat(0xe3e7ea), lineM=airMat(0x8d8b86);
+  const cw=C.x1-C.x0+120, ch=C.z1-C.z0+120;
+  for(let gz=0;gz<nz;gz++) if(gz%8===3){ const z=C.z0+(gz+0.5)*CELL;
+    aBox(root,cw,0.12,30,vergeM,(C.x0+C.x1)/2,1.0,z); aBox(root,cw,0.14,19,stM,(C.x0+C.x1)/2,1.06,z); aBox(root,cw,0.16,0.7,lineM,(C.x0+C.x1)/2,1.12,z); }
+  for(let gx=0;gx<nx;gx++) if(gx%6===2||gx===nx-1){ const x=C.x0+(gx+0.5)*CELL, wide=gx===nx-1;
+    aBox(root,wide?34:28,0.13,ch,vergeM,x,1.02,(C.z0+C.z1)/2); aBox(root,wide?24:17,0.15,ch,stM,x,1.08,(C.z0+C.z1)/2); aBox(root,0.7,0.17,ch,lineM,x,1.14,(C.z0+C.z1)/2); }
+  // rubble heaps in empty lots, bomb craters and wrecked vehicles on the streets
+  const rubM=new THREE.InstancedMesh(boxG,new THREE.MeshLambertMaterial({color:0xffffff}),rub.length+1);
+  rub.forEach((r,i)=>{ dm.rotation.set(0,rnd()*3,0); dm.position.set(r.x,r.s*0.3,r.z); dm.scale.set(r.s*1.6,r.s*0.6,r.s*1.2); dm.updateMatrix(); rubM.setMatrixAt(i,dm.matrix); rubM.setColorAt(i,col.setHex([0x5a5048,0x6e6258,0x3d3733,0x7e6e5e][i%4])); });
+  rubM.count=rub.length; rubM.frustumCulled=false; root.add(rubM);
+  const cGeo=new THREE.CircleGeometry(1,14); cGeo.rotateX(-Math.PI/2);
+  const NC=140, crM=new THREE.InstancedMesh(cGeo,new THREE.MeshBasicMaterial({color:0x2a2724,transparent:true,opacity:0.85,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-4}),NC);
+  for(let i=0;i<NC;i++){ dm.rotation.set(0,0,0); dm.position.set(C.x0+rnd()*(C.x1-C.x0),1.2,C.z0+rnd()*(C.z1-C.z0)); const s=3+rnd()*9; dm.scale.set(s,1,s*(0.8+rnd()*0.4)); dm.updateMatrix(); crM.setMatrixAt(i,dm.matrix); }
+  crM.frustumCulled=false; root.add(crM);
+  const NV=70, vM=new THREE.InstancedMesh(boxG,new THREE.MeshLambertMaterial({color:0xffffff}),NV);
+  for(let i=0;i<NV;i++){ const onE=rnd()<0.6; let x,z;
+    if(onE){ const gz=3+8*Math.floor(rnd()*7); z=C.z0+(gz+0.5)*CELL+(rnd()-.5)*10; x=C.x0+rnd()*(C.x1-C.x0); dm.rotation.set(0,0,0); dm.scale.set(7,2.6,3.2); }
+    else { const gx=2+6*Math.floor(rnd()*3); x=C.x0+(gx+0.5)*CELL+(rnd()-.5)*8; z=C.z0+rnd()*(C.z1-C.z0); dm.rotation.set(0,Math.PI/2,0); dm.scale.set(7,2.6,3.2); }
+    dm.rotation.y+=(rnd()-.5)*0.3; dm.position.set(x,1.8,z); dm.updateMatrix(); vM.setMatrixAt(i,dm.matrix); vM.setColorAt(i,col.setHex([0x3d4132,0x2a2a28,0x5c5a48,0x6d3a2a,0x24272a][i%5])); }
+  vM.frustumCulled=false; root.add(vM);
+}
+// ---------- the Volga: ice sheets and open water, a stone quay on the city bank, wooden piers, an island ----------
+function airBuildRiver(root){
+  const R=AIR.RIVER, W=R.x1-R.x0;
+  const tex=canvasTex(512,(x,s)=>{
+    x.fillStyle='#2b3a45'; x.fillRect(0,0,s,s);
+    for(let i=0;i<34;i++){ const cx=Math.random()*s, cy=Math.random()*s; x.fillStyle=`rgba(${190+Math.random()*40},${205+Math.random()*30},${212+Math.random()*30},${0.5+Math.random()*0.4})`;
+      x.beginPath(); for(let k=0;k<7;k++){ const a=k/7*6.283, r=24+Math.random()*60; x.lineTo(cx+Math.cos(a)*r*(1+Math.random()*0.6),cy+Math.sin(a)*r*0.7); } x.closePath(); x.fill(); }
+    x.strokeStyle='rgba(30,44,54,.7)'; x.lineWidth=1.4; for(let i=0;i<90;i++){ x.beginPath(); let px=Math.random()*s, py=Math.random()*s; x.moveTo(px,py); for(let k=0;k<4;k++){ px+=(Math.random()-.5)*60; py+=(Math.random()-.5)*60; x.lineTo(px,py); } x.stroke(); }
+    for(let i=0;i<14;i++){ x.fillStyle='rgba(18,28,36,.55)'; x.fillRect(0,Math.random()*s,s,2+Math.random()*7); }
+  });
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping; tex.repeat.set(1,9);
+  const river=new THREE.Mesh(new THREE.PlaneGeometry(W,4200),new THREE.MeshLambertMaterial({map:tex,color:0xffffff})); river.rotation.x=-Math.PI/2; river.position.set((R.x0+R.x1)/2,1.3,0); root.add(river);
+  for(let i=0;i<46;i++){ const w=rnd()*60+18, d=rnd()*40+12; aBox(root,w,0.2,d,airMat(0xcfd8de),R.x0+rnd()*W,2.4,-1600+rnd()*3200); }
+  // the city bank: a stone quay with a snow-covered embankment above it
+  aBox(root,16,1.6,4200,airMat(0x77746d),R.x0-8,1.5,0); aBox(root,2,0.3,4200,airMat(0x4a4843),R.x0-0.5,2.4,0);
+  for(const z of [-440,60,520]){ aBox(root,34,0.7,6,airMat(0x5a4a3a),R.x0+15,2.2,z);                              // wooden pier
+    for(let k=0;k<5;k++){ aBox(root,0.8,3,0.8,airMat(0x3d3128),R.x0+3+k*7,1.0,z-3); aBox(root,0.8,3,0.8,airMat(0x3d3128),R.x0+3+k*7,1.0,z+3); }
+    aBox(root,10,3,8,airMat(0x6b5b4a),R.x0-14,3,z+10); aBox(root,11,0.6,9,airMat(0x4a3f36),R.x0-14,4.7,z+10); }      // a landing shed at the foot of each pier
+  for(let i=0;i<5;i++){ const z=-1500+i*700+rnd()*200; aBox(root,3,22,3,airMat(0x4a5058),R.x0-6,12,z); aBox(root,3,3,30,airMat(0x4a5058),R.x0-6,23,z); aBox(root,2,1,2,airMat(0x8a2f22),R.x0-6,24.6,z+10); }   // quay cranes
+  // an island in the river
+  const dm=new THREE.Object3D(), isl=new THREE.Mesh(new THREE.SphereGeometry(1,16,8,0,6.283,0,1.571),airMat(0xd9dee1)); isl.scale.set(80,3.4,160); isl.position.set(R.x0+W*0.55,1.2,1760); root.add(isl);
+  const tG=new THREE.ConeGeometry(1,1,6); tG.translate(0,0.5,0); const tm=new THREE.InstancedMesh(tG,new THREE.MeshLambertMaterial({color:0xffffff}),50), c2=new THREE.Color();
+  for(let i=0;i<50;i++){ const a=rnd()*6.283, r=Math.sqrt(rnd()), h=7+rnd()*7; dm.position.set(isl.position.x+Math.cos(a)*r*60,3,isl.position.z+Math.sin(a)*r*125); dm.rotation.set(0,0,0); dm.scale.set(h*0.45,h,h*0.45); dm.updateMatrix(); tm.setMatrixAt(i,dm.matrix); tm.setColorAt(i,c2.setHex([0x2f4a36,0x38523c,0x2a4130][i%3])); }
+  tm.frustumCulled=false; root.add(tm);
+}
 function airBuildWorld(){
   const root=new THREE.Group(), C=AIR.CITY;
   air.root=root; air.fires=[]; air.T=airTargetDefs();
   const snowM=airMat(0xdfe3e6);
   const ground=new THREE.Mesh(new THREE.PlaneGeometry(16000,16000),snowM); ground.rotation.x=-Math.PI/2; root.add(ground);
   const slush=new THREE.Mesh(new THREE.PlaneGeometry(C.x1-C.x0+260,C.z1-C.z0+260),airMat(0x8d8c88)); slush.rotation.x=-Math.PI/2; slush.position.set((C.x0+C.x1)/2,0.9,(C.z0+C.z1)/2); root.add(slush);
-  const river=new THREE.Mesh(new THREE.PlaneGeometry(AIR.RIVER.x1-AIR.RIVER.x0,4200),airMat(0x364650)); river.rotation.x=-Math.PI/2; river.position.set((AIR.RIVER.x0+AIR.RIVER.x1)/2,1.3,0); root.add(river);
   seed=4242;
-  for(let i=0;i<46;i++){ const w=rnd()*60+18, d=rnd()*40+12; const ice=aBox(root,w,0.2,d,airMat(0xcfd8de),AIR.RIVER.x0+rnd()*(AIR.RIVER.x1-AIR.RIVER.x0),2.4,-1600+rnd()*3200); }
   // east bank: low houses and the battery positions
   for(let i=0;i<70;i++){ const x=1215+rnd()*420, z=-1000+rnd()*2000; aBox(root,9+rnd()*8,5+rnd()*3,9+rnd()*8,airMat(0x8a7a66),x,3,z); }
-  // buildings (instanced), skipping the targets, the river and some streets/squares
-  const CELL=46, nx=Math.floor((C.x1-C.x0)/CELL), nz=Math.floor((C.z1-C.z0)/CELL);
-  const texW=canvasTex(128,(x,s)=>{ x.fillStyle='#b9a58c'; x.fillRect(0,0,s,s); x.fillStyle='#4a423a'; for(let i=0;i<4;i++) for(let j=0;j<4;j++) x.fillRect(8+i*30,10+j*30,16,18); });
-  const bMat=new THREE.MeshLambertMaterial({map:texW,color:0xffffff}), rMat=airMat(0xeef2f5);
-  const geo=new THREE.BoxGeometry(1,1,1);
-  const list=[];
-  for(let gx=0;gx<nx;gx++) for(let gz=0;gz<nz;gz++){
-    const cx=C.x0+(gx+0.5)*CELL, cz=C.z0+(gz+0.5)*CELL;
-    if(rnd()<0.2) continue;
-    let bad=false; for(const t of air.T){ if(t.moving||t.kind==='gun') continue; if(Math.abs(cx-t.x)<t.hw+26 && Math.abs(cz-t.z)<t.hd+26){ bad=true; break; } }
-    if(bad) continue;
-    list.push({gx,gz,x:cx+(rnd()-.5)*5,z:cz+(rnd()-.5)*5,w:24+rnd()*14,d:24+rnd()*14,h:9+Math.pow(rnd(),1.7)*28});
-  }
-  const bm=new THREE.InstancedMesh(geo,bMat,list.length), rm=new THREE.InstancedMesh(geo,rMat,list.length), dm=new THREE.Object3D();
-  const col=new THREE.Color();
-  air.bld={nx,nz,CELL,list,grid:new Int16Array(nx*nz).fill(-1),bm,rm};
-  list.forEach((b,i)=>{
-    air.bld.grid[b.gx*nz+b.gz]=i; b.i=i; b.alive=true;
-    dm.position.set(b.x,b.h/2,b.z); dm.scale.set(b.w,b.h,b.d); dm.updateMatrix(); bm.setMatrixAt(i,dm.matrix);
-    dm.position.set(b.x,b.h+0.35,b.z); dm.scale.set(b.w+0.8,0.7,b.d+0.8); dm.updateMatrix(); rm.setMatrixAt(i,dm.matrix);
-    col.setHex([0xffffff,0xe6d6c0,0xd2c2aa,0xf0e8dc,0xc9b8a0][i%5]); bm.setColorAt(i,col);
-  });
-  bm.instanceMatrix.needsUpdate=true; rm.instanceMatrix.needsUpdate=true; if(bm.instanceColor) bm.instanceColor.needsUpdate=true;
-  bm.frustumCulled=false; rm.frustumCulled=false; root.add(bm); root.add(rm);
+  airBuildRiver(root);
+  // targets first: the city leaves room around them
   // targets
   for(const t of air.T){ t.grp=airBuildTarget(t); root.add(t.grp); }
+  airBuildCity(root);
   // the airfield: runway, hangars, tents, parked Stukas
   const F=AIR.FIELD;
   aBox(root,F.hw*2,0.3,F.hd*2,airMat(0x4c4c4a),F.x,0.2,F.z); aBox(root,F.hw*2-40,0.32,1.2,airMat(0xe8e8e0),F.x,0.25,F.z);
@@ -9208,15 +9320,17 @@ function airGroundAt(x,z){
   const B=air.bld, C=AIR.CITY; if(!B) return 0;
   const gx=Math.floor((x-C.x0)/B.CELL), gz=Math.floor((z-C.z0)/B.CELL);
   if(gx<0||gz<0||gx>=B.nx||gz>=B.nz) return 0;
-  const i=B.grid[gx*B.nz+gz]; if(i<0) return 0; const b=B.list[i];
-  return (b.alive && Math.abs(x-b.x)<b.w/2 && Math.abs(z-b.z)<b.d/2) ? b.h : 0;
+  for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const b=B.list[i];
+    if(b.alive && Math.abs(x-b.x)<b.w/2 && Math.abs(z-b.z)<b.d/2) return b.h; }
+  return 0;
 }
 function airCollapse(b){
   if(!b.alive) return; b.alive=false;
-  const B=air.bld, dm=new THREE.Object3D(), col=new THREE.Color(0x3a3430);
-  b.h=1.4; dm.position.set(b.x,b.h/2,b.z); dm.scale.set(b.w,b.h,b.d); dm.updateMatrix(); B.bm.setMatrixAt(b.i,dm.matrix);
-  dm.scale.set(0.001,0.001,0.001); dm.updateMatrix(); B.rm.setMatrixAt(b.i,dm.matrix);
-  B.bm.setColorAt(b.i,col); B.bm.instanceMatrix.needsUpdate=true; B.rm.instanceMatrix.needsUpdate=true; if(B.bm.instanceColor) B.bm.instanceColor.needsUpdate=true;
+  const dm=new THREE.Object3D(), col=new THREE.Color(0x3a3430);
+  dm.position.set(b.x,0.7,b.z); dm.scale.set(b.w,1.4,b.d); dm.updateMatrix(); b.wm.setMatrixAt(b.wi,dm.matrix); b.wm.setColorAt(b.wi,col);
+  b.wm.instanceMatrix.needsUpdate=true; if(b.wm.instanceColor) b.wm.instanceColor.needsUpdate=true;
+  dm.scale.set(0.001,0.001,0.001); dm.updateMatrix();
+  for(const [m,i] of [[b.rm,b.ri],[b.cm,b.ci]]) if(m&&i>=0){ m.setMatrixAt(i,dm.matrix); m.instanceMatrix.needsUpdate=true; }
   b.h=0;      // flat rubble: nothing to crash into
 }
 
@@ -9505,8 +9619,8 @@ function airBlast(x,y,z,b){
   // buildings crumble
   const B=air.bld, C=AIR.CITY, gx0=Math.floor((x-R-C.x0)/B.CELL), gx1=Math.floor((x+R-C.x0)/B.CELL), gz0=Math.floor((z-R-C.z0)/B.CELL), gz1=Math.floor((z+R-C.z0)/B.CELL);
   for(let gx=Math.max(0,gx0);gx<=Math.min(B.nx-1,gx1);gx++) for(let gz=Math.max(0,gz0);gz<=Math.min(B.nz-1,gz1);gz++){
-    const i=B.grid[gx*B.nz+gz]; if(i<0) continue; const bd=B.list[i]; if(!bd.alive) continue;
-    if(Math.hypot(bd.x-x,bd.z-z)<R*(heavy?0.95:0.5)) { airCollapse(bd); if(Math.random()<0.18) airFire(bd.x,0,bd.z,1.8); }
+    for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const bd=B.list[i]; if(!bd.alive) continue;
+      if(Math.hypot(bd.x-x,bd.z-z)<R*(heavy?0.95:0.5)) { airCollapse(bd); if(Math.random()<0.18) airFire(bd.x,0,bd.z,1.8); } }
   }
   // a big blast right under the aeroplane hurts it
   const pd=Math.hypot(x-air.pl.x,y-air.pl.y,z-air.pl.z);

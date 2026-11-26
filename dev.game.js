@@ -5523,15 +5523,26 @@ function makeWeapon(type,hero){
   // your own Kar98k is the Blender model (real stock profile, grain, bolt group); the game's own iron sights, muzzle point and bayonet stay
   if(hero && GUNGLB[orig]){ try{
     const ownSights=(orig==='kar98k'); const keep=new Set([mz,bayonet]); g.children.slice().forEach((c,i)=>{ if(keep.has(c)||(!ownSights&&sgA>=0&&i>=sgA&&i<sgB)) return; g.remove(c); });
-    const km=GUNGLB[orig].clone(true);
+    const fpm=(orig==='kar98k' && GUNGLB.kar98kfp);      // the detailed first-person Kar98k (10k tris, 1K textures); soldiers keep the light one
+    const km=(fpm?GUNGLB.kar98kfp:GUNGLB[orig]).clone(true);
     if(orig==='arisaka' && bayonet && km.getObjectByName('bayo_blade')){ bayonet.children.slice().forEach(c=>bayonet.remove(c)); bayonet.visible=true; bayonet.userData.fixed=1; }      // the Blender rifle carries its own fixed Type 30 bayonet
     if(!ownSights){ for(const n of ['RearSight','rs_base','clip_guide']){ const o=km.getObjectByName(n); if(o) o.removeFromParent(); }
     for(const o of km.children.filter(o=>/^fs_/.test(o.name))) o.removeFromParent(); }      // the Kar98k keeps its own Blender sights (tangent leaf with a V notch, hooded post); the other rifles still use the game's
     km.traverse(o=>{ if(o.isMesh){ o.castShadow=o.receiveShadow=true; } });
+    if(fpm){
+      // model axes: length along x (muzzle at -x), up y, bolt handle on -z  ->  game axes: muzzle at -z, bolt handle on +x
+      const fp=new THREE.Group(); fp.rotation.y=-Math.PI/2; fp.position.set(0.0065,0.019,-0.175); fp.add(km);
+      boltH=new THREE.Group(); boltH.position.set(0,0.035,0.03);
+      g.add(fp); g.add(boltH); g.updateMatrixWorld(true);
+      const bo=km.getObjectByName('c_low'); if(bo) boltH.attach(bo);      // the bolt (handle, body, cocking piece) is its own mesh and swings/slides for the reload
+      const kn=new THREE.Object3D(); kn.position.set(0.036,-0.033,-0.026); boltH.add(kn);      // the knob: the right hand goes here
+      sightY=0.0573;      // top of the front sight post, for aiming down the sights
+    } else {
     const bn=km.getObjectByName('Bolt'); boltH=new THREE.Group(); boltH.position.set(0,0.04,0.03);
     if(bn){ bn.removeFromParent(); bn.position.set(0,0.0385-0.04,-0.03); boltH.add(bn); }
     const kn=new THREE.Object3D(); const kp=km.getObjectByName('Knob'); if(kp){ kp.updateWorldMatrix(true,false); const wp=new V3().setFromMatrixPosition(kp.matrixWorld); kn.position.set(wp.x,wp.y-0.04,wp.z-0.03); } else kn.position.set(0.0625,-0.04,0.002); boltH.add(kn);      // the knob: the right hand goes here
     g.add(km); g.add(boltH);
+    }
   }catch(e){ console.warn('Kar98k model skipped',e); } }
   g.userData={muzzle:mz,fore,sightY,mag,boltH,rl,bayonet,magPos:mag?mag.position.clone():null,magRot:mag?mag.rotation.clone():null,boltRot:boltH?boltH.rotation.clone():null};
   return g;
@@ -6127,7 +6138,7 @@ function macroVary(m,k){
   };
   m.customProgramCacheKey=()=>'macro'+k+(heavy?'h':'l'); m.needsUpdate=true;
 }
-async function loadKarGlb(){ for(const n of ['kar98k','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4','vegsh','veggr','vegco','vegbr','wheat']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','kar98kfp','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4','vegsh','veggr','vegco','vegbr','wheat']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } 
   try{ for(const key of ['buildings','walls2','props4']){ const sc=GUNGLB[key]; if(!sc) continue; const seen=new Set(); sc.traverse(o=>{ if(!o.isMesh) return; for(const m of [].concat(o.material)){ if(!m||seen.has(m)||/metal|burlap/i.test(m.name||'')) continue; seen.add(m); macroVary(m,key==='props4'?0.6:1.0); } }); } }catch(e){ console.warn('macro variation skipped',e); } }
 async function loadCharacters(){

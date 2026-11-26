@@ -8899,6 +8899,9 @@ function airTargetDefs(){
   [-270,-90,100,280].forEach((z,i)=>T.push({id:'gun'+i,kind:'gun',name:'ARTILLERY BATTERY',x:1330,z,hw:4,hd:4,h:3,hp:45,value:60}));
   [[-60,-420],[90,-60],[230,420],[-30,980],[470,-760],[640,-120],[660,420],[880,-300]].forEach((p,i)=>T.push({id:'hf'+i,kind:'flak',heavy:true,name:'AA GUN',x:p[0],z:p[1],hw:4,hd:4,h:3,hp:35,value:40,cool:aRand(0,2)}));
   [[180,-820],[420,-250],[500,200],[60,700],[890,60],[900,170],[610,-600],[330,-50]].forEach((p,i)=>T.push({id:'lf'+i,kind:'flak',heavy:false,name:'AA GUN',x:p[0],z:p[1],hw:4,hd:4,h:3,hp:25,value:30,cool:aRand(0,2)}));
+  // a column of T-34s grinding along the western road, and a supply train shuttling through the rail yard
+  for(let i=0;i<4;i++) T.push({id:'tank'+i,kind:'tank',name:'T-34 TANK',group:'TANK COLUMN',x:-900+i*34,z:-420,hw:4.6,hd:2.3,h:3,hp:60,value:90,moving:true,dir:1,spd:5,x0:-1750,x1:-230});
+  T.push({id:'train',kind:'train',name:'SUPPLY TRAIN',x:30,z:737,hw:30,hd:3,h:4,hp:110,value:180,moving:true,dir:1,spd:6,x0:-70,x1:150});
   for(const t of T){ t.maxhp=t.hp; t.dead=false; t.dmgT=0; }
   return T;
 }
@@ -8911,6 +8914,11 @@ function airBuildTarget(t){
     for(let c=0;c<3;c++) aCyl(g,1.7,2.5,46,brick,-t.hw*0.55+c*t.hw*0.55,t.h+20,t.hd*0.45,0,0,0,10);
     for(let i=0;i<4;i++) aCyl(g,4,4,7,airMat(0x9a9a98),-t.hw+14+i*11,3.5,t.hd+9,0,0,0,10);
     aBox(g,t.hw*2.2,1.2,1,airMat(0x55524a),0,0.6,t.hd+2.5);
+    for(let i=0;i<n;i++) aBox(g,t.hw*2/n*0.6,0.3,t.hd*1.7,airMat(0x7d9aab),-t.hw+(i+0.5)*t.hw*2/n+1.2,t.h+2.0,0,0,0,0.32);        // glazed sawtooth skylights
+    for(let c=0;c<3;c++){ aCyl(g,1.85,1.9,3,airMat(0xb23a2e),-t.hw*0.55+c*t.hw*0.55,t.h+36,t.hd*0.45,0,0,0,10); aCyl(g,1.9,1.95,3,airMat(0xe8e8e0),-t.hw*0.55+c*t.hw*0.55,t.h+39.5,t.hd*0.45,0,0,0,10); }   // painted stack bands
+    for(let i=0;i<4;i++) aCyl(g,0.1,7+i*1.5,5+i,airMat(0x2a2826),t.hw*0.75+i*10,2.5,-t.hd-14,0,0,0,8);                                   // coal heaps
+    aBox(g,t.hw*1.4,1,1.4,airMat(0x4a4a46),0,t.h+6,t.hd+16); aBox(g,1.4,t.h+6,1.4,airMat(0x4a4a46),-t.hw*0.7,(t.h+6)/2,t.hd+16); aBox(g,1.4,t.h+6,1.4,airMat(0x4a4a46),t.hw*0.7,(t.h+6)/2,t.hd+16);   // yard gantry crane
+    aCyl(g,6,6,11,airMat(0x8a8d90),-t.hw-18,5.5,0,0,0,0,14); aCyl(g,6,6,11,airMat(0x8a8d90),-t.hw-18,5.5,16,0,0,0,14);                   // storage tanks
   } else if(k==='fuel'){
     aCyl(g,11,11,12,airMat(0xb4b8ba),0,6,0,0,0,0,18); aCyl(g,11.5,11.5,1,airMat(0x6a6e70),0,12.4,0,0,0,0,18); aBox(g,24,0.5,0.8,airMat(0x3a3a3a),0,0.5,12);
   } else if(k==='rail'){
@@ -8927,7 +8935,18 @@ function airBuildTarget(t){
     aBox(g,9,1.6,5.5,airMat(0x6b5b3c),7,4.1,0);
     g.userData.wake=aBox(g,16,0.1,4,airMat(0xe8eef2),-17,0.4,0);
   } else if(k==='gun'){ g.add(airBuildGun('field')); }
-  else if(k==='flak'){ g.add(airBuildGun(t.heavy?'heavy':'light')); }
+  else if(k==='tank'){      // T-34: sloped hull, tracks, round turret with a long gun, winter whitewash
+    const hull=airMat(0x4d5a3e), wash=airMat(0xdde2e4), trk=airMat(0x23221f);
+    aBox(g,6.0,1.1,2.6,hull,0,1.15,0); aBox(g,2.0,1.0,2.5,hull,3.0,1.0,0,0,0,-0.5);
+    for(const sd of [-1,1]){ aBox(g,6.6,1.0,0.7,trk,0,0.65,sd*1.5); aBox(g,6.2,0.4,0.8,airMat(0x3a3a36),0,1.2,sd*1.5); }
+    aBox(g,2.6,0.9,2.3,hull,-0.4,2.0,0); aBox(g,1.8,0.4,1.9,wash,-0.4,2.55,0); aBox(g,2.4,0.2,2.1,wash,-1.4,1.8,0,0,0,0);
+    aCyl(g,0.12,0.14,3.8,airMat(0x2d2f2a),2.4,2.1,0,0,0,Math.PI/2,6); aBox(g,1.2,0.4,0.2,wash,0,1.8,1.34);
+  } else if(k==='train'){   // a steam locomotive, tender and wagons
+    const blk=airMat(0x1f1f1f), reds=[0x6b3b2e,0x4a5a3a,0x5b5b58,0x7a6a3a,0x6b3b2e];
+    aBox(g,9,2.6,3,blk,26,1.9,0); aCyl(g,1.4,1.4,6.5,blk,25,3.6,0,0,0,Math.PI/2,10); aCyl(g,0.55,0.7,2.2,blk,28.5,5.6,0,0,0,0,8); aBox(g,2.6,3.2,3.2,airMat(0x2c2b28),21,3.4,0);
+    aBox(g,5,2.0,2.8,airMat(0x2a2926),16.5,1.8,0);
+    for(let i=0;i<5;i++) aBox(g,9.2,3.0,2.8,airMat(reds[i]),8-i*10.4,2.0,0);
+  } else if(k==='flak'){ g.add(airBuildGun(t.heavy?'heavy':'light')); }
   return g;
 }
 // squash and blacken a destroyed target, light a fire
@@ -8944,15 +8963,15 @@ function airWreck(t){
 }
 
 // ---------- persistent smoke columns ----------
-function airFire(x,y,z,size){
-  if(air.fires.length>34) return;
+function airFire(x,y,z,size,smokeOnly){
+  if(air.fires.length>50) return;
   const f={x,y,z,size,sp:[]};
   const n=Math.round(8+size*2);
   for(let i=0;i<n;i++){
     const s=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex2,color:i%4===0?0x7a4a2a:0x2e2c2a,transparent:true,depthWrite:false,opacity:0,fog:true}));
     s.userData.t=Math.random(); air.root.add(s); f.sp.push(s);
   }
-  f.fl=[]; const nf=2+Math.round(size*0.9);
+  f.fl=[]; const nf=smokeOnly?0:2+Math.round(size*0.9);
   for(let i=0;i<nf;i++){ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex,color:i%2?0xff8a2a:0xffb347,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.8,fog:true})); s.userData.ph=Math.random()*6.28; s.userData.ox=(Math.random()-.5)*size*2.2; s.userData.oz=(Math.random()-.5)*size*2.2; air.root.add(s); f.fl.push(s); }
   air.fires.push(f);
 }
@@ -9198,6 +9217,7 @@ function airBuildCity(root){
     const cx=C.x0+(gx+0.5)*CELL, cz=C.z0+(gz+0.5)*CELL;
     if(isAve(gx,gz)) continue;
     let bad=false; for(const t of air.T){ if(t.moving||t.kind==='gun') continue; if(Math.abs(cx-t.x)<t.hw+26 && Math.abs(cz-t.z)<t.hd+26){ bad=true; break; } }
+    for(const L of (air.lmk||[])){ const hx=L.kind==='hill'?L.rx:L.hw, hz=L.kind==='hill'?L.rz:L.hd; if(Math.abs(cx-L.x)<hx+24 && Math.abs(cz-L.z)<hz+24){ bad=true; break; } }
     if(bad) continue;
     const zone=1-Math.min(1,Math.hypot((cx-380)/560,cz/1300));         // 1 in the centre, 0 at the edge
     if(rnd()<0.12){ for(let q=0;q<4;q++) rub.push({x:cx+(rnd()-.5)*30,z:cz+(rnd()-.5)*30,s:1.5+rnd()*3.5}); continue; }       // an empty lot of rubble
@@ -9258,7 +9278,8 @@ function airBuildCity(root){
     if(onE){ const gz=3+8*Math.floor(rnd()*7); z=C.z0+(gz+0.5)*CELL+(rnd()-.5)*10; x=C.x0+rnd()*(C.x1-C.x0); dm.rotation.set(0,0,0); dm.scale.set(7,2.6,3.2); }
     else { const gx=2+6*Math.floor(rnd()*3); x=C.x0+(gx+0.5)*CELL+(rnd()-.5)*8; z=C.z0+rnd()*(C.z1-C.z0); dm.rotation.set(0,Math.PI/2,0); dm.scale.set(7,2.6,3.2); }
     dm.rotation.y+=(rnd()-.5)*0.3; dm.position.set(x,1.8,z); dm.updateMatrix(); vM.setMatrixAt(i,dm.matrix); vM.setColorAt(i,col.setHex([0x3d4132,0x2a2a28,0x5c5a48,0x6d3a2a,0x24272a][i%5])); }
-  vM.frustumCulled=false; root.add(vM);
+  vM.frustumCulled=false; root.add(vM); air.vmesh=vM; air.traffic=[];
+  for(let i=0;i<NV;i++){ const m=new THREE.Matrix4(); vM.getMatrixAt(i,m); const e=new THREE.Vector3(), q=new THREE.Quaternion(), sc=new THREE.Vector3(); m.decompose(e,q,sc); const eu=new THREE.Euler().setFromQuaternion(q,'YXZ'); air.traffic.push({x:e.x,z:e.z,ry:eu.y,alongX:Math.abs(Math.cos(eu.y))>0.7,dir:(i%2?1:-1),spd:3+rnd()*6,stop:rnd()*20}); }
 }
 // ---------- the Volga: ice sheets and open water, a stone quay on the city bank, wooden piers, an island ----------
 function airBuildRiver(root){
@@ -9285,6 +9306,59 @@ function airBuildRiver(root){
   for(let i=0;i<50;i++){ const a=rnd()*6.283, r=Math.sqrt(rnd()), h=7+rnd()*7; dm.position.set(isl.position.x+Math.cos(a)*r*60,3,isl.position.z+Math.sin(a)*r*125); dm.rotation.set(0,0,0); dm.scale.set(h*0.45,h,h*0.45); dm.updateMatrix(); tm.setMatrixAt(i,dm.matrix); tm.setColorAt(i,c2.setHex([0x2f4a36,0x38523c,0x2a4130][i%3])); }
   tm.frustumCulled=false; root.add(tm);
 }
+// ---------- landmarks: the grain elevator, Mamayev Kurgan with its water tower ----------
+function airLandmarkDefs(){
+  return [
+    {id:'elevator',kind:'box',x:150,z:1130,hw:52,hd:32,h:50},
+    {id:'kurgan',kind:'hill',x:640,z:770,rx:150,rz:210,h:62},
+    {id:'tower',kind:'box',x:640,z:770,hw:6,hd:6,h:84}
+  ];
+}
+function airBuildLandmarks(root){
+  const conc=airMat(0xb9b6ae), dark=airMat(0x55524c), roofM=airMat(0x6b6e6e);
+  aBox(root,1700,0.12,17,airMat(0xe3e7ea),-970,1.0,-420); aBox(root,1700,0.14,9,airMat(0x56524a),-970,1.06,-420);      // the western road the tank column drives along
+  // grain elevator: two rows of tall concrete silos, a work house and conveyor galleries, burning at the top
+  { const g=new THREE.Group(); g.position.set(150,0,1130); root.add(g);
+    for(let r=0;r<2;r++) for(let c=0;c<6;c++){ aCyl(g,5.2,5.2,38+((c*7+r*3)%5),conc,-38+c*13.5,19,-10+r*13,0,0,0,14); aCyl(g,5.4,5.4,0.8,roofM,-38+c*13.5,38.6+((c*7+r*3)%5),-10+r*13,0,0,0,14); }
+    aBox(g,26,52,18,airMat(0xa9a69d),-4,26,12); aBox(g,27,1.4,19,dark,-4,52.7,12); aBox(g,8,9,8,dark,-4,56.5,12);
+    aBox(g,60,2,3,dark,-4,46,-30,0,0,0.12); aBox(g,3,2,32,dark,42,34,0);
+    for(let i=0;i<4;i++) aBox(g,18,6,10,airMat([0x7a6a56,0x6a5f50,0x8a7a66,0x5a5248][i]),-42+i*24,3,28);
+    airFire(150-38+13.5*2,44,1130-10,2.4);        // burning grain at the top of the silos
+  }
+  // Mamayev Kurgan: a snow-covered mound with a brick water tower on top
+  { const L=air.lmk.find(l=>l.id==='kurgan'), g=new THREE.Group(); g.position.set(L.x,0,L.z); root.add(g);
+    const hill=new THREE.Mesh(new THREE.SphereGeometry(1,24,10,0,6.283,0,1.571),airMat(0xdde1e3)); hill.scale.set(L.rx,L.h,L.rz); g.add(hill);
+    const earth=new THREE.Mesh(new THREE.SphereGeometry(1,16,8,0,6.283,0,1.571),airMat(0x6a6256)); earth.scale.set(L.rx*0.62,L.h*1.012,L.rz*0.55); earth.position.set(-L.rx*0.1,0,L.rz*0.12); g.add(earth);     // churned, shell-torn earth
+    const brick=airMat(0x8a4f3a);
+    for(const sx of [-1,1]) for(const sz of [-1,1]) aBox(g,1.6,14,1.6,brick,sx*4.2,L.h+7-1,sz*4.2);
+    aCyl(g,6.2,6.2,8,airMat(0x77706a),0,L.h+18,0,0,0,0,14); aCyl(g,6.4,6.4,1,dark,0,L.h+22.6,0,0,0,0,14); aBox(g,10.5,0.7,10.5,brick,0,L.h+13,0);
+    for(let i=0;i<10;i++){ const a=i/10*6.283; aBox(g,L.rx*0.5,0.4,1.2,airMat(0x3a352f),Math.cos(a)*L.rx*0.45,L.h*Math.sqrt(1-0.2025)+0.15,Math.sin(a)*L.rz*0.45,0,-a,0); }   // trenches scarring the slope
+    airFire(L.x+L.rx*0.35,L.h*0.35,L.z-L.rz*0.2,1.5);
+  }
+}
+// ---------- searchlights, traffic and other things that move all the time ----------
+function airBuildBeams(root){
+  air.beams=[];
+  const geo=new THREE.CylinderGeometry(2.2,9,760,10,1,true); geo.translate(0,380,0);
+  for(const [x,z,ph,sp] of [[-60,-420,0.2,0.22],[230,420,1.4,-0.18],[640,-120,2.6,0.25],[880,-300,4.0,-0.2],[-30,980,5.1,0.19]]){
+    const pg=new THREE.Group(); pg.position.set(x,4,z); const c=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xdfe8ff,transparent:true,opacity:0.1,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,fog:true}));
+    pg.add(c); root.add(pg); air.beams.push({pg,c,ph,sp});
+  }
+}
+function airUpdateAmbient(dt){
+  const op=({overcast:0.11,dawn:0.15,golden:0.05})[air.tod]??0.1;
+  if(air.beams) for(const b of air.beams){ b.pg.rotation.y=b.ph+air.t*b.sp; b.c.rotation.z=0.42+0.22*Math.sin(air.t*0.31+b.ph*2); b.c.material.opacity=op; }
+  const V=air.traffic, M=air.vmesh; if(!V||!M) return;
+  const C=AIR.CITY, dm=air._dm||(air._dm=new THREE.Object3D());
+  for(let i=0;i<V.length;i++){ const v=V[i];
+    if(v.stop>0){ v.stop-=dt; } else {
+      if(v.alongX){ v.x+=v.dir*v.spd*dt; if(v.x>C.x1+40) v.x=C.x0-40; if(v.x<C.x0-40) v.x=C.x1+40; } else { v.z+=v.dir*v.spd*dt; if(v.z>C.z1+40) v.z=C.z0-40; if(v.z<C.z0-40) v.z=C.z1+40; }
+      if(Math.random()<dt*0.01) v.stop=2+Math.random()*6;
+    }
+    dm.rotation.set(0,v.alongX?(v.dir>0?0:Math.PI):(v.dir>0?-Math.PI/2:Math.PI/2),0); dm.position.set(v.x,1.8,v.z); dm.scale.set(7,2.6,3.2); dm.updateMatrix(); M.setMatrixAt(i,dm.matrix);
+  }
+  M.instanceMatrix.needsUpdate=true;
+}
 function airBuildWorld(){
   const root=new THREE.Group(), C=AIR.CITY;
   air.root=root; air.fires=[]; air.T=airTargetDefs();
@@ -9298,7 +9372,9 @@ function airBuildWorld(){
   // targets first: the city leaves room around them
   // targets
   for(const t of air.T){ t.grp=airBuildTarget(t); root.add(t.grp); }
+  air.lmk=airLandmarkDefs();
   airBuildCity(root);
+  airBuildLandmarks(root);
   // the airfield: runway, hangars, tents, parked Stukas
   const F=AIR.FIELD;
   aBox(root,F.hw*2,0.3,F.hd*2,airMat(0x4c4c4a),F.x,0.2,F.z); aBox(root,F.hw*2-40,0.32,1.2,airMat(0xe8e8e0),F.x,0.25,F.z);
@@ -9311,6 +9387,9 @@ function airBuildWorld(){
   // heavy overcast: a thick grey cloud deck above the city and a thin broken layer below it
   air.clouds=airMakeClouds(root);
   airBuildScenery(root);
+  // smoke from the factory chimneys and searchlights sweeping the sky
+  for(const t of air.T) if(t.kind==='factory') airFire(t.x,t.h+36,t.z+t.hd*0.45,1.0,true);
+  airBuildBeams(root);
   // Stalingrad is already burning
   for(let i=0;i<14;i++) airFire(C.x0+60+rnd()*(C.x1-C.x0-120),0,C.z0+60+rnd()*(C.z1-C.z0-120),2.2+rnd()*1.6);
   return root;
@@ -9319,6 +9398,12 @@ function airBuildWorld(){
 function airGroundAt(x,z){
   const B=air.bld, C=AIR.CITY; if(!B) return 0;
   const gx=Math.floor((x-C.x0)/B.CELL), gz=Math.floor((z-C.z0)/B.CELL);
+  let top=0;
+  for(const L of (air.lmk||[])){
+    if(L.kind==='hill'){ const u=(x-L.x)/L.rx, v=(z-L.z)/L.rz, d=u*u+v*v; if(d<1) top=Math.max(top,L.h*Math.sqrt(1-d)); }
+    else if(Math.abs(x-L.x)<L.hw && Math.abs(z-L.z)<L.hd) top=Math.max(top,L.h);
+  }
+  if(top>0) return top;
   if(gx<0||gz<0||gx>=B.nx||gz>=B.nz) return 0;
   for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const b=B.list[i];
     if(b.alive && Math.abs(x-b.x)<b.w/2 && Math.abs(z-b.z)<b.d/2) return b.h; }
@@ -9731,7 +9816,7 @@ function airFireGuns(dt){
       const hd=P.y/(-fy)*Math.cos(P.p), gx=P.x+Math.sin(P.h)*hd, gz=P.z-Math.cos(P.h)*hd;
       if(hd<1100){
         if(P.guns%4===0) spawnPuff(new V3(gx,1.5,gz),0xd8d2c4,5,0.6,false,2);
-        for(const t of air.T){ if(t.dead) continue; if(aDistBox(gx,gz,t)<2.5){ t.hp-=t.kind==='ferry'||t.kind==='flak'||t.kind==='gun'?1.8:0.4; air.stats.strafed++; if(t.hp<=0) airKill(t,{dive:false}); } }
+        for(const t of air.T){ if(t.dead) continue; if(aDistBox(gx,gz,t)<2.5){ t.hp-=t.kind==='ferry'||t.kind==='flak'||t.kind==='gun'?1.8:(t.kind==='tank'||t.kind==='train')?1.1:0.4; air.stats.strafed++; if(t.hp<=0) airKill(t,{dive:false}); } }
       }
     }
   }
@@ -9808,10 +9893,13 @@ function airUpdateFighters(dt){
 
 // ---------- moving targets, battery, companions ----------
 function airUpdateWorld(dt){
+  airUpdateAmbient(dt);
   for(const t of air.T){
     if(t.kind==='ferry'){
       if(!t.dead){ t.x+=t.dir*t.spd*dt; if(t.x>1160) t.dir=-1; if(t.x<962) t.dir=1; t.grp.position.x=t.x; t.grp.rotation.y=t.dir>0?0:Math.PI; }
       else if(t.sink){ t.grp.position.y=Math.max(-6,t.grp.position.y-dt*1.1); t.grp.rotation.z=Math.min(0.6,t.grp.rotation.z+dt*0.12); }
+    } else if((t.kind==='tank'||t.kind==='train') && !t.dead){
+      t.x+=t.dir*t.spd*dt; if(t.x>t.x1) t.dir=-1; if(t.x<t.x0) t.dir=1; t.grp.position.x=t.x; t.grp.rotation.y=t.dir>0?0:Math.PI;
     } else if(t.kind==='gun' && !t.dead){
       t.cool=(t.cool===undefined?aRand(1,6):t.cool)-dt;
       if(t.cool<=0){ t.cool=aRand(4,9); spawnPuff(new V3(t.x-6,5,t.z),0xffd890,10,0.3,true,0); spawnPuff(new V3(t.x-6,6,t.z),0xcfcac0,10,2,false,2); noise(0.5,380,0.35*airDistSnd(t.x,5,t.z),'lowpass',80); }
@@ -10269,7 +10357,7 @@ function airDebrief(){
   const why = r.landed ? (r.success?`You brought the Stuka home with the job done.`:`You landed, but too little was destroyed. The command wants at least ${AIR.PASS} points.`)
     : r.kind==='crashed'?`The aircraft did not come back. The crew is listed as missing.`:`Out of fuel and range over enemy ground. The crew is listed as missing.`;
   $('dText').innerHTML=`<p><b>${r.rank}</b> · score <b>${r.score}</b></p><p>${why}</p>
-    <ul style="margin:6px 0 0 18px">${tn('factory','Factories hit')}${tn('rail','Rail yard')}${tn('hq','Army headquarters')}${tn('fuel','Fuel tanks')}${tn('ferry','Ferries sunk')}${tn('gun','Artillery guns')}${tn('flak','AA guns silenced')}${S.fighters?`<li>Soviet fighters shot down: <b>${S.fighters}</b></li>`:''}</ul>
+    <ul style="margin:6px 0 0 18px">${tn('factory','Factories hit')}${tn('rail','Rail yard')}${tn('hq','Army headquarters')}${tn('fuel','Fuel tanks')}${tn('ferry','Ferries sunk')}${tn('tank','Tanks destroyed')}${tn('train','Supply train')}${tn('gun','Artillery guns')}${tn('flak','AA guns silenced')}${S.fighters?`<li>Soviet fighters shot down: <b>${S.fighters}</b></li>`:''}</ul>
     <p style="margin-top:8px">Bombs dropped: ${S.dropped} · Hits: ${S.hits} · Hull left: ${r.hull}% · Fuel left: ${r.fuel}%</p>`;
   $('dStats').textContent=`${r.score} pts`; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
   $('dBanner').innerHTML=''; $('dTiles').innerHTML='';
@@ -10282,7 +10370,7 @@ const AIR_STORY={date:'September 1942',place:'A Luftwaffe airfield west of Stali
   brief:[`The 6th Army is fighting its way into Stalingrad street by street, and the Soviet army still holds the factories and the river crossings behind it. Our infantry cannot take them while those guns and ferries keep working.`,
          `That is a job for the Stuka. You fly a Junkers Ju 87 with a rear gunner behind you. Climb to altitude, find your target, roll over and dive steeply. The sirens on the landing gear will scream as you fall, and the automatic pull-out will lift the nose as soon as you release a bomb, or if you leave it too late.`,
          `Choose your targets. The big SC 500 bomb breaks factories and bunkers; the small SC 50s are for guns, boats and flak. Soviet anti-aircraft guns ring the city and Yak fighters will come for you. Come home with fuel, and land on the runway.`],
-  obj:`Fly east to Stalingrad and score ${AIR.PASS} points by bombing factories, the rail yard, fuel tanks, ferries, guns and the army headquarters. Survive flak and fighters. Fly back and land on the airfield runway.`};
+  obj:`Fly east to Stalingrad and score ${AIR.PASS} points by bombing factories, the rail yard and its supply train, fuel tanks, ferries, the tank column on the western road, guns and the army headquarters. The burning grain elevator and Mamayev Kurgan make good landmarks. Survive flak and fighters. Fly back and land on the airfield runway.`};
 function showAirBriefing(){
   briefMission='stuka'; hideMenus(); $('briefing').style.display='flex';
   const st=AIR_STORY;

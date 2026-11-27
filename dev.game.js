@@ -10650,6 +10650,7 @@ function dflFly(P,S,dt){
   const cp=Math.cos(P.p);
   P.h+=Math.tan(aClamp(P.r,-1.3,1.3))*9.8*S.turn/Math.max(P.s,55)*Math.max(0.35,cp)*dt;
   let pd=P.cy*S.pitch-Math.sin(Math.abs(P.r))*0.2;
+  if(P.y>1300){ pd-=dflSS(1300,1550,P.y)*1.2; if(P===dfl.pl) airWarn('TOO HIGH - LEVEL OFF',0.3); }      // a soft ceiling: the nose is eased down, not pinned
   P.stall=P.s<S.vmin; if(P.stall) pd-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3);
   P.g=1+Math.max(0,pd)*P.s/9.8;
   P.p=aClamp(P.p+pd*dt,-1.45,1.35);
@@ -10658,7 +10659,7 @@ function dflFly(P,S,dt){
   P.s=aClamp(P.s+ds*dt,S.vmin*0.7,S.vmax+25);
   const cp2=Math.cos(P.p);
   P.x+=Math.sin(P.h)*cp2*P.s*dt; P.z+=-Math.cos(P.h)*cp2*P.s*dt; P.y+=Math.sin(P.p)*P.s*dt; P.vy=Math.sin(P.p)*P.s;
-  if(P.y>1450) P.p=Math.min(P.p,-0.04);
+  if(P.y>1650){ P.y=1650; P.p=Math.min(P.p,0); }
 }
 // a plane that is out of control falls, rolling
 function dflFall(P,dt){
@@ -10689,7 +10690,7 @@ function dflAI(dt){
   const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+Math.sin(P.h)*cpP*P.s*tl, ty=P.y+pfy*P.s*tl, tz=P.z-Math.cos(P.h)*cpP*P.s*tl;
   const dh=dflWrap(Math.atan2(tx-E.x,-(tz-E.z))-E.h), dp=Math.atan2(ty-E.y,Math.hypot(tx-E.x,tz-E.z))-E.p;
   let cx=0, cy=0, thr=0.8;
-  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>450?1:(dist>250?0.75:0.5); if(dist<200&&dot>0.9) thr=0.45; }
+  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>260?1:0.85; if(dist<160&&dot>0.9) thr=0.6; }
   else if(A.mode==='break'){ cx=A.dir; cy=0.75; thr=0.8; }
   else { cx=A.dir*0.8; cy=0.45; thr=0.7; }      // after an overshoot: a hard turn back into the fight, not a run for the horizon
   if(E.y<260){ cy=Math.max(cy,aClamp((260-E.y)/140,0,1)); cx*=0.5; } else if(E.y>1400) cy=Math.min(cy,-0.4);
@@ -10697,8 +10698,8 @@ function dflAI(dt){
   { const po=dflPullout(E); if(po!==null) cy=po; }
   const k=Math.min(1,dt*3.2); E.cx+=(cx-E.cx)*k; E.cy+=(cy-E.cy)*k; E.thr+=(thr-E.thr)*Math.min(1,dt); E.brake=false;
   // guns: fire when the nose is on the player
-  if(A.mode==='engage' && dist<700 && Math.abs(dh)<0.17 && Math.abs(dp)<0.15 && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
-  if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.8+Math.random()*1.4; } }
+  if(A.mode==='engage' && dist<800 && Math.abs(dh)<0.21 && Math.abs(dp)<0.18 && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
+  if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.5+Math.random()*1.0; } }
 }
 function dflEnemyGuns(dt){
   const E=dfl.en; if(!E.ai.firing||E.dead) return; E.fireCD-=dt;
@@ -10919,7 +10920,7 @@ function startDogfight(side){
   const eside=side==='german'?'usa':'german';
   const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2); en.hp=50;
   en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022};
-  dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
+  dfl={side,eside,spec:DFL_SPEC[side],espec:Object.assign({},DFL_SPEC[eside],{vmax:DFL_SPEC[eside].vmax*1.1,turn:DFL_SPEC[eside].turn*1.12}),pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
   air.pl=pl;
   dfl.pm=dflMakePlane(side); dfl.em=dflMakePlane(eside); air.root.add(dfl.pm.g); air.root.add(dfl.em.g);
   dflMakeHud();

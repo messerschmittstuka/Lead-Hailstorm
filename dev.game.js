@@ -10474,7 +10474,119 @@ const DFL_SPEC={
 };
 const DFC={COAST:2600,CLIFF:70,LIM:4200,AMMO:600,DMG_P:3.2,DMG_E:2.5,HIT_R:4.2};
 let dfl=null, dflSide='german', dflHudBuilt=false;
-const dflGround=(x,z)=>z>DFC.COAST?DFC.CLIFF:0;
+// ---------- the land: rolling hills, a winding river and a harbour at its mouth ----------
+const dflHs=(x,z)=>{ const s=Math.sin(x*127.1+z*311.7)*43758.5453; return s-Math.floor(s); };
+function dflN(x,z){ const ix=Math.floor(x), iz=Math.floor(z), fx=x-ix, fz=z-iz, u=fx*fx*(3-2*fx), v=fz*fz*(3-2*fz);
+  const a=dflHs(ix,iz), b=dflHs(ix+1,iz), c=dflHs(ix,iz+1), d=dflHs(ix+1,iz+1); return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; }
+const dflSS=(a,b,x)=>{ const t=Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(3-2*t); };
+const dflCoastZ=x=>DFC.COAST+170*Math.sin(x*0.0011+0.6)+80*Math.sin(x*0.0029+2.0)+40*Math.sin(x*0.0071);
+const dflRiverX=z=>900+420*Math.sin(z*0.0021)+200*Math.sin(z*0.0053+2);
+const DFL_HB={x:dflRiverX(DFC.COAST)}; DFL_HB.z=dflCoastZ(DFL_HB.x);
+// [height, river water 0..1, river-bank-clear 0..1, distance inland from the shore, harbour flat 0..1]
+function dflTerrInfo(x,z){
+  const d=z-dflCoastZ(x);
+  if(d<-125) return [-3,0,1,d,0];
+  const rd=Math.abs(x-dflRiverX(z)), wd=55+85*(1-dflSS(0,1800,d));
+  const core=1-dflSS(wd*0.5,wd*0.72,rd), bank=1-dflSS(wd*0.6,wd*4.5,rd), rb=1-dflSS(wd*0.8,wd*1.5,rd);
+  let h=-3+5.5*dflSS(-110,60,d);
+  h+=DFC.CLIFF*(0.75+0.5*dflN(x*0.0012,z*0.0012+5))*dflSS(70,300,d);
+  h+=dflSS(500,1800,d)*(dflN(x*0.0009+3,z*0.0009)*75+dflN(x*0.004,z*0.004+8)*14)+dflN(x*0.012,z*0.012)*3*dflSS(100,400,d);
+  const low=1-dflSS(260,720,Math.hypot(x-DFL_HB.x,z-(DFL_HB.z+140)));
+  h+=(4.2-h)*low*dflSS(0,90,d);
+  const bed=0.9+11*dflSS(0,2600,d);
+  h+=(bed-h)*Math.min(1,Math.max(bank*(1-low),1-dflSS(wd*0.5,wd*1.1,rd))*0.92)*dflSS(0,80,d);
+  return [h,core*dflSS(10,60,d),rb,d,low];
+}
+const dflGround=(x,z)=>z<DFC.COAST-800?0:Math.max(0,dflTerrInfo(x,z)[0]);
+function dflWoodAt(x,z){ const t=dflTerrInfo(x,z); if(t[3]<170) return 0;
+  return (dflN(x*0.0014+11,z*0.0014)*0.7+dflN(x*0.005,z*0.005+4)*0.3)*(1-t[2])*(1-t[4]); }
+function dflInst(root,geo,mat,list){
+  const im=new THREE.InstancedMesh(geo,mat,list.length), o=new THREE.Object3D(), c=new THREE.Color();
+  list.forEach((b,i)=>{ o.position.set(b.x,b.y,b.z); o.rotation.set(0,b.ry||0,0); o.scale.set(b.sx,b.sy,b.sz); o.updateMatrix(); im.setMatrixAt(i,o.matrix); c.setHex(b.c); im.setColorAt(i,c); });
+  im.instanceMatrix.needsUpdate=true; if(im.instanceColor) im.instanceColor.needsUpdate=true; im.frustumCulled=false; root.add(im); return im;
+}
+function dflBuildLand(root){
+  const X0=-12000,X1=12000,Z0=DFC.COAST-700,Z1=DFC.COAST+8900,NX=480,NZ=200, nv=(NX+1)*(NZ+1);
+  const pos=new Float32Array(nv*3), rvA=new Float32Array(nv); let k=0;
+  for(let j=0;j<=NZ;j++) for(let i=0;i<=NX;i++){ const x=X0+(X1-X0)*i/NX, z=Z0+(Z1-Z0)*j/NZ, t=dflTerrInfo(x,z); pos[k*3]=x; pos[k*3+1]=t[0]; pos[k*3+2]=z; rvA[k]=t[1]; k++; }
+  const idx=new Uint32Array(NX*NZ*6); let q=0;
+  for(let j=0;j<NZ;j++) for(let i=0;i<NX;i++){ const a=j*(NX+1)+i, b=a+1, c=a+NX+1, d=c+1; idx[q++]=a; idx[q++]=c; idx[q++]=b; idx[q++]=b; idx[q++]=c; idx[q++]=d; }
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(pos,3)); geo.setAttribute('aRv',new THREE.BufferAttribute(rvA,1)); geo.setIndex(new THREE.BufferAttribute(idx,1)); geo.computeVertexNormals();
+  // where the woods are: a mask the shader reads, so the same woods that carry 3D trees are painted on the ground
+  const MW=480, MH=240, MX0=-9000, MZ0=DFC.COAST-200, MWD=18000, MDD=7200, md=new Uint8Array(MW*MH*4);
+  for(let j=0;j<MH;j++) for(let i=0;i<MW;i++){ const edge=(i<2||j<2||i>MW-3||j>MH-3), w=edge?0:dflWoodAt(MX0+MWD*(i+.5)/MW,MZ0+MDD*(j+.5)/MH), o=(j*MW+i)*4; md[o]=Math.min(255,w*255)|0; md[o+3]=255; }
+  const mask=new THREE.DataTexture(md,MW,MH,THREE.RGBAFormat); mask.magFilter=THREE.LinearFilter; mask.minFilter=THREE.LinearFilter; mask.needsUpdate=true;
+  const mat=new THREE.ShaderMaterial({fog:false,uniforms:{uHaze:{value:new THREE.Color(0xaab5c2)},uSun:{value:new THREE.Vector3(-0.3,0.55,0.4).normalize()},uMask:{value:mask},uMR:{value:new THREE.Vector4(MX0,MZ0,MWD,MDD)}},
+    vertexShader:'attribute float aRv; varying vec3 vW; varying vec3 vN; varying float vRv; void main(){ vec4 w=modelMatrix*vec4(position,1.0); vW=w.xyz; vN=normal; vRv=aRv; gl_Position=projectionMatrix*viewMatrix*w; }',
+    fragmentShader:`varying vec3 vW; varying vec3 vN; varying float vRv; uniform vec3 uHaze,uSun; uniform sampler2D uMask; uniform vec4 uMR;
+      float hs(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      vec2 hv(vec2 p){ return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453); }
+      float n(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y); }
+      vec3 vor(vec2 p){ vec2 i=floor(p),f=fract(p); float d1=8.0,d2=8.0; vec2 id=vec2(0.0);
+        for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++){ vec2 g=vec2(float(x),float(y)); vec2 r=g+hv(i+g)-f; float d=dot(r,r); if(d<d1){ d2=d1; d1=d; id=i+g; } else if(d<d2) d2=d; }
+        return vec3(id,sqrt(d2)-sqrt(d1)); }
+      void main(){
+        vec2 p=vW.xz; float dist=length(vW-cameraPosition);
+        vec3 N=normalize(vN); float sl=1.0-N.y;
+        vec2 pw=p+vec2(n(p*0.0021)-0.5,n(p*0.0021+7.0)-0.5)*240.0+vec2(n(p*0.011)-0.5,n(p*0.011+3.0)-0.5)*45.0;
+        vec3 v=vor(pw/230.0); float r=hs(v.xy), r2=hs(v.xy+17.0);
+        vec3 c;
+        if(r<0.2) c=vec3(0.43,0.55,0.25); else if(r<0.4) c=vec3(0.56,0.63,0.30); else if(r<0.55) c=vec3(0.76,0.69,0.37); else if(r<0.7) c=vec3(0.33,0.45,0.22); else if(r<0.84) c=vec3(0.62,0.51,0.33); else c=vec3(0.50,0.60,0.33);
+        float st=0.5+0.5*sin(dot(p,vec2(cos(r2*6.28),sin(r2*6.28)))*0.55); c*=1.0-0.08*st*step(0.4,r2)*(1.0-smoothstep(300.0,1800.0,dist));
+        c*=0.88+0.24*n(p*0.04); c*=0.94+0.12*n(p*0.35)*(1.0-smoothstep(150.0,900.0,dist));
+        float hd=1.0-smoothstep(0.03,0.075,v.z); c=mix(c,vec3(0.14,0.24,0.11),hd*0.85*(1.0-smoothstep(1800.0,4800.0,dist)));
+        float m=texture2D(uMask,(p-uMR.xy)/uMR.zw).r; float wd=smoothstep(0.55,0.62,m+(n(p*0.06)-0.5)*0.12);
+        vec3 wc=vec3(0.12,0.23,0.11)*(0.7+0.6*n(p*0.09))*(0.8+0.4*n(p*0.35)); c=mix(c,wc,wd);
+        float steep=smoothstep(0.1,0.28,sl); vec3 rock=mix(vec3(0.84,0.83,0.76),vec3(0.58,0.53,0.44),n(p*0.05)); c=mix(c,rock,steep*smoothstep(6.0,22.0,vW.y));
+        c=mix(c,vec3(0.45,0.40,0.30),steep*(1.0-smoothstep(6.0,22.0,vW.y))*0.5);
+        float bs=1.0-smoothstep(1.7,3.3,vW.y+(n(p*0.02)-0.5)*1.4); vec3 sand=mix(vec3(0.86,0.8,0.62),vec3(0.6,0.55,0.42),1.0-smoothstep(0.3,1.5,vW.y)); c=mix(c,sand,bs*(1.0-wd));
+        c=mix(c,vec3(0.93,0.96,0.96),(1.0-smoothstep(0.0,0.8,vW.y))*0.8);
+        float rv=smoothstep(0.35,0.6,vRv); c=mix(c,vec3(0.24,0.36,0.40),rv);
+        vec3 L=normalize(uSun); c*=0.42+0.72*max(dot(N,L),0.0);
+        vec3 view=normalize(cameraPosition-vW); c+=rv*vec3(1.0,0.93,0.8)*pow(max(dot(reflect(-L,vec3(0,1,0)),view),0.0),60.0)*0.5;
+        c=mix(c,uHaze,smoothstep(3500.0,8500.0,dist));
+        gl_FragColor=vec4(c,1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`});
+  const land=new THREE.Mesh(geo,mat); land.frustumCulled=false; root.add(land);
+  const gy=(x,z)=>dflTerrInfo(x,z)[0];
+  // trees in the woods
+  const trees=[]; for(let tries=0;tries<60000 && trees.length<7000;tries++){
+    const x=(rnd()-.5)*9000, z=DFC.COAST+150+rnd()*2400; if(dflWoodAt(x,z)<0.6) continue;
+    const s=0.8+rnd()*0.8; trees.push({x,y:gy(x,z)+5.5*s,z,sx:s,sy:s,sz:s,c:[0x1d3a1b,0x24461f,0x2c5224,0x1a3318][(rnd()*4)|0]}); }
+  const tg=new THREE.ConeGeometry(4.2,13,6); dflInst(root,tg,airMat(0xffffff),trees);
+  // houses: walls and pyramid roofs
+  const wallC=[0xd9cdb4,0xc8b99a,0xe2dac8,0xb9a98c,0xcfc6b0], roofC=[0x7a4a38,0x5c4a42,0x6b3f30,0x4e4a48], walls=[], roofs=[];
+  const house=(x,z,w,d,h,ry)=>{ const g=gy(x,z), rh=3+rnd()*2, wc=wallC[(rnd()*5)|0], rc=roofC[(rnd()*4)|0];
+    walls.push({x,y:g+h/2,z,sx:w,sy:h,sz:d,ry,c:wc}); roofs.push({x,y:g+h+rh/2,z,sx:w*1.15,sy:rh,sz:d*1.15,ry,c:rc}); };
+  const HB=DFL_HB;
+  for(let n=0,tries=0;n<120 && tries<2000;tries++){ const a=rnd()*6.283, r=90+rnd()*300, x=HB.x+Math.cos(a)*r, z=HB.z+80+Math.sin(a)*r*0.8, t=dflTerrInfo(x,z);
+    if(t[3]<30||t[1]>0.02||t[2]>0.5||t[0]<2.5) continue; house(x,z,7+rnd()*6,7+rnd()*5,5+rnd()*4,(rnd()<0.5?0:Math.PI/2)+(rnd()-.5)*0.2); n++; }
+  for(let hm=0;hm<16;hm++){ const cx=(rnd()-.5)*9000, cz=DFC.COAST+500+rnd()*3200, t0=dflTerrInfo(cx,cz); if(t0[2]>0.3||dflWoodAt(cx,cz)>0.5||t0[3]<200) { hm--; if(rnd()<0.02) break; continue; }
+    const cnt=4+((rnd()*6)|0); for(let b=0;b<cnt;b++){ const x=cx+(rnd()-.5)*160, z=cz+(rnd()-.5)*160, t=dflTerrInfo(x,z); if(t[2]>0.4||t[1]>0.02) continue; house(x,z,8+rnd()*10,6+rnd()*5,4.5+rnd()*3,rnd()*3.14); } }
+  dflInst(root,new THREE.BoxGeometry(1,1,1),airMat(0xffffff),walls);
+  const rg=new THREE.CylinderGeometry(0,0.72,1,4,1); rg.rotateY(Math.PI/4); dflInst(root,rg,airMat(0xffffff),roofs);
+  // church and lighthouse
+  const chx=HB.x-70, chz=HB.z+210, chy=gy(chx,chz); aBox(root,10,9,18,airMat(0xcfc6b0),chx,chy+4.5,chz); aBox(root,6,26,6,airMat(0xcfc6b0),chx,chy+13,chz-12); aCyl(root,0.1,4.2,12,airMat(0x4e4a48),chx,chy+32,chz-12,0,Math.PI/4,0,4);
+  const lhx=-400, lhz=dflCoastZ(lhx)+90, lhy=gy(lhx,lhz);
+  aCyl(root,3,4.2,34,airMat(0xf2f0e8),lhx,lhy+17,lhz,0,0,0,12); aCyl(root,3.1,3.1,5,airMat(0xb5382c),lhx,lhy+12,lhz,0,0,0,12); aBox(root,5,3.5,5,airMat(0x2b2d2b),lhx,lhy+36,lhz);
+  // the harbour: breakwaters, piers, boats, quay cranes, warehouses
+  const stone=airMat(0x8d8f8c), wood=airMat(0x5d4a38), cz0=(x)=>dflCoastZ(x);
+  const seg=(x1,z1,x2,z2,w,h,y,m)=>{ const L=Math.hypot(x2-x1,z2-z1); aBox(root,w,h,L,m,(x1+x2)/2,y,(z1+z2)/2,0,Math.atan2(x2-x1,z2-z1),0); };
+  seg(HB.x+300,cz0(HB.x+300)-10,HB.x+345,cz0(HB.x+345)-150,12,9,-1,stone); seg(HB.x+345,cz0(HB.x+345)-150,HB.x+300,cz0(HB.x+300)-300,12,9,-1,stone);
+  seg(HB.x-300,cz0(HB.x-300)-10,HB.x-340,cz0(HB.x-340)-140,12,9,-1,stone); seg(HB.x-340,cz0(HB.x-340)-140,HB.x-290,cz0(HB.x-290)-290,12,9,-1,stone);
+  for(const [lx,lz] of [[HB.x+300,cz0(HB.x+300)-300],[HB.x-290,cz0(HB.x-290)-290]]){ aCyl(root,1.8,2.4,13,airMat(0xf2f0e8),lx,6,lz,0,0,0,10); aCyl(root,1.9,1.9,3,airMat(lx>HB.x?0xb5382c:0x2f6b3a),lx,11,lz,0,0,0,10); }
+  const hull=[0x2b3a4a,0x6a2d27,0x3b4a3a,0xcfcac0,0x1f1f1f];
+  for(let i=0;i<7;i++){ const px=HB.x-130+i*40, pz=cz0(px); aBox(root,6,1.2,95,wood,px,0.6,pz-52); 
+    for(const sx of [-1,1]) if(i<6){ const bx=px+sx*20+(sx>0?0:0); if(sx>0){ const bz=pz-30-rnd()*50; aBox(root,5,2,14+rnd()*8,airMat(hull[(rnd()*5)|0]),bx,1,bz); aBox(root,3.4,2,5,airMat(0xe6e2d4),bx,2.8,bz); } } }
+  for(let i=0;i<5;i++){ const bx=HB.x-250+rnd()*500, bz=cz0(bx)-60-rnd()*160; aBox(root,5,2,12+rnd()*10,airMat(hull[(rnd()*5)|0]),bx,1,bz,0,rnd()*3.14,0); }
+  for(let i=0;i<4;i++){ const cx=HB.x-110+i*70, cz=cz0(cx)+16, cy=gy(cx,cz); aBox(root,2,24,2,airMat(0xb5382c),cx,cy+12,cz); aBox(root,2,1.6,26,airMat(0xb5382c),cx,cy+24,cz-8); }
+  for(let i=0;i<7;i++){ const wx=HB.x-250+i*85, wz=cz0(wx)+75+rnd()*30, wy=gy(wx,wz); aBox(root,30,9,14,airMat(0x8a8c86),wx,wy+4.5,wz); aBox(root,31,2,15,airMat(0x5c4a42),wx,wy+10,wz); }
+  // a bridge over the river
+  { const zb=DFC.COAST+800, rx=dflRiverX(zb), wd=55+85*(1-dflSS(0,1800,zb-dflCoastZ(rx))), by=Math.max(gy(rx-wd*1.2,zb),gy(rx+wd*1.2,zb))+1.5; aBox(root,wd*2.8,1.4,9,airMat(0x77746c),rx,by,zb); aBox(root,wd*2.8,1.4,0.7,airMat(0x4e4a48),rx,by+1.2,zb-4.4); aBox(root,wd*2.8,1.4,0.7,airMat(0x4e4a48),rx,by+1.2,zb+4.4); }
+}
+
 const dflWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 
 function dflMakePlane(side){
@@ -10521,15 +10633,7 @@ function dflBuildWorld(){
         #include <colorspace_fragment>
       }`});
   const sea=new THREE.Mesh(new THREE.PlaneGeometry(40000,40000),seaM); sea.rotation.x=-Math.PI/2; root.add(sea); air.sea=seaM;
-  const fieldTex=canvasTex(512,(x,s)=>{ x.fillStyle='#6d7f47'; x.fillRect(0,0,s,s); const cols=['#7b8c4a','#8a9650','#9aa35a','#677a40','#a6a45e','#5f7440']; for(let i=0;i<28;i++){ x.fillStyle=cols[i%cols.length]; x.fillRect(Math.random()*s*0.9,Math.random()*s*0.9,40+Math.random()*130,30+Math.random()*100); } specks(x,s,1500,3,['rgba(60,70,40,.4)','rgba(150,150,90,.3)']); });
-  fieldTex.wrapS=fieldTex.wrapT=THREE.RepeatWrapping; fieldTex.repeat.set(40,40);
-  const chalk=new THREE.MeshLambertMaterial({color:0xe6e2d4}), grass=new THREE.MeshLambertMaterial({map:fieldTex});
-  const H=DFC.CLIFF+40, land=new THREE.Mesh(new THREE.BoxGeometry(40000,H,20000),[chalk,chalk,grass,chalk,chalk,chalk]); land.position.set(0,DFC.CLIFF-H/2,DFC.COAST+10000); root.add(land);
-  // a village and a lighthouse on the cliffs
-  const wallC=[0xd9cdb4,0xc8b99a,0xe2dac8,0xb9a98c], roofC=[0x7a4a38,0x5c4a42,0x6b3f30];
-  for(let i=0;i<46;i++){ const x=(rnd()-.5)*7000, z=DFC.COAST+120+rnd()*900, w=8+rnd()*8, d=7+rnd()*6;
-    aBox(root,w,5,d,airMat(wallC[(rnd()*4)|0]),x,DFC.CLIFF+2.5,z); aBox(root,w+1,2,d+1,airMat(roofC[(rnd()*3)|0]),x,DFC.CLIFF+6,z); }
-  aCyl(root,3,4.2,34,airMat(0xf2f0e8),-400,DFC.CLIFF+17,DFC.COAST+90,0,0,0,12); aCyl(root,3.1,3.1,5,airMat(0xb5382c),-400,DFC.CLIFF+12,DFC.COAST+90,0,0,0,12); aBox(root,5,3.5,5,airMat(0x2b2d2b),-400,DFC.CLIFF+36,DFC.COAST+90);
+  dflBuildLand(root);
   // a convoy far out to sea, two of them burning
   const shipM=airMat(0x727a7e);
   for(let i=0;i<8;i++){ const x=-3000+i*780+rnd()*200, z=-1700-rnd()*1500, w=34+rnd()*26; aBox(root,w,6,8,shipM,x,3,z); aBox(root,w*0.3,7,6,shipM,x+w*0.12,9,z); }

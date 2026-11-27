@@ -9628,8 +9628,8 @@ function airUpdateSounds(dt){
   if(air.eng){
     const run=air.phase==='fly'||air.phase==='rollout'||air.phase==='falling', dead=P.fuel<=0;
     air.eng.g.gain.setTargetAtTime(state==='playing'&&run?(dead?0.0:0.05+P.thr*0.05):0,now,0.1);
-    air.eng.o.frequency.setTargetAtTime(52+P.thr*34+(P.s-60)*0.35,now,0.15); air.eng.o2.frequency.setTargetAtTime(26+P.thr*17,now,0.15);
-    air.eng.f.frequency.setTargetAtTime(380+P.thr*420,now,0.15);
+    air.eng.o.frequency.setTargetAtTime(52+P.thr*34+(P.s-60)*(air.dog?0.8:0.35),now,0.15); air.eng.o2.frequency.setTargetAtTime(26+P.thr*17,now,0.15);
+    air.eng.f.frequency.setTargetAtTime(380+P.thr*420+(air.dog?(P.s-80)*7:0),now,0.15);
   }
   if(air.sir){
     const on=state==='playing' && air.phase==='fly' && P.p<-0.62 && P.s>88;      // the famous Jericho trumpet screams in a steep dive
@@ -10603,7 +10603,7 @@ function dflMakePlane(side){
   disc.position.copy(nose); disc.position.z-=0.05; g.add(disc);
   return {g,nose};
 }
-function dflNewState(x,y,z,h){ return {x,y,z,h,p:0,r:0,s:100,thr:0.75,cx:0,cy:0,hp:100,ammo:DFC.AMMO,fuel:100,vy:0,g:1,stall:false,brake:false,dead:false,fall:0,trail:0,fireCD:0,hitT:0}; }
+function dflNewState(x,y,z,h){ return {x,y,z,h,p:0,r:0,s:100,thr:0.75,cx:0,cy:0,hp:100,ammo:DFC.AMMO,fuel:100,vy:0,g:1,stall:false,brake:false,dead:false,fall:0,trail:0,fireCD:0,hitT:0,hpMax:100}; }
 
 function dflBuildWorld(){
   const root=new THREE.Group(); air.root=root; seed=777;
@@ -10726,7 +10726,10 @@ function dflAI(dt){
   const cpP=Math.cos(P.p), pfx=Math.sin(P.h)*cpP, pfy=Math.sin(P.p), pfz=-Math.cos(P.h)*cpP, pdot=-(dx*pfx+dy*pfy+dz*pfz)/dist;      // 1 = the player is aiming at me
   if(A.mode==='engage'){
     if(dist<90 && dot<0.0){ A.mode='extend'; A.t=0.7+Math.random()*0.5; A.dir=Math.random()<.5?1:-1; }
-    else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){ A.mode='break'; A.t=0.9+Math.random()*0.7; A.dir=Math.random()<.5?1:-1; A.brkCD=9; }
+    else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){      // the player is on his tail: he picks a way out, by temperament
+      const W=A.style==='aggressive'?{break:.5,scissors:.3,zoom:.2}:A.style==='cautious'?{break:.4,dive:.35,zoom:.25}:{break:.15,scissors:.25,dive:.2,zoom:.15,barrel:.25};
+      let x=Math.random(), pick='break'; for(const k in W){ if(x<W[k]){ pick=k; break; } x-=W[k]; }
+      A.mode=pick; A.dir=Math.random()<.5?1:-1; A.t=({break:0.9+Math.random()*0.7,scissors:2.8,dive:1.9,zoom:1.8,barrel:1.8})[pick]; A.t0=A.t; A.brkCD=A.style==='tricky'?6:9; }
   } else if(A.t<=0) A.mode='engage';
   A.brkCD-=dt;
   if(!A.ev) A.ev=new V3(pfx*P.s,pfy*P.s,pfz*P.s); const ke=Math.min(1,dt*0.45); A.ev.x+=(pfx*P.s-A.ev.x)*ke; A.ev.y+=(pfy*P.s-A.ev.y)*ke; A.ev.z+=(pfz*P.s-A.ev.z)*ke;      // he cannot read your speed: his estimate takes a couple of seconds to catch up, so if you slow down he flies past
@@ -10735,13 +10738,17 @@ function dflAI(dt){
   let cx=0, cy=0, thr=0.8;
   if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>450?1:(dist>250?0.75:0.5); if(dist<200&&dot>0.9) thr=0.45; }
   else if(A.mode==='break'){ cx=A.dir; cy=0.75; thr=0.8; }
+  else if(A.mode==='scissors'){ cx=Math.sin(dfl.t*3.2)>0?1:-1; cy=0.35; thr=0.45; }      // slow, reversing turns so you overshoot
+  else if(A.mode==='dive'){ if(A.t>A.t0*0.45){ cx=A.dir*0.5; cy=-0.7; thr=1; } else { cx=0; cy=0.9; thr=1; } }
+  else if(A.mode==='zoom'){ cx=0; cy=0.95; thr=1; }
+  else if(A.mode==='barrel'){ cx=Math.sin(dfl.t*5.5); cy=0.45; thr=0.8; }
   else { cx=A.dir*0.8; cy=0.45; thr=0.7; }      // after an overshoot: a hard turn back into the fight, not a run for the horizon
   if(E.y<260){ cy=Math.max(cy,aClamp((260-E.y)/140,0,1)); cx*=0.5; } else if(E.y>1400) cy=Math.min(cy,-0.4);
   const out=Math.hypot(E.x,E.z)>3300; if(out){ const hd=dflWrap(Math.atan2(-E.x,E.z)-E.h); cx=aClamp(hd*2,-1,1); }
   { const po=dflPullout(E); if(po!==null) cy=po; }
   const k=Math.min(1,dt*3.2); E.cx+=(cx-E.cx)*k; E.cy+=(cy-E.cy)*k; E.thr+=(thr-E.thr)*Math.min(1,dt); E.brake=false;
   // guns: fire when the nose is on the player
-  if(A.mode==='engage' && dist<700 && Math.abs(dh)<0.17 && Math.abs(dp)<0.15 && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
+  if(A.mode==='engage' && dist<(A.style==='aggressive'?780:A.style==='cautious'?620:700) && Math.abs(dh)<0.17*(A.style==='aggressive'?1.15:A.style==='cautious'?0.85:1) && Math.abs(dp)<0.15*(A.style==='aggressive'?1.15:A.style==='cautious'?0.85:1) && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
   if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.8+Math.random()*1.4; } }
 }
 function dflEnemyGuns(dt){
@@ -10791,7 +10798,10 @@ function dflBullets(dt){
     if(d<DFC.HIT_R){
       t.life=0; tgt.hitT=0.25; spawnPuff(new V3(ax+sx*u,ay+sy*u,az+sz*u),0xffd890,3,0.25,true,0); spawnPuff(new V3(ax+sx*u,ay+sy*u,az+sz*u),0x3a3836,4,0.8,false,0.5);
       if(t.en){ tgt.hp-=DFC.DMG_E; dfl.hitsTaken++; air.shake=Math.max(air.shake,0.45); dfl.flash=0.35; if(!dfl.hitMsg||dfl.t-dfl.hitMsg>1.5){ dfl.hitMsg=dfl.t; showMsg('YOU ARE HIT',0.8); tone(180,90,0.12,0.12,'square'); } if(tgt.hp<=0) dflDie(tgt); }
-      else { tgt.hp-=DFC.DMG_P; dfl.hits++; if(tgt.hp<=0) dflDie(tgt); }
+      else { tgt.hp-=DFC.DMG_P; dfl.hits++; dfl.hm=1; tone(1700,1100,0.05,0.09,'square'); noise(0.05,3200,0.1,'highpass');
+        for(let k=0;k<3;k++) spawnPuff(new V3(ax+sx*u+(Math.random()-.5)*5,ay+sy*u+(Math.random()-.5)*5,az+sz*u+(Math.random()-.5)*5),0xa8a8a2,1.2,0.5,false,0);
+        if(tgt.hp>0){ if(!tgt.m70 && tgt.hp<=tgt.hpMax*0.7){ tgt.m70=1; showMsg('HIT · HE IS TRAILING SMOKE',1.4); } if(!tgt.m30 && tgt.hp<=tgt.hpMax*0.3){ tgt.m30=1; showMsg('HIS ENGINE IS ON FIRE',1.4); } }
+        if(tgt.hp<=0) dflDie(tgt); }
     }
   }
 }
@@ -10830,7 +10840,7 @@ function dflFrameWorldPlanes(dt){
   // smoke from damaged planes
   for(const X of [P,E]){
     X.hitT-=dt; X.trail-=dt;
-    const frac=X.hp/100; if(X.dead||frac<0.5){ if(X.trail<=0){ X.trail=X.dead?0.04:(frac<0.25?0.07:0.14); const fx=Math.sin(X.h),fz=-Math.cos(X.h);
+    const frac=X.hp/(X.hpMax||100); if(X.dead||frac<0.7){ if(X.trail<=0){ X.trail=X.dead?0.04:(frac<0.25?0.07:0.14); const fx=Math.sin(X.h),fz=-Math.cos(X.h);
       spawnPuff(new V3(X.x-fx*4,X.y,X.z-fz*4),X.dead||frac<0.25?0x1e1c1b:0x6a6866,6+Math.random()*4,2.0,false,0.6);
       if(X.dead||frac<0.25) spawnPuff(new V3(X.x-fx*3,X.y,X.z-fz*3),0xff8a30,4,0.3,true,0); } }
   }
@@ -10852,6 +10862,12 @@ function dflCamera(dt){
   const P=dfl.pl, cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp;
   air.shake=Math.max(0,air.shake-dt*1.6); const sh=air.shake*1.3;
   const dead=P.gone;
+  if(dfl.decide==='won' && !dead){      // kill cam: swing round the stricken enemy
+    const E=dfl.en; if(dfl.kcT===undefined) dfl.kcT=dfl.t; const ang=0.7+(dfl.t-dfl.kcT)*0.55, tx=E.x+Math.cos(ang)*75, ty=E.y+20+Math.sin((dfl.t-dfl.kcT)*0.8)*8, tz=E.z+Math.sin(ang)*75;
+    if(!air.cam) air.cam={x:tx,y:ty,z:tz}; const kk=1-Math.exp(-dt*2.5); air.cam.x+=(tx-air.cam.x)*kk; air.cam.y+=(ty-air.cam.y)*kk; air.cam.z+=(tz-air.cam.z)*kk;
+    camera.up.set(0,1,0); camera.position.set(air.cam.x,Math.max(air.cam.y,dflGround(air.cam.x,air.cam.z)+4),air.cam.z); camera.lookAt(E.x,E.y,E.z); camera.fov=52;
+    camera.updateProjectionMatrix(); camera.updateMatrixWorld(true); return;
+  }
   if(air.view===0 || dead){
     const back=17+(P.s-100)*0.04, wv=P.q?dflSS(0.55,0.92,Math.abs(fy)):0;
     let cux=0,cuy=1,cuz=0; if(P.q){ _fu.set(0,1,0).applyQuaternion(P.q); cux=_fu.x*wv; cuy=(1-wv)+_fu.y*wv; cuz=_fu.z*wv; const cl=Math.hypot(cux,cuy,cuz)||1; cux/=cl; cuy/=cl; cuz/=cl; }
@@ -10910,6 +10926,14 @@ body.dogmode #ahWrap,body.dogmode #tReload,body.dogmode #tJump,body.dogmode #tCr
     (document.head||document.body).appendChild(st);
     const w=document.createElement('div'); w.id='dflHud';
     w.innerHTML='<div id="dflVig"></div><div id="dflPip"></div><div id="dflLead"></div><div id="dflEn"><span id="dflEnT"></span></div><div id="dflSpd"></div><div id="dflAlt"></div><div id="dflTop"></div><div id="dflWarn"></div>';
+    w.insertAdjacentHTML('beforeend','<div id="dflBO"></div><div id="dflHM"></div><div id="dflG"></div>');
+    const st2=document.createElement('style'); st2.textContent=`
+#dflBO{position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,0) 18%,rgba(0,0,0,.96) 78%);opacity:0}
+#dflHM{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;opacity:0}
+#dflHM::before,#dflHM::after{content:'';position:absolute;left:50%;top:50%;width:3px;height:30px;margin:-15px 0 0 -1px;background:#ff5a3a;box-shadow:0 0 4px #000}
+#dflHM::before{transform:rotate(45deg)} #dflHM::after{transform:rotate(-45deg)}
+#dflG{position:absolute;left:26px;bottom:134px;font-size:18px;font-weight:bold;letter-spacing:1px;padding:2px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(240,243,230,.45)}`;
+    (document.head||document.body).appendChild(st2);
     $('hud').appendChild(w);
   }
   $('dflHud').style.display='block';
@@ -10932,8 +10956,14 @@ function dflHud(dt){
       _dflv.set(E.x+Math.sin(E.h)*cpE*E.s*tt,E.y+Math.sin(E.p)*E.s*tt,E.z-Math.cos(E.h)*cpE*E.s*tt).project(camera); ld.style.display=_dflv.z<1?'block':'none'; ld.style.left=((_dflv.x*0.5+0.5)*W)+'px'; ld.style.top=((-_dflv.y*0.5+0.5)*H)+'px'; } else ld.style.display='none';
   }
   $('dflSpd').textContent=`${Math.round(P.s*3.6)} km/h`; $('dflAlt').textContent=`${Math.round(P.y)} m`;
-  $('dflTop').innerHTML=`${dfl.spec.en} <span id="dflBar"><i style="width:${Math.max(0,E.hp*2)}%"></i></span>`;
+  $('dflTop').innerHTML=`${dfl.spec.en} · ${E.ai.style.toUpperCase()} PILOT <span id="dflBar"><i style="width:${Math.max(0,E.hp*2)}%"></i></span>`;
   $('dflVig').style.opacity=dfl.flash.toFixed(2);
+  // G-force: the readout, tunnel vision when you hold a hard pull, and the shake
+  const gd=P.dead?1:1+(P.g-1)*0.55*(P.cy<0?-1:1); dfl.gd=gd;
+  const gt=dflSS(4.0,6.0,gd); dfl.bo=(dfl.bo||0)+(gt-(dfl.bo||0))*Math.min(1,dt*(gt>(dfl.bo||0)?0.55:1.3)); $('dflBO').style.opacity=dfl.bo.toFixed(2);
+  $('dflG').textContent=gd.toFixed(1)+' G'; $('dflG').style.color=gd>5?'#ff8a6a':gd>3.5?'#e0b050':'#f0f3e6';
+  if(gd>3 && !P.dead) air.shake=Math.max(air.shake,(gd-3)*0.05);
+  dfl.hm=Math.max(0,(dfl.hm||0)-dt*5); { const hm=$('dflHM'); hm.style.opacity=dfl.hm.toFixed(2); hm.style.left=$('dflPip').style.left||'50%'; hm.style.top=$('dflPip').style.top||'50%'; }
   const w=P.stall&&!P.dead?'STALL':(air.warnT>0?air.warn:''); $('dflWarn').textContent=w&&(Math.floor(air.t*4)%2===0)?w:'';
   $('hpbar').style.width=Math.max(0,P.hp)+'%'; $('hpbar').style.background=P.hp>50?'#cfd8b8':P.hp>25?'#e0b050':'#d0603c';
   $('stam').style.width=(P.ammo/DFC.AMMO*100)+'%'; $('stam').style.background=P.ammo>100?'#cfd8b8':'#e0b050';
@@ -10965,8 +10995,8 @@ function startDogfight(side){
   camera.far=9000; camera.near=1.5; camera.updateProjectionMatrix();
   const eside=side==='german'?'usa':'german';
   const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2);
-  pl.q=new THREE.Quaternion().setFromEuler(new THREE.Euler(pl.p,-pl.h,-pl.r,'YXZ')); en.hp=50;
-  en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022};
+  pl.q=new THREE.Quaternion().setFromEuler(new THREE.Euler(pl.p,-pl.h,-pl.r,'YXZ')); en.hp=50; en.hpMax=50;
+  en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022,style:['aggressive','cautious','tricky'][(Math.random()*3)|0]};
   dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
   air.pl=pl;
   dfl.pm=dflMakePlane(side); dfl.em=dflMakePlane(eside); air.root.add(dfl.pm.g); air.root.add(dfl.em.g);

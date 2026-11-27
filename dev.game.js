@@ -10671,7 +10671,9 @@ function dflFlyFull(P,S,dt){
   P.stall=P.s<S.vmin; if(P.stall) wp-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3);
   if(P.y>1300){ wp-=dflSS(1300,1550,P.y)*1.2; airWarn('TOO HIGH - LEVEL OFF',0.3); }
   // roll: the stick is a roll rate; with it centred the wings ease level when you are the right way up
-  let roll=P.cx*S.rollRate*1.1; if(Math.abs(P.cx)<0.08 && Math.abs(P.r)<1.2 && cp>0.5) roll+=-P.r*0.35;
+  // A/D bank the plane (to about 60 degrees) and it levels again; it only turns over when pulled up through the top of a loop, and then rolls itself upright if you let go of the pull (the Immelmann)
+  let roll=0; if(Math.cos(P.r)>0) roll=aClamp((aClamp(P.cx,-1,1)*1.05-P.r)*S.rollRate,-3.4,3.4);
+  else if(Math.abs(P.cy)<0.3 && Math.abs(P.p)<0.6) roll=aClamp(-P.r*S.rollRate,-3.4,3.4);
   dflRotB(q,0,0,1,-roll*dt);
   dflRotB(q,1,0,0,pull*dt);
   dflRotW(q,0,1,0,-bankTurn*dt);

@@ -9050,6 +9050,7 @@ function airBuildScenery(root){
     if(x>C.x0-pad&&x<C.x1+pad&&z>C.z0-pad&&z<C.z1+pad) return true;
     if(x>R.x0-30&&x<R.x1+30) return true;
     if(x>1180&&x<1660&&Math.abs(z)<1060) return true;
+    if(x>-2000&&x<-1340&&z>-2000&&z<-1340) return true;      // the small town
     if(Math.abs(x-F.x)<F.hw+120&&Math.abs(z-F.z)<F.hd+140) return true;
     return false;
   };
@@ -9078,12 +9079,15 @@ function airBuildScenery(root){
     let cx,cz,tries=0; do{ cx=-6800+rnd()*13600; cz=-5600+rnd()*11200; tries++; }while(blocked(cx,cz,400)&&tries<20);
     if(blocked(cx,cz,400)) continue; vills.push([cx,cz]);
     const n=7+Math.floor(rnd()*14);
+    { const bx=cx+(rnd()-.5)*260, bz=cz+(rnd()-.5)*180; if(!blocked(bx,bz,60)) houses.push({x:bx,z:bz,w:22,d:10,h:5,r:rnd()*3.14,c:0x8a5a3c,barn:true}); }
     for(let i=0;i<n;i++){ const x=cx+(rnd()-.5)*320, z=cz+(rnd()-.5)*220; if(blocked(x,z,60)) continue; houses.push({x,z,w:8+rnd()*8,d:7+rnd()*6,h:4+rnd()*3,r:rnd()*3.14,c:[0x8a7a66,0x9a8d78,0x7a6d5c,0xa59a86,0x6f655a][i%5]}); }
   }
-  const hm=new THREE.InstancedMesh(hGeo,new THREE.MeshLambertMaterial({color:0xffffff}),houses.length), rm=new THREE.InstancedMesh(hGeo,airMat(0xe8ecef),houses.length);
-  houses.forEach((h,i)=>{ dm.position.set(h.x,h.h/2,h.z); dm.rotation.set(0,h.r,0); dm.scale.set(h.w,h.h,h.d); dm.updateMatrix(); hm.setMatrixAt(i,dm.matrix); hm.setColorAt(i,col.setHex(h.c));
-    dm.position.set(h.x,h.h+0.4,h.z); dm.scale.set(h.w+1,0.8,h.d+1); dm.updateMatrix(); rm.setMatrixAt(i,dm.matrix); });
-  hm.frustumCulled=false; rm.frustumCulled=false; root.add(hm); root.add(rm);
+  const hm=new THREE.InstancedMesh(airWallGeo(2,1),new THREE.MeshLambertMaterial({map:airWinTex(false),color:0xffffff}),houses.length), rm=new THREE.InstancedMesh(airGableGeo(),new THREE.MeshLambertMaterial({color:0xffffff}),houses.length), cmh=new THREE.InstancedMesh(hGeo,new THREE.MeshLambertMaterial({color:0x7a5242}),houses.length);
+  houses.forEach((h,i)=>{ const burnt=(i%9)===4;
+    dm.position.set(h.x,h.h/2,h.z); dm.rotation.set(0,h.r,0); dm.scale.set(h.w,h.h,h.d); dm.updateMatrix(); hm.setMatrixAt(i,dm.matrix); hm.setColorAt(i,col.setHex(burnt?0x4d4640:h.c));
+    const rh=Math.min(h.w,h.d)*(h.barn?0.5:0.32); dm.position.set(h.x,h.h,h.z); dm.scale.set(h.w+1.2,rh,h.d+1.2); dm.updateMatrix(); rm.setMatrixAt(i,dm.matrix); rm.setColorAt(i,col.setHex(burnt?0x2f2b28:[0x8a4a38,0x6e7476,0xe2e8ec,0x7a5a46,0xdde3e8,0x4c4f52][i%6]));
+    const cx=Math.cos(h.r), sx=Math.sin(h.r); dm.rotation.set(0,h.r,0); dm.position.set(h.x+cx*h.w*0.22,h.h+rh*0.55+1.2,h.z-sx*h.w*0.22); dm.scale.set(1.1,2.8,1.1); dm.updateMatrix(); cmh.setMatrixAt(i,dm.matrix); });
+  hm.frustumCulled=false; rm.frustumCulled=false; cmh.frustumCulled=false; root.add(hm); root.add(rm); root.add(cmh);
   // forests: snowy pines in clumps
   const tGeo=new THREE.ConeGeometry(1,1,6); tGeo.translate(0,0.5,0);
   const trees=[];
@@ -9127,6 +9131,7 @@ function airBuildScenery(root){
       const bm=new THREE.InstancedMesh(fGeo,new THREE.MeshBasicMaterial({map:blobTex,color:dark?0x2c3238:0xffffff,transparent:true,opacity:dark?0.2:0.16,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-6}),bl.length);
       bl.forEach((f,i)=>{ dm.position.set(f.x,2.2,f.z); dm.rotation.set(0,f.r,0); dm.scale.set(f.w,1,f.d); dm.updateMatrix(); bm.setMatrixAt(i,dm.matrix); }); bm.frustumCulled=false; bm.renderOrder=1; root.add(bm); }
   }
+  airBuildSurroundings(root,{vills,roads,blocked,dm,col,fGeo});
   // hills on the horizon
   const hillM=new THREE.MeshLambertMaterial({color:0x9aa3a6});
   for(let i=0;i<44;i++){ const a=i/44*6.283+rnd()*0.1, d=5200+rnd()*1500, w=500+rnd()*900, h=100+rnd()*260;
@@ -9209,17 +9214,15 @@ const AIR_KLS=[
 const AIR_WALL=[0xe6d6c0,0xd9c5a0,0xc9b8a0,0xe8e0d0,0xb8a58a,0xd0c0a8,0xc4aa7e,0xcdd3c4];
 const AIR_RUIN=[0x6a5f55,0x7a6a5c,0x5a5048,0x8a7868,0x4d4640];
 const AIR_ROOF=[0x8a4a38,0x6e7476,0x4c4f52,0x7a5a46,0xe2e8ec,0xe2e8ec,0xdde3e8];
-function airBuildCity(root){
-  const C=AIR.CITY, CELL=46, nx=Math.floor((C.x1-C.x0)/CELL), nz=Math.floor((C.z1-C.z0)/CELL), list=[];
-  const isAve=(gx,gz)=>gz%8===3||gx%6===2||gx===nx-1;               // avenues, cross streets and the embankment road: no buildings
+function airDistrict(root,C,isAveFn,zoneFn,skipFn){
+  const CELL=46, nx=Math.floor((C.x1-C.x0)/CELL), nz=Math.floor((C.z1-C.z0)/CELL), list=[];
+  const isAve=(gx,gz)=>isAveFn(gx,gz,nx);
   const rub=[];
   for(let gx=0;gx<nx;gx++) for(let gz=0;gz<nz;gz++){
     const cx=C.x0+(gx+0.5)*CELL, cz=C.z0+(gz+0.5)*CELL;
     if(isAve(gx,gz)) continue;
-    let bad=false; for(const t of air.T){ if(t.moving||t.kind==='gun') continue; if(Math.abs(cx-t.x)<t.hw+26 && Math.abs(cz-t.z)<t.hd+26){ bad=true; break; } }
-    for(const L of (air.lmk||[])){ const hx=L.kind==='hill'?L.rx:L.hw, hz=L.kind==='hill'?L.rz:L.hd; if(Math.abs(cx-L.x)<hx+24 && Math.abs(cz-L.z)<hz+24){ bad=true; break; } }
-    if(bad) continue;
-    const zone=1-Math.min(1,Math.hypot((cx-380)/560,cz/1300));         // 1 in the centre, 0 at the edge
+    if(skipFn(cx,cz,gx,gz)) continue;
+    const zone=zoneFn(cx,cz);
     if(rnd()<0.12){ for(let q=0;q<4;q++) rub.push({x:cx+(rnd()-.5)*30,z:cz+(rnd()-.5)*30,s:1.5+rnd()*3.5}); continue; }       // an empty lot of rubble
     const p=rnd(), type=zone>0.5?(p<0.42?'high':p<0.78?'mid':'low'):zone>0.25?(p<0.15?'high':p<0.5?'mid':'low'):(p<0.2?'mid':'low');
     const ruined=rnd()<0.26+0.12*(1-zone);
@@ -9257,7 +9260,15 @@ function airBuildCity(root){
     b.h+=b.rh*0.6;      // what a plane can hit: the ridge, not just the eaves
   });
   for(const m of [...walls,...roofs,chim]){ m.instanceMatrix.needsUpdate=true; if(m.instanceColor) m.instanceColor.needsUpdate=true; }
-  air.bld={nx,nz,CELL,list,grid,grid2,walls,roofs,chim};
+  return {C,nx,nz,CELL,list,grid,grid2,walls,roofs,chim,rub,dm,col,boxG};
+}
+function airBuildCity(root){
+  const C=AIR.CITY, B=airDistrict(root,C,(gx,gz,nx)=>gz%8===3||gx%6===2||gx===nx-1,(cx,cz)=>1-Math.min(1,Math.hypot((cx-380)/560,cz/1300)),(cx,cz)=>{
+    for(const t of air.T){ if(t.moving||t.kind==='gun') continue; if(Math.abs(cx-t.x)<t.hw+26 && Math.abs(cz-t.z)<t.hd+26) return true; }
+    for(const L of (air.lmk||[])){ const hx=L.kind==='hill'?L.rx:L.hw, hz=L.kind==='hill'?L.rz:L.hd; if(Math.abs(cx-L.x)<hx+24 && Math.abs(cz-L.z)<hz+24) return true; }
+    return false; });
+  air.bld=B; air.districts=[B];
+  const {nx,nz,CELL,rub,dm,col,boxG}=B;
   // streets: dark, trampled slush strips with a snow verge on each side
   const stM=airMat(0x4f4d4a), vergeM=airMat(0xe3e7ea), lineM=airMat(0x8d8b86);
   const cw=C.x1-C.x0+120, ch=C.z1-C.z0+120;
@@ -9348,6 +9359,22 @@ function airBuildBeams(root){
 function airUpdateAmbient(dt){
   const op=({overcast:0.11,dawn:0.15,golden:0.05})[air.tod]??0.1;
   if(air.beams) for(const b of air.beams){ b.pg.rotation.y=b.ph+air.t*b.sp; b.c.rotation.z=0.42+0.22*Math.sin(air.t*0.31+b.ph*2); b.c.material.opacity=op; }
+  // convoys and marching columns
+  if(air.convoys){ const dm2=air._dm2||(air._dm2=new THREE.Object3D());
+    for(const c of air.convoys){ const span=c.tb-c.ta, cr=Math.cos(c.r), sr=Math.sin(c.r); c.t+=c.dir*c.spd*dt;
+      for(let k=0;k<c.n;k++){ let t=c.t-c.dir*k*c.spacing*(c.kind==='inf'?0.5:1); t=c.ta+(((t-c.ta)%span)+span)%span;
+        const off=c.kind==='inf'?(k%2?1:-1)*c.lane*0.5+c.dir*c.lane*0.6:c.dir*c.lane;
+        dm2.position.set(c.x+cr*t-sr*off,c.kind==='inf'?2.7:3.2,c.z+sr*t+cr*off); dm2.rotation.set(0,-Math.atan2(sr*c.dir,cr*c.dir),0);
+        if(c.kind==='inf') dm2.scale.set(0.7,1.8,0.6); else dm2.scale.set(6.8,2.8,2.7);
+        dm2.updateMatrix(); c.m.setMatrixAt(k,dm2.matrix); }
+      c.m.instanceMatrix.needsUpdate=true; } }
+  // artillery flashes and shell bursts
+  if(air.flashes){
+    for(const f of air.flashes){ if(f.t<f.dur){ f.t+=dt; const u=Math.min(1,f.t/f.dur); f.sp.scale.setScalar(f.s*(1-0.5*u)); f.sp.material.opacity=0.95*(1-u)*(1-u); if(u>=1) f.sp.visible=false; } }
+    air._fl=(air._fl||1)-dt; if(air._fl<=0 && air.guns){ air._fl=0.5+Math.random()*1.3; const g=air.guns[Math.floor(Math.random()*air.guns.length)]; airFlash(g[0],5,g[1],34,0.28); }
+    air._sh=(air._sh||4)-dt; if(air._sh<=0){ air._sh=3+Math.random()*5; const C=AIR.CITY, x=C.x0+60+Math.random()*(C.x1-C.x0-120), z=C.z0+60+Math.random()*(C.z1-C.z0-120);
+      airFlash(x,6,z,70,0.35); try{ airShock(x,0,z,16,false); airDebris(x,1,z,7,20); }catch(e){} }
+  }
   const V=air.traffic, M=air.vmesh; if(!V||!M) return;
   const C=AIR.CITY, dm=air._dm||(air._dm=new THREE.Object3D());
   for(let i=0;i<V.length;i++){ const v=V[i];
@@ -9358,6 +9385,65 @@ function airUpdateAmbient(dt){
     dm.rotation.set(0,v.alongX?(v.dir>0?0:Math.PI):(v.dir>0?-Math.PI/2:Math.PI/2),0); dm.position.set(v.x,1.8,v.z); dm.scale.set(7,2.6,3.2); dm.updateMatrix(); M.setMatrixAt(i,dm.matrix);
   }
   M.instanceMatrix.needsUpdate=true;
+}
+// ---------- a second small town, with a church ----------
+function airBuildTown(root){
+  const T={x0:-1900,x1:-1440,z0:-1900,z1:-1440};
+  const B=airDistrict(root,T,(gx,gz)=>gz%5===2||gx%5===2,()=>0.2,(cx,cz,gx,gz)=>gx===4&&gz===4);
+  air.districts.push(B);
+  const stM=airMat(0x4f4d4a), vergeM=airMat(0xe3e7ea), cx=(T.x0+T.x1)/2, cz=(T.z0+T.z1)/2, w=T.x1-T.x0+60;
+  for(let gz=0;gz<B.nz;gz++) if(gz%5===2){ const z=T.z0+(gz+0.5)*B.CELL; aBox(root,w,0.12,24,vergeM,cx,1.0,z); aBox(root,w,0.14,14,stM,cx,1.06,z); }
+  for(let gx=0;gx<B.nx;gx++) if(gx%5===2){ const x=T.x0+(gx+0.5)*B.CELL; aBox(root,24,0.13,w,vergeM,x,1.02,cz); aBox(root,14,0.15,w,stM,x,1.08,cz); }
+  aBox(root,w+40,0.11,w+40,airMat(0x8d8c88),cx,0.9,cz);                                              // trodden slush under the town
+  const chx=T.x0+4.5*B.CELL, chz=T.z0+4.5*B.CELL, wall=airMat(0xe3dccb), roofC=airMat(0x4f6a58), dark=airMat(0x55524c);
+  const g=new THREE.Group(); g.position.set(chx,0,chz); root.add(g);
+  aBox(g,22,9,11,wall,0,4.5,0); aBox(g,22.6,0.6,11.6,dark,0,9.2,0); aBox(g,23,4,6,roofC,0,10.9,0,0,0,0);
+  aBox(g,7,22,7,wall,-13,11,0); aBox(g,7.6,1,7.6,dark,-13,22.4,0); aCyl(g,0.4,3.6,10,roofC,-13,28,0,0,0,0,8);            // bell tower and spire
+  for(let i=0;i<3;i++) aCyl(g,0.9,1.2,3,roofC,5+i*0,13,0,0,0,0,8);
+  aCyl(g,2,2.4,3.4,roofC,5,12.5,0,0,0,0,10); aBox(g,0.3,2,0.3,airMat(0xd8b24a),5,15.5,0);
+  air.lmk.push({id:'church',kind:'box',x:chx-2,z:chz,hw:14,hd:7,h:30});
+  airFire(T.x0+60,0,T.z0+90,1.5);                                                                        // a house burning at the edge of town
+}
+// ---------- the countryside: pitched-roof villages, burning farms, convoys, marching columns, artillery, winter groves, frozen ponds ----------
+function airBuildSurroundings(root,ctx){
+  const {vills,roads,blocked,dm,col,fGeo}=ctx, boxG=new THREE.BoxGeometry(1,1,1);
+  // farms burning in the distance
+  for(let i=0;i<vills.length;i+=4) airFire(vills[i][0],0,vills[i][1],1.3);
+  // bare winter groves: trunks and dark crowns
+  { const tr=[], tG=new THREE.CylinderGeometry(0.32,0.5,1,5); tG.translate(0,0.5,0); const cG=new THREE.IcosahedronGeometry(1,0);
+    for(let k=0;k<70;k++){ let cx,cz,tries=0; do{ cx=-6800+rnd()*13600; cz=-5600+rnd()*11200; tries++; }while(blocked(cx,cz,200)&&tries<20); if(blocked(cx,cz,200)) continue;
+      const rad=40+rnd()*130, n=14+Math.floor(rnd()*22);
+      for(let i=0;i<n;i++){ const a=rnd()*6.283, d=Math.sqrt(rnd())*rad, x=cx+Math.cos(a)*d, z=cz+Math.sin(a)*d; if(!blocked(x,z,80)) tr.push({x,z,h:9+rnd()*8}); } }
+    const tm=new THREE.InstancedMesh(tG,new THREE.MeshLambertMaterial({color:0x4a3f36}),tr.length+1), cm=new THREE.InstancedMesh(cG,new THREE.MeshLambertMaterial({color:0xffffff}),tr.length+1);
+    tr.forEach((t,i)=>{ dm.rotation.set(0,rnd()*3,0); dm.position.set(t.x,0,t.z); dm.scale.set(1,t.h*0.55,1); dm.updateMatrix(); tm.setMatrixAt(i,dm.matrix);
+      dm.position.set(t.x,t.h*0.78,t.z); dm.scale.set(t.h*0.34,t.h*0.28,t.h*0.34); dm.updateMatrix(); cm.setMatrixAt(i,dm.matrix); cm.setColorAt(i,col.setHex([0x5b5148,0x6b6258,0x4a4540,0x7a7064][i%4])); });
+    tm.count=tr.length; cm.count=tr.length; tm.frustumCulled=false; cm.frustumCulled=false; root.add(tm); root.add(cm); }
+  // frozen ponds: pale ice with a dark rim
+  { const ponds=[]; for(let i=0;i<46;i++){ const x=-6800+rnd()*13600, z=-5600+rnd()*11200; if(!blocked(x,z,160)) ponds.push({x,z,r:18+rnd()*70,q:0.5+rnd()*0.5}); }
+    const cG=new THREE.CircleGeometry(1,20); cG.rotateX(-Math.PI/2);
+    const rim=new THREE.InstancedMesh(cG,new THREE.MeshLambertMaterial({color:0x3d4a52,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-3}),ponds.length+1), ice=new THREE.InstancedMesh(cG,new THREE.MeshLambertMaterial({color:0xaec2cd,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-4}),ponds.length+1);
+    ponds.forEach((p,i)=>{ dm.rotation.set(0,rnd()*3,0); dm.position.set(p.x,1.35,p.z); dm.scale.set(p.r*1.12,1,p.r*p.q*1.12); dm.updateMatrix(); rim.setMatrixAt(i,dm.matrix); dm.position.set(p.x,1.45,p.z); dm.scale.set(p.r,1,p.r*p.q); dm.updateMatrix(); ice.setMatrixAt(i,dm.matrix); });
+    rim.count=ponds.length; ice.count=ponds.length; rim.frustumCulled=false; ice.frustumCulled=false; root.add(rim); root.add(ice); }
+  // convoys and marching columns on the long roads: only on stretches clear of the city, the river and the airfield
+  air.convoys=[];
+  const stretch=(x,z,r,len)=>{ const cr=Math.cos(r), sr=Math.sin(r); let best=[0,0], cur=null;
+    for(let t=-len/2;t<=len/2;t+=25){ const ok=!blocked(x+cr*t,z+sr*t,60); if(ok){ if(!cur) cur=[t,t]; else cur[1]=t; } else { if(cur&&cur[1]-cur[0]>best[1]-best[0]) best=cur; cur=null; } }
+    if(cur&&cur[1]-cur[0]>best[1]-best[0]) best=cur; return best; };
+  const mkConvoy=(ri,kind,n,spacing,spd,dir,lane)=>{
+    const R=roads[ri]; if(!R) return; const [x,z,r,len]=R, st=stretch(x,z,r,len); if(st[1]-st[0]<500) return;
+    const m=new THREE.InstancedMesh(boxG,new THREE.MeshLambertMaterial({color:0xffffff}),n);
+    for(let i=0;i<n;i++) m.setColorAt(i,col.setHex(kind==='truck'?[0x3d4132,0x4a4a3a,0x2f342a,0x5c5a48][i%4]:[0x3d4132,0x4a4a3a,0x2f342a][i%3]));
+    m.frustumCulled=false; root.add(m); air.convoys.push({m,kind,n,spacing,spd,dir,lane,x,z,r,ta:st[0],tb:st[1],t:st[0]+rnd()*(st[1]-st[0])});
+  };
+  mkConvoy(0,'truck',7,22,9,1,2.2); mkConvoy(1,'truck',6,24,8,1,2.2); mkConvoy(2,'truck',7,22,9,-1,2.2); mkConvoy(3,'truck',6,26,8,1,2.2); mkConvoy(4,'truck',6,24,9,-1,2.2);
+  mkConvoy(0,'inf',70,3.2,1.6,1,1.6); mkConvoy(1,'inf',60,3.2,1.5,1,1.6); mkConvoy(2,'inf',60,3.2,1.5,-1,1.6);
+  // artillery flashes and shell bursts
+  air.flashes=[]; for(let i=0;i<12;i++){ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex,color:0xffd890,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0,fog:true})); sp.visible=false; root.add(sp); air.flashes.push({sp,t:1,dur:0.3,s:30}); }
+  air.guns=[]; for(let i=0;i<9;i++) air.guns.push([-1500+rnd()*800,-900+rnd()*1800]); for(const gz of [-270,-90,100,280]) air.guns.push([1330,gz]);
+}
+function airFlash(x,y,z,s,dur){
+  const F=(air.flashes||[]).find(f=>f.t>=f.dur); if(!F) return;
+  F.t=0; F.dur=dur; F.s=s; F.sp.position.set(x,y,z); F.sp.visible=true; F.sp.scale.setScalar(s);
 }
 function airBuildWorld(){
   const root=new THREE.Group(), C=AIR.CITY;
@@ -9375,6 +9461,7 @@ function airBuildWorld(){
   air.lmk=airLandmarkDefs();
   airBuildCity(root);
   airBuildLandmarks(root);
+  airBuildTown(root);
   // the airfield: runway, hangars, tents, parked Stukas
   const F=AIR.FIELD;
   aBox(root,F.hw*2,0.3,F.hd*2,airMat(0x4c4c4a),F.x,0.2,F.z); aBox(root,F.hw*2-40,0.32,1.2,airMat(0xe8e8e0),F.x,0.25,F.z);
@@ -9396,17 +9483,18 @@ function airBuildWorld(){
 }
 // the tallest thing under (x,z): a building roof, or the ground
 function airGroundAt(x,z){
-  const B=air.bld, C=AIR.CITY; if(!B) return 0;
-  const gx=Math.floor((x-C.x0)/B.CELL), gz=Math.floor((z-C.z0)/B.CELL);
   let top=0;
   for(const L of (air.lmk||[])){
     if(L.kind==='hill'){ const u=(x-L.x)/L.rx, v=(z-L.z)/L.rz, d=u*u+v*v; if(d<1) top=Math.max(top,L.h*Math.sqrt(1-d)); }
     else if(Math.abs(x-L.x)<L.hw && Math.abs(z-L.z)<L.hd) top=Math.max(top,L.h);
   }
   if(top>0) return top;
-  if(gx<0||gz<0||gx>=B.nx||gz>=B.nz) return 0;
-  for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const b=B.list[i];
-    if(b.alive && Math.abs(x-b.x)<b.w/2 && Math.abs(z-b.z)<b.d/2) return b.h; }
+  for(const B of (air.districts||[])){
+    const C=B.C, gx=Math.floor((x-C.x0)/B.CELL), gz=Math.floor((z-C.z0)/B.CELL);
+    if(gx<0||gz<0||gx>=B.nx||gz>=B.nz) continue;
+    for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const b=B.list[i];
+      if(b.alive && Math.abs(x-b.x)<b.w/2 && Math.abs(z-b.z)<b.d/2) return b.h; }
+  }
   return 0;
 }
 function airCollapse(b){
@@ -9494,7 +9582,7 @@ function airLeave(){
   if(air.ck){ viewScene.remove(air.ck); air.ck=null; }
   air.sight=false; { const s=$('ahSight'); if(s) s.style.display='none'; }
   if(air.root){ scene.remove(air.root); air.root.traverse(o=>{ if(o.geometry) o.geometry.dispose(); }); air.root=null; }
-  air.T=[]; air.bld=null; air.fires=[]; air.wing=[]; air.bombs=[]; air.fighters=[];
+  air.T=[]; air.bld=null; air.districts=null; air.convoys=null; air.flashes=null; air.fires=[]; air.wing=[]; air.bombs=[]; air.fighters=[];
   mapRoot.visible=true; ground.visible=true; hillGroup.visible=true; tunGroup.visible=true;
   camera.far=300; camera.near=0.05; camera.fov=75; camera.updateProjectionMatrix();
   document.body.classList.remove('airmode'); document.body.classList.remove('airck');
@@ -9702,11 +9790,11 @@ function airBlast(x,y,z,b){
   }
   if(hit){ air.stats.hits++; } else if(!water && !b.ambient && b.age>0.5){ if(air.hitMsgT<=0){ air.hitMsgT=1.0; showMsg('MISSED',1.0); } }
   // buildings crumble
-  const B=air.bld, C=AIR.CITY, gx0=Math.floor((x-R-C.x0)/B.CELL), gx1=Math.floor((x+R-C.x0)/B.CELL), gz0=Math.floor((z-R-C.z0)/B.CELL), gz1=Math.floor((z+R-C.z0)/B.CELL);
-  for(let gx=Math.max(0,gx0);gx<=Math.min(B.nx-1,gx1);gx++) for(let gz=Math.max(0,gz0);gz<=Math.min(B.nz-1,gz1);gz++){
-    for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const bd=B.list[i]; if(!bd.alive) continue;
-      if(Math.hypot(bd.x-x,bd.z-z)<R*(heavy?0.95:0.5)) { airCollapse(bd); if(Math.random()<0.18) airFire(bd.x,0,bd.z,1.8); } }
-  }
+  for(const B of (air.districts||[])){ const C=B.C, gx0=Math.floor((x-R-C.x0)/B.CELL), gx1=Math.floor((x+R-C.x0)/B.CELL), gz0=Math.floor((z-R-C.z0)/B.CELL), gz1=Math.floor((z+R-C.z0)/B.CELL);
+    for(let gx=Math.max(0,gx0);gx<=Math.min(B.nx-1,gx1);gx++) for(let gz=Math.max(0,gz0);gz<=Math.min(B.nz-1,gz1);gz++){
+      for(const G of [B.grid,B.grid2]){ const i=G[gx*B.nz+gz]; if(i<0) continue; const bd=B.list[i]; if(!bd.alive) continue;
+        if(Math.hypot(bd.x-x,bd.z-z)<R*(heavy?0.95:0.5)) { airCollapse(bd); if(Math.random()<0.18) airFire(bd.x,0,bd.z,1.8); } }
+    } }
   // a big blast right under the aeroplane hurts it
   const pd=Math.hypot(x-air.pl.x,y-air.pl.y,z-air.pl.z);
   if(b.chain && pd<95 && air.phase==='fly') airHurt(Math.round(40*(1-pd/95))+4,'EXPLOSION CLOSE BELOW');

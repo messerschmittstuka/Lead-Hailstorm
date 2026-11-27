@@ -10472,7 +10472,7 @@ const DFL_SPEC={
   german:{name:'Bf 109 G',glb:'bf109',vmin:58,vmax:160,cruise:102,rollRate:2.6,turn:2.15,pitch:0.78,flag:'LUFTWAFFE',en:'SPITFIRE'},
   usa:{name:'Spitfire Mk IX',glb:'spitfire',vmin:54,vmax:152,cruise:96,rollRate:3.1,turn:2.45,pitch:0.9,flag:'ROYAL AIR FORCE',en:'BF 109'}
 };
-const DFC={COAST:2600,CLIFF:70,LIM:4200,AMMO:600,DMG_P:3.2,DMG_E:2.5,HIT_R:4.2};
+const DFC={COAST:2600,CLIFF:70,LIM:4200,AMMO:600,DMG_P:6,DMG_E:2.5,HIT_R:7.5};
 let dfl=null, dflSide='german', dflHudBuilt=false;
 // ---------- the land: rolling hills, a winding river and a harbour at its mouth ----------
 const dflHs=(x,z)=>{ const s=Math.sin(x*127.1+z*311.7)*43758.5453; return s-Math.floor(s); };
@@ -10732,7 +10732,7 @@ function dflPlayerGuns(dt){
     P.fireCD+=0.045; P.ammo--; dfl.shots++;
     const cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp, side=(P.ammo&1)?2.2:-2.2;
     const ox=P.x+Math.cos(P.h)*side, oy=P.y-0.3, oz=P.z+Math.sin(P.h)*side, ax=P.x+fx*450, ay=P.y+fy*450, az=P.z+fz*450;
-    airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*8,ay-oy+(Math.random()-.5)*8,az-oz+(Math.random()-.5)*8,780+P.s,0.9,false);
+    airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*3,ay-oy+(Math.random()-.5)*3,az-oz+(Math.random()-.5)*3,780+P.s,0.9,false);
     if(P.ammo%3===0) sndShot(false);
     air.shake=Math.max(air.shake,0.05);
   }
@@ -10885,14 +10885,14 @@ function dflHud(dt){
       _dflv.set(E.x+Math.sin(E.h)*cpE*E.s*tt,E.y+Math.sin(E.p)*E.s*tt,E.z-Math.cos(E.h)*cpE*E.s*tt).project(camera); ld.style.display=_dflv.z<1?'block':'none'; ld.style.left=((_dflv.x*0.5+0.5)*W)+'px'; ld.style.top=((-_dflv.y*0.5+0.5)*H)+'px'; } else ld.style.display='none';
   }
   $('dflSpd').textContent=`${Math.round(P.s*3.6)} km/h`; $('dflAlt').textContent=`${Math.round(P.y)} m`;
-  $('dflTop').innerHTML=`${dfl.spec.en} <span id="dflBar"><i style="width:${Math.max(0,E.hp)}%"></i></span>`;
+  $('dflTop').innerHTML=`${dfl.spec.en} <span id="dflBar"><i style="width:${Math.max(0,E.hp*2)}%"></i></span>`;
   $('dflVig').style.opacity=dfl.flash.toFixed(2);
   const w=P.stall&&!P.dead?'STALL':(air.warnT>0?air.warn:''); $('dflWarn').textContent=w&&(Math.floor(air.t*4)%2===0)?w:'';
   $('hpbar').style.width=Math.max(0,P.hp)+'%'; $('hpbar').style.background=P.hp>50?'#cfd8b8':P.hp>25?'#e0b050':'#d0603c';
   $('stam').style.width=(P.ammo/DFC.AMMO*100)+'%'; $('stam').style.background=P.ammo>100?'#cfd8b8':'#e0b050';
   $('ammoN').textContent=`THROTTLE ${Math.round(P.thr*100)}%`; $('ammoW').textContent=`AMMO ${P.ammo}`;
   const m=Math.floor(dfl.t/60), s=Math.floor(dfl.t%60); $('waveInfo').textContent=`DOGFIGHT · ${m}:${String(s).padStart(2,'0')}`;
-  $('objBox').style.display='block'; $('objTxt').textContent=`SHOOT DOWN THE ${dfl.spec.en} · ONE LIFE EACH · ${Math.round(Math.max(0,E.hp))}% LEFT`; $('objFill').style.width=Math.max(0,100-E.hp)+'%'; $('objFill').style.background='#e5694f';
+  $('objBox').style.display='block'; $('objTxt').textContent=`SHOOT DOWN THE ${dfl.spec.en} · ONE LIFE EACH · ${Math.round(Math.max(0,E.hp)*2)}% LEFT`; $('objFill').style.width=Math.max(0,100-E.hp*2)+'%'; $('objFill').style.background='#e5694f';
 }
 
 // ---------- start, key, leave, result ----------
@@ -10917,7 +10917,7 @@ function startDogfight(side){
   try{ const u=air.sea.uniforms; u.uHaze.value.copy(scene.fog.color); u.uSun.value.copy(sun.position).normalize(); }catch(e){}
   camera.far=9000; camera.near=1.5; camera.updateProjectionMatrix();
   const eside=side==='german'?'usa':'german';
-  const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2);
+  const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2); en.hp=50;
   en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022};
   dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
   air.pl=pl;

@@ -9684,7 +9684,7 @@ function airFlight(dt){
     if(IS_TOUCH){ const tx=touch.joyX*0.7, ty=-touch.joyY*(air.inv?-1:1)*0.7; P.cx+=(tx-P.cx)*Math.min(1,dt*5); P.cy+=(ty-P.cy)*Math.min(1,dt*5); }
     else {
       P.cx=aClamp(P.cx+air.inX*0.0020+kx*dt*1.5,-1,1); P.cy=aClamp(P.cy-air.inY*0.0020*(air.inv?-1:1)+ky*dt*1.1,-1,1);
-      if(!kx) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
+      if(!kx && Math.abs(P.cx)<0.88) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
     }
     air.inX=air.inY=0;
     if(!IS_TOUCH){ if(keys.KeyW) P.thr=Math.min(1,P.thr+dt*0.5); if(keys.KeyS) P.thr=Math.max(0.15,P.thr-dt*0.5); }
@@ -10645,7 +10645,28 @@ function dflBuildWorld(){
 }
 
 // ---------- flight model (the player's plane and the enemy's use the same one) ----------
-function dflFly(P,S,dt){
+function dflFly(P,S,dt){ if(P===dfl.pl) dflFlyFull(P,S,dt); else dflFlyArc(P,S,dt); }
+// the player's model: the stick sets the bank all the way round to inverted; the lift follows the wings, so a pull while inverted drops the nose,
+// and climbing bleeds speed (tighter, slower turns) while diving builds it (wider, faster ones)
+function dflFlyFull(P,S,dt){
+  const cxc=aClamp(P.cx,-1,1), tgt=Math.sign(cxc)*Math.pow(Math.abs(cxc),2.2)*Math.PI;      // gentle near the middle, full inverted at the end of the stick
+  P.r+=aClamp((tgt-P.r)*S.rollRate,-3.6,3.6)*dt; P.r=aClamp(P.r,-Math.PI,Math.PI);
+  const cp=Math.cos(P.p), sr=Math.sin(P.r), cr=Math.cos(P.r);
+  const sf=aClamp(Math.sqrt(100/Math.max(P.s,50)),0.75,1.3), pull=P.cy*S.pitch*sf;
+  let pd=pull*cr-Math.abs(sr)*0.2+Math.min(0,cr)*0.25;
+  P.stall=P.s<S.vmin; if(P.stall) pd-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3);
+  if(P.y>1300){ pd-=dflSS(1300,1550,P.y)*1.2; airWarn('TOO HIGH - LEVEL OFF',0.3); }
+  P.h+=(sr*2.0*9.8*S.turn/Math.max(P.s,40)*Math.max(0.35,cp)+pull*sr/Math.max(cp,0.35))*dt;
+  P.g=1+Math.max(0,Math.abs(pull))*P.s/9.8;
+  P.p=aClamp(P.p+pd*dt,-1.45,1.35);
+  const target=S.vmin+10+P.thr*(S.vmax-S.vmin-10);
+  let ds=(P.p>-0.1?(target-P.s)*0.17:(target-P.s)*0.05)-9.8*Math.sin(P.p)*1.35-0.00006*P.s*P.s*(P.brake?4:1)-Math.abs(pull)*P.s*0.05-Math.abs(sr)*P.s*0.012;
+  P.s=aClamp(P.s+ds*dt,S.vmin*0.7,S.vmax+30);
+  const cp2=Math.cos(P.p);
+  P.x+=Math.sin(P.h)*cp2*P.s*dt; P.z+=-Math.cos(P.h)*cp2*P.s*dt; P.y+=Math.sin(P.p)*P.s*dt; P.vy=Math.sin(P.p)*P.s;
+  if(P.y>1650){ P.y=1650; P.p=Math.min(P.p,0); }
+}
+function dflFlyArc(P,S,dt){
   P.r+=(P.cx*1.05-P.r)*Math.min(1,dt*S.rollRate);
   const cp=Math.cos(P.p);
   P.h+=Math.tan(aClamp(P.r,-1.3,1.3))*9.8*S.turn/Math.max(P.s,55)*Math.max(0.35,cp)*dt;
@@ -10690,7 +10711,7 @@ function dflAI(dt){
   const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+Math.sin(P.h)*cpP*P.s*tl, ty=P.y+pfy*P.s*tl, tz=P.z-Math.cos(P.h)*cpP*P.s*tl;
   const dh=dflWrap(Math.atan2(tx-E.x,-(tz-E.z))-E.h), dp=Math.atan2(ty-E.y,Math.hypot(tx-E.x,tz-E.z))-E.p;
   let cx=0, cy=0, thr=0.8;
-  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>260?1:0.85; if(dist<160&&dot>0.9) thr=0.6; }
+  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>450?1:(dist>250?0.75:0.5); if(dist<200&&dot>0.9) thr=0.45; }
   else if(A.mode==='break'){ cx=A.dir; cy=0.75; thr=0.8; }
   else { cx=A.dir*0.8; cy=0.45; thr=0.7; }      // after an overshoot: a hard turn back into the fight, not a run for the horizon
   if(E.y<260){ cy=Math.max(cy,aClamp((260-E.y)/140,0,1)); cx*=0.5; } else if(E.y>1400) cy=Math.min(cy,-0.4);
@@ -10698,8 +10719,8 @@ function dflAI(dt){
   { const po=dflPullout(E); if(po!==null) cy=po; }
   const k=Math.min(1,dt*3.2); E.cx+=(cx-E.cx)*k; E.cy+=(cy-E.cy)*k; E.thr+=(thr-E.thr)*Math.min(1,dt); E.brake=false;
   // guns: fire when the nose is on the player
-  if(A.mode==='engage' && dist<800 && Math.abs(dh)<0.21 && Math.abs(dp)<0.18 && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
-  if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.5+Math.random()*1.0; } }
+  if(A.mode==='engage' && dist<700 && Math.abs(dh)<0.17 && Math.abs(dp)<0.15 && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
+  if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.8+Math.random()*1.4; } }
 }
 function dflEnemyGuns(dt){
   const E=dfl.en; if(!E.ai.firing||E.dead) return; E.fireCD-=dt;
@@ -10718,12 +10739,12 @@ function dflPlayerInput(dt){
   if(IS_TOUCH){ const tx=touch.joyX*0.7, ty=-touch.joyY*(air.inv?-1:1)*0.7; P.cx+=(tx-P.cx)*Math.min(1,dt*5); P.cy+=(ty-P.cy)*Math.min(1,dt*5); }
   else {
     P.cx=aClamp(P.cx+air.inX*0.0020+kx*dt*1.5,-1,1); P.cy=aClamp(P.cy-air.inY*0.0020*(air.inv?-1:1)+ky*dt*1.1,-1,1);
-    if(!kx) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
+    if(!kx && Math.abs(P.cx)<0.88) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
   }
   air.inX=air.inY=0;
   if(!IS_TOUCH){ if(keys.KeyW) P.thr=Math.min(1,P.thr+dt*0.5); if(keys.KeyS) P.thr=Math.max(0.2,P.thr-dt*0.5); }
   P.brake=!!(keys.ShiftLeft||keys.ShiftRight||air.touchBrake);
-  const po=dflPullout(P); if(po!==null){ P.cy=1; airWarn('PULL UP!',0.25); }
+  const po=dflPullout(P); if(po!==null){ P.cx=0; P.cy=Math.cos(P.r)>=0?1:-1; airWarn('PULL UP!',0.25); }
 }
 function dflPlayerGuns(dt){
   const P=dfl.pl; P.fireCD=Math.max(-0.05,P.fireCD-dt);
@@ -10920,7 +10941,7 @@ function startDogfight(side){
   const eside=side==='german'?'usa':'german';
   const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2); en.hp=50;
   en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022};
-  dfl={side,eside,spec:DFL_SPEC[side],espec:Object.assign({},DFL_SPEC[eside],{vmax:DFL_SPEC[eside].vmax*1.1,turn:DFL_SPEC[eside].turn*1.12}),pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
+  dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
   air.pl=pl;
   dfl.pm=dflMakePlane(side); dfl.em=dflMakePlane(eside); air.root.add(dfl.pm.g); air.root.add(dfl.em.g);
   dflMakeHud();

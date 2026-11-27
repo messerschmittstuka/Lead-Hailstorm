@@ -10682,18 +10682,18 @@ function dflAI(dt){
   const dot=(dx*fx+dy*fy+dz*fz)/dist;
   const cpP=Math.cos(P.p), pfx=Math.sin(P.h)*cpP, pfy=Math.sin(P.p), pfz=-Math.cos(P.h)*cpP, pdot=-(dx*pfx+dy*pfy+dz*pfz)/dist;      // 1 = the player is aiming at me
   if(A.mode==='engage'){
-    if(dist<140 && dot<0.25){ A.mode='extend'; A.t=2.4+Math.random()*1.6; A.dir=Math.random()<.5?1:-1; }
-    else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){ A.mode='break'; A.t=1.5+Math.random()*1.2; A.dir=Math.random()<.5?1:-1; A.brkCD=5; }
+    if(dist<90 && dot<0.0){ A.mode='extend'; A.t=0.7+Math.random()*0.5; A.dir=Math.random()<.5?1:-1; }
+    else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){ A.mode='break'; A.t=0.9+Math.random()*0.7; A.dir=Math.random()<.5?1:-1; A.brkCD=9; }
   } else if(A.t<=0) A.mode='engage';
   A.brkCD-=dt;
   const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+Math.sin(P.h)*cpP*P.s*tl, ty=P.y+pfy*P.s*tl, tz=P.z-Math.cos(P.h)*cpP*P.s*tl;
   const dh=dflWrap(Math.atan2(tx-E.x,-(tz-E.z))-E.h), dp=Math.atan2(ty-E.y,Math.hypot(tx-E.x,tz-E.z))-E.p;
   let cx=0, cy=0, thr=0.8;
-  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>220?1:0.7; if(dist<200&&dot>0.9) thr=0.55; }
-  else if(A.mode==='break'){ cx=A.dir; cy=0.75; thr=1; }
-  else { cx=A.dir*0.3; cy=0.25; thr=1; }
+  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>450?1:(dist>250?0.75:0.5); if(dist<200&&dot>0.9) thr=0.45; }
+  else if(A.mode==='break'){ cx=A.dir; cy=0.75; thr=0.8; }
+  else { cx=A.dir*0.8; cy=0.45; thr=0.7; }      // after an overshoot: a hard turn back into the fight, not a run for the horizon
   if(E.y<260){ cy=Math.max(cy,aClamp((260-E.y)/140,0,1)); cx*=0.5; } else if(E.y>1400) cy=Math.min(cy,-0.4);
-  const out=Math.hypot(E.x,E.z)>3500; if(out){ const hd=dflWrap(Math.atan2(-E.x,E.z)-E.h); cx=aClamp(hd*2,-1,1); }
+  const out=Math.hypot(E.x,E.z)>3300; if(out){ const hd=dflWrap(Math.atan2(-E.x,E.z)-E.h); cx=aClamp(hd*2,-1,1); }
   { const po=dflPullout(E); if(po!==null) cy=po; }
   const k=Math.min(1,dt*3.2); E.cx+=(cx-E.cx)*k; E.cy+=(cy-E.cy)*k; E.thr+=(thr-E.thr)*Math.min(1,dt); E.brake=false;
   // guns: fire when the nose is on the player

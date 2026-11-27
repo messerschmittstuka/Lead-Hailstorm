@@ -10621,7 +10621,7 @@ function dflPlayerInput(dt){
   const po=dflPullout(P); if(po!==null){ P.cy=1; airWarn('PULL UP!',0.25); }
 }
 function dflPlayerGuns(dt){
-  const P=dfl.pl; P.fireCD-=dt;
+  const P=dfl.pl; P.fireCD=Math.max(-0.05,P.fireCD-dt);
   if(!(mouseDown||touch.fire||keys.Space) || P.dead || state!=='playing') return;
   if(P.ammo<=0){ if(P.fireCD<=0){ P.fireCD=0.6; showMsg('OUT OF AMMUNITION',0.9); } return; }
   while(P.fireCD<=0 && P.ammo>0){

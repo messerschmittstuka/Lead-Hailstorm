@@ -1107,9 +1107,10 @@ function pbrPal(id){
   else if(t===grassTex) p={g:'Grass001',t:'Grass004',m:'Ground106',d:'Ground110'};
   else if(t===mudTex) p={g:'Ground110',t:'Ground111',m:'Ground106',d:'Gravel043'};
   else if(t===rubbleTex) p={g:'Ground111',t:'Ground110',m:'Ground106',d:'Gravel043'};
+  else if(t===sandTex) p={g:'Gravel043',t:'Gravel043',m:'Ground106',d:'Ground111'};
   else if(t===ashTex) p={g:'Gravel043',t:'Ground110',m:'Ground106',d:'Ground111'};
   if(!p) return null;
-  const O={kursk:{g:'Grass004',t:'Grass001'},ardsummer:{t:'Ground037'},normandy:{t:'Ground037'},lorraine:{g:'Grass001',t:'Ground037'},cassino:{g:'Grass004',t:'Ground110',d:'Ground111'},alps:{t:'Ground037',d:'Gravel043'},remagen:{d:'Gravel043'},iwojima:{g:'Gravel043',t:'Gravel043',m:'Gravel043',d:'Gravel043'}}[id];      // Iwo Jima: black volcanic sand, so one grey gravel set only (the brown and tan sets clashed with it)
+  const O={kursk:{g:'Grass004',t:'Grass001'},ardsummer:{t:'Ground037'},normandy:{},lorraine:{g:'Grass001',t:'Ground037'},cassino:{g:'Grass004',t:'Ground110',d:'Ground111'},alps:{t:'Ground037',d:'Gravel043'},remagen:{d:'Gravel043'},iwojima:{g:'Gravel043',t:'Gravel043',m:'Gravel043',d:'Gravel043'}}[id];      // Iwo Jima: black volcanic sand, so one grey gravel set only (the brown and tan sets clashed with it)
   return O?Object.assign(p,O):p;
 }
 function pbrImg(url){ return new Promise(r=>{ const im=new Image(); im.onload=()=>r(im); im.onerror=()=>r(null); im.src=url; }); }
@@ -1439,7 +1440,7 @@ function buildOutcrops(id){
 /* ---- trees and scrub dotted over the hills and the far mountains, the way a real slope has them (instanced, no shadows, so it costs very little) ---- */
 let _htGeo=null;
 function buildHillTrees(id){
-  if(id==='iwojima') return;      // a volcanic island: no pine forests
+  if(id==='iwojima'||id==='normandy') return;      // a volcanic island / a beach: no pine forests
   if(!terrainOn || lookFail.grass || /[?&]nograss/.test(location.search) || !TERR[id]) return;
   const k=({ultra:1,high:1,medium:0.7,low:0.4})[gfx]*(IS_TOUCH?0.6:1), n=Math.round(1700*k); if(n<20) return;
   if(!_htGeo){ let sd=4242; const rn=()=>{ sd=(Math.imul(sd,1664525)+1013904223)>>>0; return sd/4294967296; };
@@ -1673,6 +1674,7 @@ function scatterVegetation(id){
       const x=(rr()*2-1)*(L-6), z=(rr()*2-1)*(L-6), s=sc[0]+rr()*(sc[1]-sc[0]);
       if(Math.hypot(x,z-(L-22))<9 || Math.hypot(x,z+(L-22))<9) continue;
       if(insideBuilding(x,z) || groundY(x,z)<-0.05) continue;
+      if(id==='normandy' && (z>42 || Math.abs(x)>L-14)) continue;      // none on the beach
       const tint=tints[(rr()*tints.length)|0], br=0.9+rr()*0.2, tt=[tint[0]*br,tint[1]*br,tint[2]*br], yaw=rr()*6.283;
       if(P.soft){ if(!propQ) break; const lean=(rr()-0.5)*0.22, lean2=(rr()-0.5)*0.22; (propQ[nm]||(propQ[nm]=[])).push([x,Math.max(0,groundY(x,z)),z,yaw,s,tt,lean,lean2]); i++; made++; }
       else { const r=(R[nm]||0.5)*s; if(blocked(new V3(x,0,z),r+0.7,1.7)) continue; placeProp(nm,x,z,yaw,s,undefined,tt); i++; made++; }
@@ -1691,7 +1693,7 @@ function buildPebbles(id){
 function buildUndergrowth(id){
   if(lookFail.grass || /[?&]nograss/.test(location.search)) return;
   const cfg=({ardennes:{fern:520,log:22,br:110,pal:['#4a4a30','#5a5238','#3e3e2a','#6a5a3c']},ardsummer:{fern:900,log:26,br:120,pal:['#3f7a2a','#4f8a32','#356a24','#5f9a3a']},
-              normandy:{fern:260,log:8,br:50,pal:['#4a7a2c','#58883a','#3e6a26']},lorraine:{fern:260,log:8,br:50,pal:['#6a6a30','#7a7438','#5a5a2a']},kursk:{fern:0,log:6,br:40,pal:['#4a7a2c']},seelow:{fern:0,log:6,br:40,pal:['#4a7a2c']}})[id];
+              normandy:{fern:50,log:16,br:30,pal:['#4a7a2c','#58883a','#3e6a26']},lorraine:{fern:260,log:8,br:50,pal:['#6a6a30','#7a7438','#5a5a2a']},kursk:{fern:0,log:6,br:40,pal:['#4a7a2c']},seelow:{fern:0,log:6,br:40,pal:['#4a7a2c']}})[id];
   if(!cfg) return;
   const k=({ultra:1,high:1,medium:0.6,low:0.25})[gfx]*(IS_TOUCH?0.5:1), mk=grassMask();
   if(!_floorMat) _floorMat=new THREE.MeshStandardMaterial({roughness:1,side:THREE.DoubleSide});
@@ -1730,7 +1732,7 @@ const PATCHES={
   ardsummer:[[['#5d7f2c','#6f9433','#4e6e26'],130,1.4,4.2],[['#4a3b26','#54432b'],70,1.0,2.8],[['#7a9a3a','#8aa944'],90,1.5,4.0]],
   moscow:[[['#8a867c','#9a968c','#77736a'],100,1.2,3.4],[['#5a5044','#4a4238'],60,1.0,2.4],[['#eef1f3','#e2e7ea'],80,1.5,4.0]]
 };
-PATCHES.normandy=PATCHES.ardsummer;
+PATCHES.normandy=[[['#c9b88f','#b8a77d','#d8c9a0'],170,1.5,4.4],[['#8a7b5a','#7a6c4e','#96865f'],90,1.0,2.8],[['#7d8a4a','#6e7c40'],40,1.2,3.0]];
 PATCHES.remagen=[[['#d83a2c','#f2c81a','#9a52c0','#f4f0e4','#4f78d8','#f06aa0'],200,0.6,1.8],[['#c2a53e','#d1b44a','#b5983a'],90,1.5,4.2],[['#6f8a2e','#7f9a35','#5e7a2a'],110,1.3,4.0],[['#c9a878','#b89a68'],60,1.2,3.0]];
 PATCHES.cassino=[[['#c2a53e','#d1b44a','#b5983a'],140,1.5,4.6],[['#6f8a2e','#7f9a35','#5e7a2a'],110,1.3,4.0],[['#8c8a80','#777469','#9a9588'],90,1.2,3.4],[['#7a5a3a','#8a6a44'],70,1.0,2.8],[['#d83a2c','#f2c81a','#9a52c0','#f4f0e4','#4f78d8'],160,0.5,1.6]];
 PATCHES.lorraine=[[['#8a7a32','#9a8a3c','#7a6c2a'],150,1.4,4.4],[['#4a3b26','#54432b','#3d311f'],90,1.0,3.0],[['#a88a3a','#b89a46'],100,1.5,4.2],[['#5d7f2c','#6f9433'],60,1.2,3.4]];
@@ -2538,7 +2540,7 @@ function kurskDress(K,HOUSES){
 /* ================= BATTLEFIELD DRESSING FOR THE OTHER MAPS =================
    The same kinds of props as Kursk, placed from what each map already has: supplies, sandbags and wire along its trench lines, clutter and rubble around its buildings,
    things left at the edges of its roads, and fallen logs, stumps, branches and dead trees out in the open. Everything keeps clear of spawns and objective points. */
-const DRESS={ stalingrad:{t:'city',k:1}, berlin:{t:'city',k:1.15}, moscow:{t:'city',k:0.9}, seelow:{t:'field',k:1}, ardennes:{t:'wood',k:1}, ardsummer:{t:'wood',k:1}, normandy:{t:'field',k:1}, lorraine:{t:'field',k:1}, cassino:{t:'rock',k:1.1}, remagen:{t:'field',k:0.8}, alps:{t:'rock',k:1.0} };
+const DRESS={ stalingrad:{t:'city',k:1}, berlin:{t:'city',k:1.15}, moscow:{t:'city',k:0.9}, seelow:{t:'field',k:1}, ardennes:{t:'wood',k:1}, ardsummer:{t:'wood',k:1}, lorraine:{t:'field',k:1}, cassino:{t:'rock',k:1.1}, remagen:{t:'field',k:0.8}, alps:{t:'rock',k:1.0} };
 // ---------- detail pass (all maps): a stone plinth and drainpipes on the walls that really exist, and stones lying around ----------
 const buildKStone=()=>{ const hash=(x,y,z)=>{ const h=Math.sin(x*91.3+y*47.7+z*131.1)*43758.5453; return h-Math.floor(h); };
   const st=(r,seed)=>{ const g=new THREE.IcosahedronGeometry(r,0), pa=g.attributes.position; for(let i=0;i<pa.count;i++){ const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i), k=1+0.3*(hash(x+seed,y,z)-0.5)*2; pa.setXYZ(i,x*k,y*k*0.55,z*k); } g.computeVertexNormals(); return g; };
@@ -3090,6 +3092,13 @@ const ashTex = canvasTex(512,(x,s)=>{                       // black volcanic sa
   strokes(x,s,500,8,1.3,['#6a6a3c','#7a7a44','#5a5a34'],1.2);             // thin dry grass
 });
 ashTex.wrapS=ashTex.wrapT=THREE.RepeatWrapping; ashTex.repeat.set(40,40);
+const sandTex = canvasTex(512,(x,s)=>{                       // pale Normandy beach sand and shingle
+  x.fillStyle='#b5a57f'; x.fillRect(0,0,s,s);
+  blots(x,s,34,40,110,'rgba(120,104,74,.22)'); blots(x,s,30,34,100,'rgba(222,208,172,.22)'); blots(x,s,12,14,40,'rgba(96,86,66,.2)');
+  specks(x,s,5200,3,['rgba(96,86,68,.5)','rgba(214,200,164,.55)','rgba(140,126,98,.5)']);
+  specks(x,s,380,4,['rgba(120,118,110,.55)','rgba(170,162,148,.5)']);
+});
+sandTex.wrapS=sandTex.wrapT=THREE.RepeatWrapping; sandTex.repeat.set(40,40);
 let searchBeams=[];
 function buildSeelow(){
   const K={ earth:mat(0x5a4c36,{roughness:1}), earthD:mat(0x3e3426,{roughness:1}), log:logDetail(mat(0x5c4430,{roughness:.9})), log2:logDetail(mat(0x6e5236,{roughness:.9})),
@@ -3300,73 +3309,75 @@ function buildArdennes(summer){
 
 function buildArdennesSummer(){ buildArdennes(true); }
 
-/* ================= NORMANDY, JUNE 1944: bocage hedgerows, sunken lanes and stone farm buildings ================= */
+/* ================= OMAHA BEACH, 6 JUNE 1944: the landing from the sea (Americans south), the shingle and seawall, the bluffs cut by two draws, German strongpoints. 224 x 224 m ================= */
+const OMA_SP=[[-70,-98],[-48,-100],[-24,-100],[0,-100],[24,-100],[48,-100],[72,-98],[-90,-84]];                  // German reinforcement pads, inland behind the bluffs
+const OMA_ROADS=[[[-52,58],[-52,32],[-48,10],[-54,-10],[-50,-34],[-44,-60],[-44,-84]],[[50,58],[48,32],[52,8],[46,-14],[50,-38],[44,-60],[40,-84]]];   // the two draws: sunken tracks climbing the bluff
 function buildNormandy(){
   summerPine=true;
-  const earthM=mat(0x5b4630,{roughness:1}), stoneM=mat(0x8a877e,{roughness:1}), roofM=mat(0x6a4a3a,{roughness:1}), roadM=M.dirt;
-  const leaf=[mat(0x39572a,{roughness:1}),mat(0x446430,{roughness:1}),mat(0x4f6f37,{roughness:1}),mat(0x2b4521,{roughness:1})];
-  for(const m of leaf) withDetail(m,'leaf',1.7,0.95,false,{bump:5});      // real leafy texture instead of a smooth green lump
+  const conc=mat(0x77776f,{roughness:1}), concD=mat(0x4a4a44,{roughness:1}), concI=mat(0x23221f,{roughness:1}), sandM=mat(0xa59671,{roughness:1}), shingM=mat(0x8c8678,{roughness:1}), steelM=mat(0x4c5046,{roughness:.8,metalness:.3}), logM=mat(0x5a4630,{roughness:1}), roadM=M.dirt, stoneM=mat(0x8a877e,{roughness:1});
   const TN_=TERR.normandy; TN_.flat=[];
-  // one sunken lane that dog-legs through the fields (steps sideways at two hedges) instead of a straight crossroads
-  sBox(3,0.01,52,6,0.01,40,roadM,false); sBox(-3,0.012,34,18,0.01,5,roadM,false); sBox(-9,0.01,10,6,0.01,48,roadM,false);
-  sBox(-1,0.012,-16,18,0.01,5,roadM,false); sBox(5,0.01,-40,6,0.01,50,roadM,false);
-  const lane=[[3,72],[3,32],[-9,34],[-9,-14],[5,-16],[5,-66]];
-  for(let k=0;k<lane.length-1;k++){ const [ax,az]=lane[k], [bx,bz]=lane[k+1], len=Math.hypot(bx-ax,bz-az); for(let u=0;u<=len;u+=2.4) TN_.flat.push([ax+(bx-ax)*u/len,az+(bz-az)*u/len,4.8]); }
-  const nearLane=(x,z,m=5)=>{ for(let k=0;k<lane.length-1;k++){ const [ax,az]=lane[k], [bx,bz]=lane[k+1], dx=bx-ax, dz=bz-az, t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz))); if(Math.hypot(x-ax-dx*t,z-az-dz*t)<m) return true; } return false; };
-  // a hedgerow: an earth bank topped with dense bushes. It stops bullets and people, except in the gaps (gates and holes).
-  function hedgerow(ax,c,a0,a1,gaps){
-    const segs=[]; let a=a0; for(const [g0,g1] of gaps.slice().sort((p,q)=>p[0]-q[0])){ if(g0>a) segs.push([a,g0]); a=g1; } if(a1>a) segs.push([a,a1]);
-    for(const [s0,s1] of segs){ const L=s1-s0, mid=(s0+s1)/2;
-      if(ax==='x'){ sBox(mid,0,c,L,0.9,1.5,earthM,false); addCollider(new THREE.Box3(new V3(s0,0,c-0.75),new V3(s1,2.4,c+0.75))); }
-      else { sBox(c,0,mid,1.5,0.9,L,earthM,false); addCollider(new THREE.Box3(new V3(c-0.75,0,s0),new V3(c+0.75,2.4,s1))); }
-      for(let u=s0+0.5;u<s1;u+=1.05) for(const dv of [-0.4,0.4]){
-        const g=roughLump(new THREE.IcosahedronGeometry(1,1),0.42); g.scale(0.85+rnd()*0.45,0.7+rnd()*0.55,0.85+rnd()*0.45);
-        const v=dv+(rnd()-.5)*0.3, y=1.15+rnd()*0.7, uu=u+(rnd()-.5)*0.4;
-        if(ax==='x') addGeo(g,leaf[(rnd()*4)|0],uu,y,c+v,0,rnd()*3,0); else addGeo(g,leaf[(rnd()*4)|0],c+v,y,uu,0,rnd()*3,0); } }
-  }
-  // small irregular fields: the hedges stop short of each other so you can slip round the ends, and every gate is in a different place
-  const HX=[[34,-88,-12,[[-62,-56],[-38,-32]]],[34,16,88,[[40,46]]],[10,-88,-20,[[-72,-66],[-46,-40]]],[10,6,88,[[34,40],[60,66]]],
-            [-16,-88,14,[[-54,-48],[-24,-18]]],[-16,26,88,[[50,56]]],[-40,-88,-4,[[-66,-60],[-34,-28]]],[-40,16,88,[[42,48]]],[-62,-60,88,[[-30,-24]]]];
-  for(const [c,a0,a1,gaps] of HX) hedgerow('x',c,a0,a1,gaps);
-  for(const [c,a0,a1,gaps] of [[-30,10,34,[[20,26]]],[44,10,34,[[18,24]]],[-62,-16,10,[[-6,0]]],[52,-16,10,[[-4,2]]],[-32,-40,-16,[[-30,-24]]],[38,-40,-16,[[-30,-24]]],
-                              [-58,-62,-40,[[-52,-46]]],[22,-62,-40,[[-52,-46]]],[-62,34,70,[[48,54]]],[60,34,70,[[50,56]]]])
-    hedgerow('z',c,a0,a1,gaps);
-  // the buildings (shell-damaged stone, with doors and windows)
-  ruinedBuilding(-46,16,-34,27,2,'brick',{s:[4],e:[3]});                // farmhouse
-  ruinedBuilding(16,-6,28,2,2,'brick',{w:[4],s:[6,9]});                  // stone barn
-  if(!placeBld('church',46,-31,0,1,1)){ ruinedBuilding(30,-36,40,-26,3,'brick',{s:[4],n:[5]});                 // village church (a Blender one with a climbable tower when it loads)
-  addGeo(new THREE.BoxGeometry(3.2,13,3.2),stoneM,44.5,6.5,-31,0,0,0); addCollider(new THREE.Box3(new V3(42.9,0,-32.6),new V3(46.1,13,-29.4)));   // its bell tower
-  addGeo(new THREE.ConeGeometry(2.5,4.5,4),mat(0x3c3a38,{roughness:1}),44.5,15.2,-31,0,Math.PI/4,0); }
-  ruinedBuilding(-34,-58,-12,-46,3,'brick',{s:[5,9]});                   // manor house
-  ruinedBuilding(-70,-8,-60,0,1,'plaster',{e:[3]}); ruinedBuilding(48,-12,58,-4,1,'brick',{w:[3]}); ruinedBuilding(62,40,70,48,1,'plaster',{n:[3]}); ruinedBuilding(-24,40,-17,46,1,'brick',{s:[3]});   // outbuildings
-  // low stone walls round the yards
-  for(const [x,z,l,ax] of [[-36,32,9,0],[22,20,8,0],[34,-14,8,0],[24,-48,8,1],[-8,-42,7,0],[-24,2,7,1]]){ if(ax) sBox(x,0,z,0.5,1.0,l,stoneM); else sBox(x,0,z,l,1.0,0.5,stoneM); }
-  // trees: an orchard behind the lines, and big oaks growing out of the hedge banks
-  const dimC=h=>{ const c=new THREE.Color(h); c.multiplyScalar(0.7); c.lerp(new THREE.Color(0x4a4a34),0.25); return c.getHex(); };      // muted: no cartoon yellows or greens
-  const lobe=(r,sx,sy,sz,hex,x,y,z)=>{ const g=roughLump(new THREE.IcosahedronGeometry(r,1)); g.scale(sx,sy,sz); return [g,dimC(hex),x,y,z]; };
-  const buildOak=()=>{ const a=[[new THREE.CylinderGeometry(0.3,0.5,3.4,8),0x4d3a28,0,1.7,0]];
-    a.push([new THREE.CylinderGeometry(0.1,0.2,2.4,6),0x4d3a28,0.8,3.7,0.2,0,0,-0.75]); a.push([new THREE.CylinderGeometry(0.1,0.2,2.2,6),0x4d3a28,-0.7,3.6,-0.3,0,0,0.8]);
-    a.push(lobe(1.9,1.15,0.8,1.15,0x3f6e24,0,4.0,0)); a.push(lobe(1.4,1.1,0.8,1.1,0x5f8e34,1.5,4.4,0.5)); a.push(lobe(1.3,1.1,0.8,1.1,0x2f5a1c,-1.4,4.2,-0.6)); a.push(lobe(1.2,1,0.8,1,0x4f7d2c,0.2,5.1,-0.2)); return a; };
-  const oak=(x,z,s=1)=>{ if(vegTree(x,z,rnd()<0.8?'oak':'birch',s)) return; addProp('oak',buildOak,x,z,rnd()*6,s,0.45*s,5*s); };
-  const buildApple=()=>{ const a=[[new THREE.CylinderGeometry(0.14,0.24,1.9,7),0x4d3a28,0,0.95,0]]; a.push([new THREE.CylinderGeometry(0.06,0.1,1.1,5),0x4d3a28,0.4,2.0,0,0,0,-0.7]); a.push(lobe(1.2,1.15,0.7,1.15,0x5a8a34,0,2.2,0)); a.push(lobe(0.7,1,0.7,1,0x6f9f3c,0.8,2.0,0.4)); return a; };
-  const nearBld=(x,z)=>roofZones.some(r=>x>r[0]-3&&x<r[2]+3&&z>r[1]-3&&z<r[3]+3);
-  for(let x=-84;x<=-66;x+=7) for(let z=-34;z<=-14;z+=7) if(!nearBld(x,z)) addProp('apple',buildApple,x+(rnd()-.5)*1.5,z+(rnd()-.5)*1.5,rnd()*6,1,0.25,2.4);
-  for(let x=64;x<=84;x+=7) for(let z=14;z<=36;z+=7) if(!nearBld(x,z)) addProp('apple',buildApple,x+(rnd()-.5)*1.5,z+(rnd()-.5)*1.5,rnd()*6,1,0.25,2.4);
-  for(let i=0;i<70;i++){ const x=(rnd()-.5)*170, z=[34,10,-16,-40,-62][i%5]+(rnd()<.5?-1.1:1.1); if(nearLane(x,z,5)||nearBld(x,z)) continue; oak(x,z,0.9+rnd()*0.5); }
-  for(let i=0;i<24;i++){ const x=(rnd()-.5)*160, z=(rnd()-.5)*150; if(nearLane(x,z,6)||nearBld(x,z)) continue; oak(x,z,0.8+rnd()*0.5); }
-  // fallen logs, haystacks, defences and wrecks
-  for(let i=0;i<10;i++){ const x=(rnd()-.5)*140, z=(rnd()-.5)*130; if(nearBld(x,z)||nearLane(x,z,5)) continue; addGeo(new THREE.CylinderGeometry(0.26,0.3,4.2,7),earthM,x,0.3,z,0,rnd()*3,Math.PI/2); }
-  const hay=mat(0xc9a95a,{roughness:1});
-  for(const [x,z] of [[-52,8],[-44,2],[34,50],[40,56],[8,-52],[-50,-26]]){ const g=new THREE.CylinderGeometry(1.1,1.2,2.2,10); addGeo(g,hay,x,1.1,z); addCollider(new THREE.Box3(new V3(x-1.2,0,z-1.2),new V3(x+1.2,2.2,z+1.2))); }
-  sandbags(-14,22,5); sandbags(12,22,5); sandbags(-24,-6,4); sandbags(20,-26,4); sandbags(-4,-30,4);
-  for(const [x,z] of [[-12,6],[8,-4],[-20,-14],[14,26],[-28,2],[26,-14]]) hedgehog(x,z);
-  barbedWire(-56,-8,-36,-8); barbedWire(30,0,50,0); barbedWire(-14,-34,6,-34);
-  [[-12,22,2],[6,14,2.2],[-4,-6,1.8],[24,-24,2],[-30,2,2],[34,30,1.8],[-6,-44,2],[16,-36,1.8]].forEach(c=>crater(c[0],c[1],c[2]));
-  wreckTank(24,12,2.2,true); wreckTank(-26,-26,0.6,false); wreckTruck(-12,50,0.9); wreckTruck(48,-48,2.4);
-  for(const [px,pz] of [[-5,-26],[6,18],[-6,38],[5,-60]]) brokenPole(px,pz);
+  const nearBld=(x,z,pad=3)=>roofZones.some(r=>x>r[0]-pad&&x<r[2]+pad&&z>r[1]-pad&&z<r[3]+pad);
+  // ---- the sea: a grey-green Channel with a line of surf, and the fleet standing off ----
+  { const sea=new THREE.Mesh(new THREE.PlaneGeometry(1400,520),mat(0x4b666c,{roughness:0.2,metalness:0.15})); sea.rotation.x=-Math.PI/2; sea.position.set(0,0.05,L+6+260); sea.raycast=()=>{}; mapRoot.add(sea);
+    const surf=new THREE.Mesh(new THREE.PlaneGeometry(1400,4.5),new THREE.MeshBasicMaterial({color:0xaab4b2,transparent:true,opacity:0.45,fog:true})); surf.rotation.x=-Math.PI/2; surf.position.set(0,0.07,L+7.5); surf.raycast=()=>{}; mapRoot.add(surf);
+    const shipM=mat(0x7b8286,{roughness:1});
+    for(const [sx,sz,sw] of [[-130,240,40],[30,270,52],[160,250,34],[-40,310,60],[100,330,44]]){ const sh=new THREE.Mesh(new THREE.BoxGeometry(sw,5.5,8),shipM); sh.position.set(sx,2.6,sz); sh.raycast=()=>{}; mapRoot.add(sh); const st=new THREE.Mesh(new THREE.BoxGeometry(sw*0.3,7,5.5),shipM); st.position.set(sx+sw*0.1,8,sz); st.raycast=()=>{}; mapRoot.add(st); for(const gx of [-0.3,0.3]){ const gun=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.4,sw*0.22,6),shipM); gun.rotation.z=Math.PI/2; gun.position.set(sx+gx*sw,6,sz); gun.raycast=()=>{}; mapRoot.add(gun); } } }
+  addGeo(new THREE.BoxGeometry(2*L,0.01,16),mat(0x7d6f55,{roughness:0.6}),0,0.014,L-8,0,0,0);                 // wet sand at the water's edge
+  noGrass.push(-L,40,L,L);                                                                                       // no grass on the beach
+  // ---- an enterable concrete casemate. face = the side the firing slit looks out of (s = +z, towards the sea) ----
+  const bunker=(cx,cz,w,d,face,o={})=>{
+    const T=0.8, H=2.7, fw=face==='e'||face==='w';
+    const wp=(u,v)=>face==='n'?[cx+u,cz+v]:face==='s'?[cx-u,cz-v]:face==='e'?[cx-v,cz+u]:[cx+v,cz-u];
+    const lb=(u0,u1,v0,v1,y0,y1,m,col=true)=>{ const c=wp((u0+u1)/2,(v0+v1)/2), du=u1-u0, dv=v1-v0; sBox(c[0],y0,c[1],fw?dv:du,y1-y0,fw?du:dv,m,col); };
+    const hw=w/2, hd=d/2, sl=1.3, dr=0.95;
+    lb(-hw,-sl,-hd,-hd+T,0,H,conc); lb(sl,hw,-hd,-hd+T,0,H,conc); lb(-sl,sl,-hd,-hd+T,0,1.05,conc); lb(-sl,sl,-hd,-hd+T,1.85,H,conc);
+    lb(-hw,-dr,hd-T,hd,0,H,conc); lb(dr,hw,hd-T,hd,0,H,conc); lb(-dr,dr,hd-T,hd,2.05,H,conc);
+    lb(-hw,-hw+T,-hd+T,hd-T,0,H,conc); lb(hw-T,hw,-hd+T,hd-T,0,H,conc);
+    lb(-hw-0.2,hw+0.2,-hd-0.2,hd+0.2,H,H+0.55,concD);
+    lb(-hw*0.8,hw*0.8,-hd*0.8,hd*0.8,H+0.55,H+0.9,sandM,false);
+    lb(-hw+T,hw-T,-hd+T,hd-T,0,0.03,concI,false);
+    lb(-hw+T,hw-T,-hd+T,-hd+T+0.05,0.03,H,concI,false); lb(-hw+T,-hw+T+0.05,-hd+T,hd-T,0.03,H,concI,false); lb(hw-T-0.05,hw-T,-hd+T,hd-T,0.03,H,concI,false);
+    const a=wp(-hw-0.4,-hd-0.4), b=wp(hw+0.4,hd+0.4); roofZones.push([Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[0],b[0]),Math.max(a[1],b[1])]);
+    if(!o.noBags){ const f=wp(0,-hd-1.6); sandbags(f[0]-(fw?0:2.4),f[1]-(fw?2.4:0),4.8); }
+  };
+  // ---- the draws: two sunken tracks that climb the bluff (they are the only easy way up, and the flat ground carves the valleys) ----
+  for(const pts of OMA_ROADS) for(let k=0;k<pts.length-1;k++){ const [ax,az]=pts[k], [bx,bz]=pts[k+1], dx=bx-ax, dz=bz-az, len=Math.hypot(dx,dz);
+    sBox((ax+bx)/2,0.01,(az+bz)/2,5.2,0.01,len+1,roadM,false,0,Math.atan2(dx,dz),0);
+    for(let u=0;u<=len;u+=2.4) TN_.flat.push([ax+dx*u/len,az+dz*u/len,4.8]); }
+  // ---- the shingle bank and the seawall, with gaps at the two draws and a breach in the middle ----
+  sBox(0,0,56,2*L-4,0.5,6,shingM,false);
+  { const gaps=[[-56,-44],[-5,5],[44,56]]; let a=-L+3; for(const [g0,g1] of gaps){ if(g0>a) sBox((a+g0)/2,0,50,g0-a,1.3,0.9,conc); a=g1; } if(L-3>a) sBox((a+L-3)/2,0,50,L-3-a,1.3,0.9,conc);
+    rubble(0,49.5,2.2,10,M.plaster); }
+  barbedWire(-106,45,-62,45); barbedWire(-38,45,-10,45); barbedWire(10,45,38,45); barbedWire(62,45,106,45);
+  // ---- beach obstacles: rows of hedgehogs, with log stakes and ramps nearer the water ----
+  for(let row=0;row<3;row++){ const z=100-row*9; for(let x=-104+row*6;x<=104;x+=10+rnd()*5){ if(Math.hypot(x,z-(L-22))<14) continue; hedgehog(x+(rnd()-.5)*3,z+(rnd()-.5)*3); } }
+  for(let i=0;i<30;i++){ const x=(rnd()*2-1)*(L-8), z=103+rnd()*6; addGeo(new THREE.CylinderGeometry(0.1,0.13,2.6,6),logM,x,0.85,z,0.4*(rnd()-.5),rnd()*3,0.55); }
+  // ---- landing craft run up on the sand, wrecked tanks and trucks, shell holes ----
+  const lcvp=(x,z,ry)=>{ const g=new THREE.Group(); g.rotation.y=ry; g.position.set(x,0,z); mapRoot.add(g); const hull=new THREE.Mesh(new THREE.BoxGeometry(3.4,1.5,11),steelM); hull.position.y=0.75; g.add(hull); const ramp=new THREE.Mesh(new THREE.BoxGeometry(3.0,0.12,2.8),steelM); ramp.position.set(0,0.4,-6.6); ramp.rotation.x=-0.45; g.add(ramp);
+    const c=Math.cos(ry), s=Math.sin(ry); addCollider(new THREE.Box3(new V3(x-Math.abs(c)*1.7-Math.abs(s)*5.5,0,z-Math.abs(s)*1.7-Math.abs(c)*5.5),new V3(x+Math.abs(c)*1.7+Math.abs(s)*5.5,1.6,z+Math.abs(s)*1.7+Math.abs(c)*5.5))); };
+  lcvp(-76,110,Math.PI+0.15); lcvp(-30,112,Math.PI-0.2); lcvp(24,110,Math.PI+0.1); lcvp(70,112,Math.PI-0.15); lcvp(-6,106,Math.PI+0.3);
+  wreckTank(-34,84,0.5,false); wreckTank(26,76,2.2,false); wreckTank(76,90,1.2,false); wreckTank(-84,78,2.6,false); wreckTruck(-8,98,1.1); wreckTruck(56,68,0.4);
+  for(let i=0;i<64;i++){ const x=(rnd()*2-1)*(L-8), z=56+rnd()*50; if(!nearBld(x,z,2)) crater(x,z,1.0+rnd()*1.8); }
+  for(const [x,z] of [[-60,66],[-18,62],[32,64],[62,74],[8,90]]) sandbags(x,z,4);          // cover the infantry dug in on the sand
+  // ---- WN strongpoints at the foot of the bluff: casemates covering the beach, with wire, bags and fighting positions ----
+  bunker(-70,33,7,5.6,'s'); bunker(-34,36,6.4,5.4,'s'); sandbags(-58,40,6); sandbags(-46,38,5); hedgehog(-62,44); barbedWire(-82,28,-62,28);          // west draw
+  bunker(36,36,7,5.6,'s'); bunker(70,33,6.4,5.4,'s'); sandbags(46,40,6); sandbags(60,38,5); hedgehog(54,44); barbedWire(62,28,82,28);                 // east draw
+  bunker(-14,39,6,5.2,'s'); bunker(14,37,6,5.2,'s'); sandbags(0,36,5); barbedWire(-20,30,20,30);                                                        // the centre, behind the breach
+  bunker(-92,36,6,5,'s'); bunker(92,36,6,5,'s'); sandbags(-90,42,5); sandbags(92,42,5);
+  // ---- a German battery on the far slope above the village ----
+  bunker(0,-58,12,8,'s'); bunker(-26,-52,6,5,'s'); bunker(26,-52,6,5,'s'); sandbags(-8,-48,5); sandbags(10,-48,5); barbedWire(-40,-44,40,-44); hedgehog(-14,-44); hedgehog(14,-44);
+  // ---- the village behind the bluff: stone houses, a church and low walls ----
+  ruinedBuilding(-34,-84,-20,-74,2,'plaster',{s:[4],e:[3]}); ruinedBuilding(-14,-88,-4,-80,1,'brick',{s:[3]}); ruinedBuilding(16,-90,30,-80,2,'brick',{s:[5],w:[3]}); ruinedBuilding(44,-84,54,-76,1,'plaster',{n:[3]}); ruinedBuilding(-62,-70,-52,-62,1,'brick',{e:[3]});
+  if(!placeBld('church',2,-78,0,1,1)){ ruinedBuilding(-4,-84,8,-72,3,'brick',{s:[4],n:[5]}); addGeo(new THREE.BoxGeometry(3.2,13,3.2),stoneM,7,6.5,-78,0,0,0); addCollider(new THREE.Box3(new V3(5.4,0,-79.6),new V3(8.6,13,-76.4))); addGeo(new THREE.ConeGeometry(2.5,4.5,4),mat(0x3c3a38,{roughness:1}),7,15.2,-78,0,Math.PI/4,0); }
+  for(const [x,z,l,ax] of [[-40,-66,9,0],[24,-70,8,0],[-24,-64,7,1],[34,-74,7,1]]){ if(ax) sBox(x,0,z,0.5,1.0,l,stoneM); else sBox(x,0,z,l,1.0,0.5,stoneM); }
+  wreckTruck(-48,-66,2.4); wreckTank(40,-60,1.0,true);
+  for(const [px,pz] of [[-10,-30],[10,-34],[-46,18]]) brokenPole(px,pz);
+  // flat ground where the sides come in and where you fight
   for(const q of SK_SPAWNS.normandy) TN_.flat.push([q[0],q[1],6]);
+  for(const q of [[-50,32],[50,32],[0,-58],[0,-78]]) TN_.flat.push([q[0],q[1],11]);
+  TN_.flat.push([0,L-22,16]);
   flushBatch(true);
-  addFire(24,0.4,12,1.6,true); addFire(-26,0.4,-26,1.0,false); addFire(-40,0.2,30,1.0,false);
+  addFire(-34,0.4,84,1.6,true); addFire(26,0.4,76,1.4,true); addFire(76,0.4,90,1.0,false); addFire(-84,0.4,78,1.0,false); addFire(-48,0.4,-66,1.0,false);
 }
 
 /* ================= LORRAINE · SEPTEMBER 1944: rolling autumn farmland, low stone walls, orchards and a ridge fort ================= */
@@ -3840,7 +3851,8 @@ const TERR={
   kursk:{mic:0.9,amp:5.5,sc:105,lo:0.36,hi:0.8,ridge:false,pw:1.1},        // long gentle swells
   seelow:{amp:10.5,sc:84,lo:0.4,hi:0.74,ridge:true,pw:1.15},         // steep heights
   ardennes:{mic:0.8,on:true,openEdge:true,slope:0.62,pad:1.6,rise:7,amp:10,sc:50,lo:0.36,hi:0.74,ridge:false,pw:1},       // forested ridges and gullies
-  normandy:{mic:0.8,on:true,openEdge:true,slope:0.62,pad:1.6,rise:6,amp:7,sc:40,lo:0.2,hi:0.55,ridge:false,pw:1},        // rolling bocage
+  normandy:{on:true,openEdge:true,slope:0.62,pad:1.6,rise:6,amp:2.4,sc:30,lo:0.3,hi:0.7,ridge:false,pw:1,mask:(x,z)=>sstep(46,30,z),        // flat beach, a grassy bluff cut by two draws
+    cone:(x,z)=>11*sstep(46,2,z)*(1-sstep(-18,-52,z)),edgeW:40},
   lorraine:{mic:0.8,on:true,openEdge:true,slope:0.62,pad:1.6,rise:6,amp:11,sc:56,lo:0.3,hi:0.7,ridge:false,pw:1,                // a wide valley with a winding floor, hills on both sides and a high ridge behind the fort
     mask:(x,z)=>0.1+0.9*sstep(12,34,Math.abs(z-(-14+9*Math.sin(x/30)))),
     cone:(x,z)=>7*sstep(-52,-74,z)*(0.65+0.35*Math.sin(x/17+1))},
@@ -3945,7 +3957,7 @@ function buildTerrain(id){
   const CH=24, rockMode=!!pr.rock, colourHills=!lookFail.detail && !/[?&]nohillcol/.test(location.search), mat0=colourHills?rockHillMat(rockMode):ground.material;
   const lin=v=>Math.pow(v,2.2), avg=colourHills?texAvg(ground.material.map).map(lin):[1,1,1];
   const tintOf=(r,g,b)=>[Math.max(0.3,Math.min(3,lin(r)/avg[0])),Math.max(0.3,Math.min(3,lin(g)/avg[1])),Math.max(0.3,Math.min(3,lin(b)/avg[2]))];
-  const iw=id==='iwojima', T_EARTH=iw?tintOf(0.22,0.20,0.18):id==='alps'?tintOf(0.44,0.46,0.26):tintOf(0.50,0.42,0.28), T_ROCK=iw?tintOf(0.26,0.25,0.24):id==='alps'?tintOf(0.76,0.78,0.80):tintOf(0.54,0.53,0.50), T_PALE=iw?tintOf(0.34,0.31,0.28):id==='alps'?tintOf(0.90,0.92,0.94):tintOf(0.72,0.70,0.65);
+  const iw=id==='iwojima', T_EARTH=iw?tintOf(0.22,0.20,0.18):id==='alps'?tintOf(0.44,0.46,0.26):id==='normandy'?tintOf(0.36,0.44,0.22):tintOf(0.50,0.42,0.28), T_ROCK=iw?tintOf(0.26,0.25,0.24):id==='alps'?tintOf(0.76,0.78,0.80):tintOf(0.54,0.53,0.50), T_PALE=iw?tintOf(0.34,0.31,0.28):id==='alps'?tintOf(0.90,0.92,0.94):tintOf(0.72,0.70,0.65);
   for(let cj=0;cj<N-1;cj+=CH) for(let ci=0;ci<N-1;ci+=CH){
     const pos=[], nor=[], uvs=[], col=[];
     const nrm=(i,j)=>{ const a=TH[j*N+Math.max(0,i-1)], b=TH[j*N+Math.min(N-1,i+1)], c=TH[Math.max(0,j-1)*N+i], d=TH[Math.min(N-1,j+1)*N+i];
@@ -4155,8 +4167,8 @@ const MAPS={
     sky:0x88929b,fog:[4,54],hemi:[0xc4ced8,0x46423e,1.1],sun:[0xe0dcd4,1.0]},
   ardsummer:{id:'ardsummer',name:'Ardennes · Summer',short:'ARDENNES SUMMER',build:buildArdennesSummer,snow:false,mode:'infantry',total:50,tex:grassTex,
     sky:0x98aebf,fog:[6,60],hemi:[0xd6e0ea,0x4f5e3c,1.2],sun:[0xf4ecd8,1.5]},
-  normandy:{id:'normandy',name:'Normandy · June 1944',short:'NORMANDY',build:buildNormandy,snow:false,mode:'infantry',total:50,tex:grassTex,
-    sky:0xa9d0ee,fog:[18,125],hemi:[0xe3eef6,0x5f7040,1.45],sun:[0xfff3d6,2.1]},
+  normandy:{id:'normandy',name:'Omaha Beach · 6 June 1944',short:'OMAHA BEACH',build:buildNormandy,snow:false,mode:'infantry',total:60,tex:sandTex,L:112,
+    sky:0xa9b6be,fog:[24,170],hemi:[0xdde3e8,0x6b6a5a,1.4],sun:[0xffecd0,1.7]},
   lorraine:{id:'lorraine',name:'Lorraine · September 1944',short:'LORRAINE',build:buildLorraine,snow:false,mode:'infantry',total:50,tex:grassTex,
     sky:0xb7c4cc,fog:[16,118],hemi:[0xe6e8e4,0x6b6238,1.35],sun:[0xffe6b8,1.8]},
   cassino:{id:'cassino',name:'Monte Cassino · May 1944',short:'CASSINO',build:buildCassino,snow:false,mode:'infantry',total:50,tex:grassTex,L:112,
@@ -4178,7 +4190,7 @@ const coopNow=()=>{ try{ return !!coop; }catch(e){ return false; } };
 const wantRun=id=>false;      // Kursk's story mission starts with its trenches already dug (no building phase)
 const BIGL=112;       // Maps mode: half the playable size is 98 instead of 70, so the maps are 1.4 times as wide and long
 const BIG_ON=true;      // false = every map at its original size (the 1.4x hilly version is still here: set to true)
-const bigFor=id=>{ try{ return id!=='iwojima' && BIG_ON && menuFlow==='maps' && MAP_MENU.includes(id) && !coopNow(); }catch(e){ return false; } };
+const bigFor=id=>{ try{ return id!=='iwojima' && id!=='normandy' && BIG_ON && menuFlow==='maps' && MAP_MENU.includes(id) && !coopNow(); }catch(e){ return false; } };
 const needRebuild=id=>currentMap!==id || bigFor(id)!==builtBig || pits.some(p=>p.dug) || wantDig(id)!==digTrenches || (digOverride===null && wantRun(id)!==runDig) || prep.phase!=='off';
 function buildMap(id){
   bldMapId=id; SPLAT_CR.length=0;
@@ -6174,7 +6186,7 @@ function macroVary(m,k){
   };
   m.customProgramCacheKey=()=>'macro'+k+(heavy?'h':'l'); m.needsUpdate=true;
 }
-async function loadKarGlb(){ for(const n of ['kar98k','kar98kfp','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4','vegsh','veggr','vegco','vegbr','wheat']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+async function loadKarGlb(){ for(const n of ['kar98k','kar98kfp','mosin','mas36','m1903','carcano','arisaka','bayonets','buildings','stuka','bf109','spitfire','pz4','t34','props1','props2','props3','props4','walls2','veg2','veg3','veg4','vegsh','veggr','vegco','vegbr','wheat']){ try{ const el=document.getElementById('glb_'+n); if(!el) continue; const bin=atob(el.textContent.trim()), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
   const gl=await new Promise((ok,no)=>new GLTFLoader().parse(u.buffer,'',ok,no)); GUNGLB[n]=gl.scene; }catch(e){ console.warn('rifle model not loaded',n,e); } } 
   try{ for(const key of ['buildings','walls2','props4']){ const sc=GUNGLB[key]; if(!sc) continue; const seen=new Set(); sc.traverse(o=>{ if(!o.isMesh) return; for(const m of [].concat(o.material)){ if(!m||seen.has(m)||/metal|burlap/i.test(m.name||'')) continue; seen.add(m); macroVary(m,key==='props4'?0.6:1.0); } }); } }catch(e){ console.warn('macro variation skipped',e); } }
 async function loadCharacters(){
@@ -6570,7 +6582,7 @@ function impactSnd(p,kind){
   if(W && (kind==='hard'||kind==='stone'||kind==='metal') && d<45 && Math.random()<0.3) play(W.ricochet[(Math.random()*3)|0],Math.min(0.4,6/(d+3)),0.9+Math.random()*0.2,Math.min(0.2,d/343)+0.02,0.15);      // sometimes it screams off the wall
 }
 // the dust a bullet throws up matches what it hit on this map: dark loam, pale limestone, brick dust, plaster
-const IMP_GROUND={iwojima:0x4a4743,kursk:0x7f705a,seelow:0x7d6e55,normandy:0x857659,lorraine:0x8a7b62,ardennes:0x7f735e,ardsummer:0x83775c,cassino:0xbdb39e,remagen:0x9c8a6e,berlin:0x9b8a78,stalingrad:0x8f8272,duel:0xb8a88a};
+const IMP_GROUND={iwojima:0x4a4743,kursk:0x7f705a,seelow:0x7d6e55,normandy:0xb3a483,lorraine:0x8a7b62,ardennes:0x7f735e,ardsummer:0x83775c,cassino:0xbdb39e,remagen:0x9c8a6e,berlin:0x9b8a78,stalingrad:0x8f8272,duel:0xb8a88a};
 const IMP_HARD={berlin:0xa8897a,stalingrad:0xa08676,cassino:0xc4bdab,remagen:0xc0b099,moscow:0x9a958e};
 function bulletImpact(tr,mine){
   if(!tr.point) return;
@@ -8047,8 +8059,8 @@ const SK_MAPS={
            fl:[[-24,49,'Remagen waterfront'],[24,27,'South quay'],[0,0,'Ludendorff bridge'],[-26,-28,'Erpel quay'],[6,-44,'Wine cellars'],[40,-58,'Tunnel portal']], hold:[0,0,'Ludendorff bridge']},
   lorraine:{con:[[35,22,'Farmstead'],[20,-17,'Stone mill'],[-20,-54,'Ridge fort']],
             fl:[[35,22,'Farmstead'],[-37,7,'Orchard barn'],[20,-17,'Stone mill'],[-20,-54,'Ridge fort']], hold:[35,22,'Farmstead']},
-  normandy:{con:[[-40,21.5,'Farmhouse'],[35,-31,'Village church'],[-23,-52,'Manor house']],
-            fl:[[-40,21.5,'Farmhouse'],[22,-2,'Stone barn'],[35,-31,'Village church'],[-23,-52,'Manor house']], hold:[-40,21.5,'Farmhouse']}
+  normandy:{con:[[-50,32,'West draw (D-1)'],[50,32,'East draw (E-1)'],[0,-58,'Bluff battery']],
+            fl:[[-50,32,'West draw (D-1)'],[50,32,'East draw (E-1)'],[0,-58,'Bluff battery'],[0,-78,'Village church']], hold:[0,-58,'Bluff battery']}
 };
 const SK_SPAWNS={
   berlin:[[-4,-44],[4,-44],[0,-50],[-6,-52],[6,-52],[-26,-38],[26,-38],[-36,-30],[36,-30],[-12,-30],[12,-32]],
@@ -8059,7 +8071,7 @@ const SK_SPAWNS={
   iwojima:IWO_SP,
   alps:ALP_SP,
   lorraine:[[-44,-72],[-26,-74],[-8,-74],[10,-74],[28,-72],[46,-72],[-62,-60],[62,-58]],
-  normandy:[[-44,-72],[-26,-74],[-8,-74],[10,-74],[28,-72],[46,-72],[-62,-60],[62,-58]]
+  normandy:OMA_SP
 };
 SK_MAPS.ardsummer=SK_MAPS.ardennes; SK_SPAWNS.ardsummer=SK_SPAWNS.ardennes;
 const skZone=(x,z)=>roofZones.find(r=>x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3]);
@@ -9579,6 +9591,7 @@ function startStuka(){
 function airLeave(){
   if(!air.on) return;
   air.on=false; air.phase='off'; airStopSounds();
+  if(air.dog){ air.dog=false; dfl=null; const dh=$('dflHud'); if(dh) dh.style.display='none'; document.body.classList.remove('dogmode'); air.rings=[]; air.deb=[]; air.tracers=[]; }
   if(air.ck){ viewScene.remove(air.ck); air.ck=null; }
   air.sight=false; { const s=$('ahSight'); if(s) s.style.display='none'; }
   if(air.root){ scene.remove(air.root); air.root.traverse(o=>{ if(o.geometry) o.geometry.dispose(); }); air.root=null; }
@@ -9627,6 +9640,7 @@ function airUpdateSounds(dt){
 
 // ---------- controls ----------
 function airKey(e){
+  if(air.dog){ dogKey(e); return; }
   if(e.code==='Space'){ airDropBomb(); e.preventDefault(); }
   else if(e.code==='KeyE') airSwitchBomb();
   else if(e.code==='KeyC') air.view=(air.view+1)%2;
@@ -9828,7 +9842,7 @@ function airTracer(x,y,z,dx,dy,dz,speed,life,enemy){
       const ln=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffe08a,transparent:true,opacity:0.9,fog:false})); ln.frustumCulled=false; air.root.add(ln);
       t={ln,life:0}; air.tracers.push(t); }
   }
-  t.x=x;t.y=y;t.z=z;t.dx=dx;t.dy=dy;t.dz=dz;t.v=speed;t.life=life; t.ln.material.color.setHex(enemy?0xff6a40:0xffe08a); t.ln.visible=true;
+  t.x=x;t.y=y;t.z=z;t.dx=dx;t.dy=dy;t.dz=dz;t.v=speed;t.life=life;t.en=!!enemy; t.ln.material.color.setHex(enemy?0xff6a40:0xffe08a); t.ln.visible=true;
 }
 function airUpdateTracers(dt){
   for(const t of air.tracers){
@@ -10419,6 +10433,7 @@ function airCamera(dt){
 
 // ---------- the whole mission, once per frame ----------
 function airFrame(dt){
+  if(air.dog){ dogFrame(dt); return; }
   air.t+=dt; air.dropCD-=dt; air.hitMsgT-=dt;
   airFlight(dt);
   airUpdateBombs(dt); airFireGuns(dt); airUpdateFlak(dt); airUpdateBursts(dt); airUpdateFighters(dt); airUpdateWorld(dt); airUpdateTracers(dt); airUpdateFires(dt);
@@ -10450,6 +10465,375 @@ function airDebrief(){
   $('dStats').textContent=`${r.score} pts`; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
   $('dBanner').innerHTML=''; $('dTiles').innerHTML='';
   $('dAgain').style.display=''; $('debrief').style.display='flex';
+}
+
+/* ================= DOGFIGHT: Bf 109 vs Spitfire, one on one over the Channel coast. One life each: the first kill wins ================= */
+const DFL_SPEC={
+  german:{name:'Bf 109 G',glb:'bf109',vmin:58,vmax:160,cruise:102,rollRate:2.6,turn:2.15,pitch:0.78,flag:'LUFTWAFFE',en:'SPITFIRE'},
+  usa:{name:'Spitfire Mk IX',glb:'spitfire',vmin:54,vmax:152,cruise:96,rollRate:3.1,turn:2.45,pitch:0.9,flag:'ROYAL AIR FORCE',en:'BF 109'}
+};
+const DFC={COAST:2600,CLIFF:70,LIM:4200,AMMO:600,DMG_P:3.2,DMG_E:2.5,HIT_R:4.2};
+let dfl=null, dflSide='german', dflHudBuilt=false;
+const dflGround=(x,z)=>z>DFC.COAST?DFC.CLIFF:0;
+const dflWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+
+function dflMakePlane(side){
+  const S=DFL_SPEC[side], g=new THREE.Group(); let nose=new V3(0,0.1,-4.4);
+  const src=GUNGLB[S.glb];
+  if(src){
+    const m=src.clone(true); g.add(m);
+    m.traverse(o=>{ if(o.isMesh && o.material){ for(const q of (Array.isArray(o.material)?o.material:[o.material])){ if(q.name==='glass'){ q.transparent=true; q.opacity=0.45; q.depthWrite=false; q.side=THREE.DoubleSide; } } } });
+    const bb=new THREE.Box3().setFromObject(m); let sx=0,sy=0,n=0;
+    m.traverse(o=>{ if(!o.isMesh) return; const p=o.geometry.attributes.position; for(let i=0;i<p.count;i++) if(p.getZ(i)<bb.min.z+0.3){ sx+=p.getX(i); sy+=p.getY(i); n++; } });
+    if(n) nose.set(sx/n,sy/n,bb.min.z);
+  } else { g.add(airBuildYak().g); }
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(1.45,28),new THREE.MeshBasicMaterial({color:0x1c1c1a,transparent:true,opacity:0.2,side:THREE.DoubleSide,depthWrite:false}));      // the blur of the propeller
+  disc.position.copy(nose); disc.position.z-=0.05; g.add(disc);
+  return {g,nose};
+}
+function dflNewState(x,y,z,h){ return {x,y,z,h,p:0,r:0,s:100,thr:0.75,cx:0,cy:0,hp:100,ammo:DFC.AMMO,fuel:100,vy:0,g:1,stall:false,brake:false,dead:false,fall:0,trail:0,fireCD:0,hitT:0}; }
+
+function dflBuildWorld(){
+  const root=new THREE.Group(); air.root=root; seed=777;
+  const seaTex=canvasTex(256,(x,s)=>{ x.fillStyle='#51707b'; x.fillRect(0,0,s,s); blots(x,s,40,20,70,'rgba(30,50,60,.28)'); blots(x,s,40,10,40,'rgba(190,210,215,.16)'); specks(x,s,500,2,['rgba(220,235,240,.35)','rgba(20,40,50,.3)']); });
+  seaTex.wrapS=seaTex.wrapT=THREE.RepeatWrapping; seaTex.repeat.set(160,160);
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(40000,40000),new THREE.MeshLambertMaterial({map:seaTex})); sea.rotation.x=-Math.PI/2; root.add(sea);
+  const fieldTex=canvasTex(512,(x,s)=>{ x.fillStyle='#6d7f47'; x.fillRect(0,0,s,s); const cols=['#7b8c4a','#8a9650','#9aa35a','#677a40','#a6a45e','#5f7440']; for(let i=0;i<28;i++){ x.fillStyle=cols[i%cols.length]; x.fillRect(Math.random()*s*0.9,Math.random()*s*0.9,40+Math.random()*130,30+Math.random()*100); } specks(x,s,1500,3,['rgba(60,70,40,.4)','rgba(150,150,90,.3)']); });
+  fieldTex.wrapS=fieldTex.wrapT=THREE.RepeatWrapping; fieldTex.repeat.set(40,40);
+  const chalk=new THREE.MeshLambertMaterial({color:0xe6e2d4}), grass=new THREE.MeshLambertMaterial({map:fieldTex});
+  const H=DFC.CLIFF+40, land=new THREE.Mesh(new THREE.BoxGeometry(40000,H,20000),[chalk,chalk,grass,chalk,chalk,chalk]); land.position.set(0,DFC.CLIFF-H/2,DFC.COAST+10000); root.add(land);
+  // a village and a lighthouse on the cliffs
+  const wallC=[0xd9cdb4,0xc8b99a,0xe2dac8,0xb9a98c], roofC=[0x7a4a38,0x5c4a42,0x6b3f30];
+  for(let i=0;i<46;i++){ const x=(rnd()-.5)*7000, z=DFC.COAST+120+rnd()*900, w=8+rnd()*8, d=7+rnd()*6;
+    aBox(root,w,5,d,airMat(wallC[(rnd()*4)|0]),x,DFC.CLIFF+2.5,z); aBox(root,w+1,2,d+1,airMat(roofC[(rnd()*3)|0]),x,DFC.CLIFF+6,z); }
+  aCyl(root,3,4.2,34,airMat(0xf2f0e8),-400,DFC.CLIFF+17,DFC.COAST+90,0,0,0,12); aCyl(root,3.1,3.1,5,airMat(0xb5382c),-400,DFC.CLIFF+12,DFC.COAST+90,0,0,0,12); aBox(root,5,3.5,5,airMat(0x2b2d2b),-400,DFC.CLIFF+36,DFC.COAST+90);
+  // a convoy far out to sea, two of them burning
+  const shipM=airMat(0x727a7e);
+  for(let i=0;i<8;i++){ const x=-3000+i*780+rnd()*200, z=-1700-rnd()*1500, w=34+rnd()*26; aBox(root,w,6,8,shipM,x,3,z); aBox(root,w*0.3,7,6,shipM,x+w*0.12,9,z); }
+  air.fires=[]; air.rings=[]; air.deb=[]; air.T=[]; air.wing=[]; air.bombs=[]; air.delayed=[]; air.bursts=[]; air.fighters=[];
+  airFire(-1200,3,-2100,2.4); airFire(1500,3,-2600,2.0);
+  const sky=new THREE.Mesh(new THREE.SphereGeometry(8000,24,12),new THREE.MeshBasicMaterial({color:0x8896a4,side:THREE.BackSide,fog:false,depthWrite:false})); sky.renderOrder=-10; sky.frustumCulled=false; root.add(sky); air.sky=sky;
+  air.clouds=airMakeClouds(root);
+  return root;
+}
+
+// ---------- flight model (the player's plane and the enemy's use the same one) ----------
+function dflFly(P,S,dt){
+  P.r+=(P.cx*1.05-P.r)*Math.min(1,dt*S.rollRate);
+  const cp=Math.cos(P.p);
+  P.h+=Math.tan(aClamp(P.r,-1.3,1.3))*9.8*S.turn/Math.max(P.s,55)*Math.max(0.35,cp)*dt;
+  let pd=P.cy*S.pitch-Math.sin(Math.abs(P.r))*0.2;
+  P.stall=P.s<S.vmin; if(P.stall) pd-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3);
+  P.g=1+Math.max(0,pd)*P.s/9.8;
+  P.p=aClamp(P.p+pd*dt,-1.45,1.35);
+  const target=S.vmin+10+P.thr*(S.vmax-S.vmin-10);
+  let ds=(P.p>-0.1?(target-P.s)*0.24:(target-P.s)*0.05)-9.8*Math.sin(P.p)*0.95-0.00006*P.s*P.s*(P.brake?4:1)-Math.max(0,pd)*P.s*0.05-Math.abs(P.r)*P.s*0.012;
+  P.s=aClamp(P.s+ds*dt,S.vmin*0.7,S.vmax+25);
+  const cp2=Math.cos(P.p);
+  P.x+=Math.sin(P.h)*cp2*P.s*dt; P.z+=-Math.cos(P.h)*cp2*P.s*dt; P.y+=Math.sin(P.p)*P.s*dt; P.vy=Math.sin(P.p)*P.s;
+  if(P.y>1450) P.p=Math.min(P.p,-0.04);
+}
+// a plane that is out of control falls, rolling
+function dflFall(P,dt){
+  P.p=Math.max(P.p-dt*0.5,-1.1); P.r+=dt*3.2*(P.fall||1); P.s=Math.min(P.s+dt*24,140);
+  P.h+=dt*0.25*(P.fall||1);
+  const cp=Math.cos(P.p); P.x+=Math.sin(P.h)*cp*P.s*dt; P.z+=-Math.cos(P.h)*cp*P.s*dt; P.y+=Math.sin(P.p)*P.s*dt;
+}
+// keep clear of the sea: take the stick near the surface
+function dflPullout(P){
+  if(P.p>=-0.1) return null;
+  const clear=P.y-dflGround(P.x,P.z), need=P.s*Math.sin(-P.p)*0.9+30;
+  return clear<need?1:null;
+}
+
+// ---------- the enemy pilot ----------
+function dflAI(dt){
+  const E=dfl.en, P=dfl.pl, A=E.ai, S=dfl.espec;
+  A.t-=dt; A.fireT-=dt;
+  const dx=P.x-E.x, dy=P.y-E.y, dz=P.z-E.z, dist=Math.hypot(dx,dy,dz)||1;
+  const cpE=Math.cos(E.p), fx=Math.sin(E.h)*cpE, fy=Math.sin(E.p), fz=-Math.cos(E.h)*cpE;
+  const dot=(dx*fx+dy*fy+dz*fz)/dist;
+  const cpP=Math.cos(P.p), pfx=Math.sin(P.h)*cpP, pfy=Math.sin(P.p), pfz=-Math.cos(P.h)*cpP, pdot=-(dx*pfx+dy*pfy+dz*pfz)/dist;      // 1 = the player is aiming at me
+  if(A.mode==='engage'){
+    if(dist<140 && dot<0.25){ A.mode='extend'; A.t=2.4+Math.random()*1.6; A.dir=Math.random()<.5?1:-1; }
+    else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){ A.mode='break'; A.t=1.5+Math.random()*1.2; A.dir=Math.random()<.5?1:-1; A.brkCD=5; }
+  } else if(A.t<=0) A.mode='engage';
+  A.brkCD-=dt;
+  const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+Math.sin(P.h)*cpP*P.s*tl, ty=P.y+pfy*P.s*tl, tz=P.z-Math.cos(P.h)*cpP*P.s*tl;
+  const dh=dflWrap(Math.atan2(tx-E.x,-(tz-E.z))-E.h), dp=Math.atan2(ty-E.y,Math.hypot(tx-E.x,tz-E.z))-E.p;
+  let cx=0, cy=0, thr=0.8;
+  if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>220?1:0.7; if(dist<200&&dot>0.9) thr=0.55; }
+  else if(A.mode==='break'){ cx=A.dir; cy=0.75; thr=1; }
+  else { cx=A.dir*0.3; cy=0.25; thr=1; }
+  if(E.y<260){ cy=Math.max(cy,aClamp((260-E.y)/140,0,1)); cx*=0.5; } else if(E.y>1400) cy=Math.min(cy,-0.4);
+  const out=Math.hypot(E.x,E.z)>3500; if(out){ const hd=dflWrap(Math.atan2(-E.x,E.z)-E.h); cx=aClamp(hd*2,-1,1); }
+  { const po=dflPullout(E); if(po!==null) cy=po; }
+  const k=Math.min(1,dt*3.2); E.cx+=(cx-E.cx)*k; E.cy+=(cy-E.cy)*k; E.thr+=(thr-E.thr)*Math.min(1,dt); E.brake=false;
+  // guns: fire when the nose is on the player
+  if(A.mode==='engage' && dist<700 && Math.abs(dh)<0.17 && Math.abs(dp)<0.15 && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
+  if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.8+Math.random()*1.4; } }
+}
+function dflEnemyGuns(dt){
+  const E=dfl.en; if(!E.ai.firing||E.dead) return; E.fireCD-=dt;
+  while(E.fireCD<=0 && E.ammo>0){
+    E.fireCD+=0.05; E.ammo--;
+    const cp=Math.cos(E.p), fx=Math.sin(E.h)*cp, fy=Math.sin(E.p), fz=-Math.cos(E.h)*cp, er=E.ai.err, side=(E.ammo&1)?2.2:-2.2;
+    const ox=E.x+Math.cos(E.h)*side, oy=E.y-0.3, oz=E.z+Math.sin(E.h)*side, ax=E.x+fx*450, ay=E.y+fy*450, az=E.z+fz*450;
+    airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*er*450,ay-oy+(Math.random()-.5)*er*450,az-oz+(Math.random()-.5)*er*450,760+E.s,0.9,true);
+  }
+}
+
+// ---------- player ----------
+function dflPlayerInput(dt){
+  const P=dfl.pl, S=dfl.spec;
+  const kx=(keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0), ky=((keys.ArrowUp?1:0)-(keys.ArrowDown?1:0))*(air.inv?-1:1);
+  if(IS_TOUCH){ const tx=touch.joyX*0.7, ty=-touch.joyY*(air.inv?-1:1)*0.7; P.cx+=(tx-P.cx)*Math.min(1,dt*5); P.cy+=(ty-P.cy)*Math.min(1,dt*5); }
+  else {
+    P.cx=aClamp(P.cx+air.inX*0.0020+kx*dt*1.5,-1,1); P.cy=aClamp(P.cy-air.inY*0.0020*(air.inv?-1:1)+ky*dt*1.1,-1,1);
+    if(!kx) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
+  }
+  air.inX=air.inY=0;
+  if(!IS_TOUCH){ if(keys.KeyW) P.thr=Math.min(1,P.thr+dt*0.5); if(keys.KeyS) P.thr=Math.max(0.2,P.thr-dt*0.5); }
+  P.brake=!!(keys.ShiftLeft||keys.ShiftRight||air.touchBrake);
+  const po=dflPullout(P); if(po!==null){ P.cy=1; airWarn('PULL UP!',0.25); }
+}
+function dflPlayerGuns(dt){
+  const P=dfl.pl; P.fireCD-=dt;
+  if(!(mouseDown||touch.fire||keys.Space) || P.dead || state!=='playing') return;
+  if(P.ammo<=0){ if(P.fireCD<=0){ P.fireCD=0.6; showMsg('OUT OF AMMUNITION',0.9); } return; }
+  while(P.fireCD<=0 && P.ammo>0){
+    P.fireCD+=0.045; P.ammo--; dfl.shots++;
+    const cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp, side=(P.ammo&1)?2.2:-2.2;
+    const ox=P.x+Math.cos(P.h)*side, oy=P.y-0.3, oz=P.z+Math.sin(P.h)*side, ax=P.x+fx*450, ay=P.y+fy*450, az=P.z+fz*450;
+    airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*8,ay-oy+(Math.random()-.5)*8,az-oz+(Math.random()-.5)*8,780+P.s,0.9,false);
+    if(P.ammo%3===0) sndShot(false);
+    air.shake=Math.max(air.shake,0.05);
+  }
+}
+// bullets against the two planes (a bullet that passes through a plane's body in one step counts)
+function dflBullets(dt){
+  for(const t of air.tracers){
+    if(t.life<=0) continue;
+    const tgt=t.en?dfl.pl:dfl.en; if(tgt.dead) continue;
+    const step=t.v*dt, ax=t.x-t.dx*step, ay=t.y-t.dy*step, az=t.z-t.dz*step, sx=t.x-ax, sy=t.y-ay, sz=t.z-az, l2=sx*sx+sy*sy+sz*sz||1;
+    const u=aClamp(((tgt.x-ax)*sx+(tgt.y-ay)*sy+(tgt.z-az)*sz)/l2,0,1), d=Math.hypot(ax+sx*u-tgt.x,ay+sy*u-tgt.y,az+sz*u-tgt.z);
+    if(d<DFC.HIT_R){
+      t.life=0; tgt.hitT=0.25; spawnPuff(new V3(ax+sx*u,ay+sy*u,az+sz*u),0xffd890,3,0.25,true,0); spawnPuff(new V3(ax+sx*u,ay+sy*u,az+sz*u),0x3a3836,4,0.8,false,0.5);
+      if(t.en){ tgt.hp-=DFC.DMG_E; dfl.hitsTaken++; air.shake=Math.max(air.shake,0.45); dfl.flash=0.35; if(!dfl.hitMsg||dfl.t-dfl.hitMsg>1.5){ dfl.hitMsg=dfl.t; showMsg('YOU ARE HIT',0.8); tone(180,90,0.12,0.12,'square'); } if(tgt.hp<=0) dflDie(tgt); }
+      else { tgt.hp-=DFC.DMG_P; dfl.hits++; if(tgt.hp<=0) dflDie(tgt); }
+    }
+  }
+}
+function dflDie(X){
+  if(X.dead) return; X.dead=true; X.hp=0; X.fall=Math.random()<.5?1:-1;
+  const isP=X===dfl.pl; if(isP) air.phase='falling';
+  if(!dfl.decide){ dfl.decide=isP?'lost':'won'; dfl.dieT=3.2; }
+  spawnPuff(new V3(X.x,X.y,X.z),0xffb060,16,0.7,true,0); noise(0.5,500,0.35,'lowpass',90);
+  showMsg(isP?'YOUR PLANE IS ON FIRE':'ENEMY HIT · HE IS GOING DOWN',2.5);
+}
+function dflExplode(X,onSea){
+  const p=new V3(X.x,Math.max(2,dflGround(X.x,X.z)),X.z);
+  if(onSea){ spawnPuff(p.clone().add(new V3(0,6,0)),0xdfeaef,30,1.4,false,2); spawnPuff(p.clone().add(new V3(0,3,0)),0xf4faff,18,1.0,false,1.5); }
+  spawnPuff(p.clone().add(new V3(0,5,0)),0xffb060,34,1.4,true,0); spawnPuff(p.clone().add(new V3(0,3,0)),0xfff0c0,20,0.8,true,0);
+  for(let i=0;i<8;i++) spawnPuff(p.clone().add(new V3((Math.random()-.5)*16,5+Math.random()*9,(Math.random()-.5)*16)),0x2c2a28,14+Math.random()*10,3.5,false,8);
+  const d=Math.hypot(X.x-dfl.pl.x,X.y-dfl.pl.y,X.z-dfl.pl.z); noise(1.4,800,0.7*Math.min(1,600/(d+100)),'lowpass',60); tone(70,25,0.7,0.5*Math.min(1,600/(d+100)));
+  if(X===dfl.pl) air.shake=1.2;
+}
+function dflEnd(kind,why){
+  if(dfl.res) return; const P=dfl.pl;
+  const won=kind==='won';
+  dfl.res={kind,won,why,time:dfl.t,shots:dfl.shots,hits:dfl.hits,taken:dfl.hitsTaken,hp:Math.max(0,Math.round(P.hp)),xp:won?Math.round(300+P.hp*2):40};
+  air.endT=3.4; dfl.phase=kind;
+  if(won){ sting('victory'); showMsg('VICTORY · THE '+dfl.spec.en+' IS DOWN',3.2); } else { sting('death'); showMsg(why||'YOU WERE SHOT DOWN',3.2); }
+}
+
+// ---------- the frame ----------
+function dflFrameWorldPlanes(dt){
+  const P=dfl.pl, E=dfl.en, S=dfl.spec, ES=dfl.espec;
+  // player
+  if(!P.dead){ dflPlayerInput(dt); dflFly(P,S,dt); }
+  else { dflFall(P,dt); }
+  // enemy
+  if(!E.dead){ dflAI(dt); dflFly(E,ES,dt); }
+  else { dflFall(E,dt); }
+  // smoke from damaged planes
+  for(const X of [P,E]){
+    X.hitT-=dt; X.trail-=dt;
+    const frac=X.hp/100; if(X.dead||frac<0.5){ if(X.trail<=0){ X.trail=X.dead?0.04:(frac<0.25?0.07:0.14); const fx=Math.sin(X.h),fz=-Math.cos(X.h);
+      spawnPuff(new V3(X.x-fx*4,X.y,X.z-fz*4),X.dead||frac<0.25?0x1e1c1b:0x6a6866,6+Math.random()*4,2.0,false,0.6);
+      if(X.dead||frac<0.25) spawnPuff(new V3(X.x-fx*3,X.y,X.z-fz*3),0xff8a30,4,0.3,true,0); } }
+  }
+  // crashes
+  for(const X of [P,E]){
+    if(X.gone) continue; const gy=dflGround(X.x,X.z);
+    if(X.y-gy<2.6){ X.gone=true; const sea=gy===0; dflExplode(X,sea); if(X===P){ air.phase='crashed'; dfl.pm.g.visible=false; dflEnd(dfl.decide||'lost',gy>0?'YOU FLEW INTO THE CLIFFS':sea?'YOU HIT THE SEA':'YOU CRASHED'); } else { dfl.em.g.visible=false; dflEnd(dfl.decide||'won','THE ENEMY CRASHED'); } }
+  }
+  // collision between the two
+  if(!P.gone && !E.gone && Math.hypot(P.x-E.x,P.y-E.y,P.z-E.z)<5.5){ for(const X of [P,E]){ X.gone=true; dflExplode(X,false); } dfl.pm.g.visible=false; dfl.em.g.visible=false; air.phase='crashed'; dflEnd('lost','YOU COLLIDED IN MID-AIR'); }
+  if(dfl.decide && !dfl.res){ dfl.dieT-=dt; if(dfl.dieT<=0) dflEnd(dfl.decide,dfl.decide==='lost'?'YOU WERE SHOT DOWN':'THE ENEMY WAS SHOT DOWN'); }
+  // out of the area
+  if(!P.dead && Math.hypot(P.x,P.z)>DFC.LIM){ dfl.outT+=dt; airWarn('TURN BACK!',0.3); if(dfl.outT>9) dflEnd('lost','YOU LEFT THE AREA'); } else dfl.outT=0;
+}
+function dflPoseObj(O,X,show){
+  O.g.visible=show&&!X.gone; O.g.position.set(X.x,X.y,X.z); O.g.rotation.order='YXZ'; O.g.rotation.set(X.p,-X.h,-X.r);
+}
+function dflCamera(dt){
+  const P=dfl.pl, cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp;
+  air.shake=Math.max(0,air.shake-dt*1.6); const sh=air.shake*1.3;
+  const dead=P.gone;
+  if(air.view===0 || dead){
+    const back=17+(P.s-100)*0.04, tx=P.x-fx*back, ty=P.y-fy*back+4.6, tz=P.z-fz*back;
+    if(!air.cam) air.cam={x:tx,y:ty,z:tz};
+    const k=dead?0:1-Math.exp(-dt*9); air.cam.x+=(tx-air.cam.x)*k; air.cam.y+=(ty-air.cam.y)*k; air.cam.z+=(tz-air.cam.z)*k;
+    camera.position.set(air.cam.x+(Math.random()-.5)*sh,Math.max(air.cam.y,dflGround(air.cam.x,air.cam.z)+3)+(Math.random()-.5)*sh,air.cam.z+(Math.random()-.5)*sh);
+    camera.lookAt(P.x+fx*30,P.y+fy*30+1.2,P.z+fz*30); camera.fov=64+aClamp((P.s-100)*0.12,0,8);
+  } else {
+    air.cam=null;
+    camera.position.set(P.x+fx*0.8+(Math.random()-.5)*sh,P.y+0.9+(Math.random()-.5)*sh,P.z+fz*0.8+(Math.random()-.5)*sh);
+    const qp=new THREE.Quaternion().setFromEuler(new THREE.Euler(P.p,-P.h,-P.r,'YXZ')); camera.quaternion.copy(qp); camera.fov=78;
+  }
+  camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
+}
+function dflFrame(dt){
+  air.t+=dt; dfl.t+=dt; air.hitMsgT-=dt;
+  if(state==='playing' && !dfl.res){ dflFrameWorldPlanes(dt); dflPlayerGuns(dt); dflEnemyGuns(dt); }
+  else if(dfl.res){ if(dfl.pl.dead) dflFall(dfl.pl,dt); if(dfl.en.dead) dflFall(dfl.en,dt); }
+  airUpdateTracers(dt); dflBullets(dt); airUpdateFires(dt);
+  for(let i=air.delayed.length-1;i>=0;i--){ const d=air.delayed[i]; d.t-=dt; if(d.t<=0){ air.delayed.splice(i,1); d.fn(); } }
+  dfl.flash=Math.max(0,dfl.flash-dt*1.5);
+  dflPoseObj(dfl.pm,dfl.pl,air.view===0||dfl.pl.gone); dflPoseObj(dfl.em,dfl.en,true);
+  air.warnT=Math.max(0,air.warnT-dt);
+  dflCamera(dt); if(air.sky) air.sky.position.copy(camera.position);
+  if(air.clouds) for(const c of air.clouds){ c.mesh.position.x=camera.position.x; c.mesh.position.z=camera.position.z; c.m.uniforms.uT.value=air.t; }
+  dflHud(dt); airUpdateSounds(dt);
+  if(air.endT>0){ air.endT-=dt; if(air.endT<=0) dflDebrief(); }
+  air.musT=(air.musT||0)-dt; if(air.musT<=0){ air.musT=1; musicSetIntensity(0.75); }
+}
+
+// ---------- HUD ----------
+function dflMakeHud(){
+  if(!dflHudBuilt){
+    dflHudBuilt=true;
+    const st=document.createElement('style');
+    st.textContent=`
+#dflHud{position:absolute;inset:0;pointer-events:none;display:none;font-family:Playfair Display,Georgia,serif;color:#f0f3e6;text-shadow:0 1px 2px #000}
+#dflPip{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid rgba(255,230,120,.9);border-radius:50%}
+#dflPip::after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:#ffe678;border-radius:50%}
+#dflLead{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border:2px solid rgba(255,90,70,.95);border-radius:50%;display:none}
+#dflEn{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border:2px solid rgba(255,90,70,.95);display:none}
+#dflEn span{position:absolute;left:50%;top:48px;transform:translateX(-50%);font-size:12px;white-space:nowrap;letter-spacing:1px;background:rgba(0,0,0,.4);padding:0 6px}
+#dflEn.off{border:none;width:0;height:0}
+#dflEn.off::before{content:'▲';position:absolute;left:-12px;top:-14px;font-size:26px;color:#ff5a46;transform:rotate(var(--a,0deg))}
+#dflSpd,#dflAlt{position:absolute;bottom:92px;font-size:20px;font-weight:bold;letter-spacing:1px;padding:2px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(240,243,230,.45)}
+#dflSpd{left:26px} #dflAlt{right:26px}
+#dflTop{position:absolute;left:50%;top:64px;transform:translateX(-50%);font-size:15px;letter-spacing:2px;text-align:center;background:rgba(0,0,0,.35);padding:2px 12px}
+#dflBar{display:inline-block;width:120px;height:7px;background:rgba(255,255,255,.2);vertical-align:middle;margin-left:8px}
+#dflBar i{display:block;height:100%;background:#e5694f}
+#dflWarn{position:absolute;left:50%;top:26%;transform:translateX(-50%);font-size:34px;font-weight:bold;letter-spacing:5px;color:#ff5a3a;white-space:nowrap}
+#dflVig{position:absolute;inset:0;background:radial-gradient(circle,rgba(160,0,0,0) 45%,rgba(160,0,0,.6) 100%);opacity:0}
+body.dogmode #ahWrap,body.dogmode #tReload,body.dogmode #tJump,body.dogmode #tCrouch,body.dogmode #tSquad,body.dogmode #tMelee,body.dogmode #tUse,body.dogmode #tSpec,body.dogmode #tArty,body.dogmode #tDig,body.dogmode #tScore,body.dogmode #inv{display:none!important}`;
+    (document.head||document.body).appendChild(st);
+    const w=document.createElement('div'); w.id='dflHud';
+    w.innerHTML='<div id="dflVig"></div><div id="dflPip"></div><div id="dflLead"></div><div id="dflEn"><span id="dflEnT"></span></div><div id="dflSpd"></div><div id="dflAlt"></div><div id="dflTop"></div><div id="dflWarn"></div>';
+    $('hud').appendChild(w);
+  }
+  $('dflHud').style.display='block';
+}
+const _dflv=new V3();
+function dflHud(dt){
+  const P=dfl.pl, E=dfl.en, W=innerWidth, H=innerHeight;
+  const cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp;
+  _dflv.set(P.x+fx*450,P.y+fy*450,P.z+fz*450).project(camera); const pip=$('dflPip');
+  if(_dflv.z<1){ pip.style.display='block'; pip.style.left=((_dflv.x*0.5+0.5)*W)+'px'; pip.style.top=((-_dflv.y*0.5+0.5)*H)+'px'; } else pip.style.display='none';
+  const dist=Math.hypot(E.x-P.x,E.y-P.y,E.z-P.z);
+  _dflv.set(E.x,E.y,E.z).project(camera); let vx=_dflv.x, vy=_dflv.y; const behind=_dflv.z>1; if(behind){ vx=-vx; vy=-vy; }
+  const en=$('dflEn'), on=!behind&&Math.abs(vx)<0.94&&Math.abs(vy)<0.9;
+  if(E.gone){ en.style.display='none'; $('dflLead').style.display='none'; }
+  else {
+    en.style.display='block'; en.className=on?'':'off';
+    let sx,sy; if(on){ sx=(vx*0.5+0.5)*W; sy=(-vy*0.5+0.5)*H; } else { const k=Math.max(Math.abs(vx)/0.9,Math.abs(vy)/0.84,0.001); sx=(vx/k*0.5+0.5)*W; sy=(-vy/k*0.5+0.5)*H; en.style.setProperty('--a',(Math.atan2(vx,vy)*180/Math.PI)+'deg'); }
+    en.style.left=sx+'px'; en.style.top=sy+'px'; $('dflEnT').textContent=`${dfl.spec.en} ${Math.round(dist)} m`; $('dflEnT').style.display=on?'block':'none';
+    const ld=$('dflLead'); if(on&&dist<900&&!E.dead){ const tt=dist/(780+P.s), cpE=Math.cos(E.p);
+      _dflv.set(E.x+Math.sin(E.h)*cpE*E.s*tt,E.y+Math.sin(E.p)*E.s*tt,E.z-Math.cos(E.h)*cpE*E.s*tt).project(camera); ld.style.display=_dflv.z<1?'block':'none'; ld.style.left=((_dflv.x*0.5+0.5)*W)+'px'; ld.style.top=((-_dflv.y*0.5+0.5)*H)+'px'; } else ld.style.display='none';
+  }
+  $('dflSpd').textContent=`${Math.round(P.s*3.6)} km/h`; $('dflAlt').textContent=`${Math.round(P.y)} m`;
+  $('dflTop').innerHTML=`${dfl.spec.en} <span id="dflBar"><i style="width:${Math.max(0,E.hp)}%"></i></span>`;
+  $('dflVig').style.opacity=dfl.flash.toFixed(2);
+  const w=P.stall&&!P.dead?'STALL':(air.warnT>0?air.warn:''); $('dflWarn').textContent=w&&(Math.floor(air.t*4)%2===0)?w:'';
+  $('hpbar').style.width=Math.max(0,P.hp)+'%'; $('hpbar').style.background=P.hp>50?'#cfd8b8':P.hp>25?'#e0b050':'#d0603c';
+  $('stam').style.width=(P.ammo/DFC.AMMO*100)+'%'; $('stam').style.background=P.ammo>100?'#cfd8b8':'#e0b050';
+  $('ammoN').textContent=`THROTTLE ${Math.round(P.thr*100)}%`; $('ammoW').textContent=`AMMO ${P.ammo}`;
+  const m=Math.floor(dfl.t/60), s=Math.floor(dfl.t%60); $('waveInfo').textContent=`DOGFIGHT · ${m}:${String(s).padStart(2,'0')}`;
+  $('objBox').style.display='block'; $('objTxt').textContent=`SHOOT DOWN THE ${dfl.spec.en} · ONE LIFE EACH · ${Math.round(Math.max(0,E.hp))}% LEFT`; $('objFill').style.width=Math.max(0,100-E.hp)+'%'; $('objFill').style.background='#e5694f';
+}
+
+// ---------- start, key, leave, result ----------
+function dogKey(e){
+  if(e.code==='KeyC') air.view=(air.view+1)%2;
+  else if(e.code==='KeyI'){ air.inv=!air.inv; showMsg(air.inv?'PULL BACK / DOWN = NOSE UP':'PUSH FORWARD / UP = NOSE UP',1.5); }
+  else if(e.code==='Space') e.preventDefault();
+}
+function startDogfight(side){
+  side=side||dflSide; dflSide=side; briefMission='dogfight';
+  initAudio();
+  if(duel && isDuel()) closeDuel();
+  if(coop) closeCoop();
+  hideMenus(); skirmClear(); resetExtras(); showBoard(false); skirm.res=null; resetMissionStats();
+  clearSoldiers(); leaveTankMode(); clearPlanes(); resetArtillery(); shock=0; suppress=0;
+  for(const g of grenades) scene.remove(g.m); grenades.length=0;
+  if(air.on) airLeave();
+  air.on=true; air.dog=true; air.phase='fly'; air.t=0; air.tracers=[]; air.traceI=0; air.inX=air.inY=0; air.view=0; air.inv=true; air.sight=false; air.ck=null; air.res=null; air.endT=0; air.shake=0; air.cam=null; air.hitMsgT=0; air.warn=''; air.warnT=0; air.touchBrake=false;
+  mapRoot.visible=false; ground.visible=false; hillGroup.visible=false; tunGroup.visible=false; snow.visible=false;
+  dflBuildWorld(); scene.add(air.root);
+  airApplyTod();
+  camera.far=9000; camera.near=1.5; camera.updateProjectionMatrix();
+  const eside=side==='german'?'usa':'german';
+  const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2);
+  en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022};
+  dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
+  air.pl=pl;
+  dfl.pm=dflMakePlane(side); dfl.em=dflMakePlane(eside); air.root.add(dfl.pm.g); air.root.add(dfl.em.g);
+  dflMakeHud();
+  document.body.classList.add('airmode'); document.body.classList.add('dogmode');
+  musicStart(); MUS.int=0.5; MUS.target=0.6;
+  $('hud').style.display='block'; $('cross').style.visibility='hidden'; $('hpLabel').textContent='HULL'; $('stLabel').textContent='AMMO';
+  $('side').textContent=`${dfl.spec.flag} · ${dfl.spec.name} · DOGFIGHT`; $('side').style.color=(SIDES[side]||SIDES.german).color;
+  $('dead').style.display='none'; playerDead=false; protectT=0; mapDoneT=0; $('mapdone').style.opacity=0;
+  state='paused'; $('pause').style.display='flex'; showAudioInfo();
+  airStartSounds(); try{ if(air.sir){ air.sir.s.stop(); air.sir.l.stop(); } }catch(e){} air.sir=null;
+  dflFrame(0);
+  setTimeout(()=>{ if(air.on && air.dog && state==='playing') showMsg(`BOGEY AHEAD · ${dfl.spec.en} · SHOOT HIM DOWN`,4); },500);
+}
+function dflDebrief(){
+  const r=dfl&&dfl.res; if(!r) return;
+  const side=dfl.side, spec=dfl.spec;
+  airLeave(); musicStop(3); resetArtillery();
+  state='menu'; mouseDown=rmb=false; document.body.style.cursor='default'; if(document.pointerLockElement) document.exitPointerLock();
+  hideMenus(); $('hud').style.display='none'; $('mapdone').style.opacity=0; $('dead').style.display='none';
+  setSpawn(); spawnWorld(selSide,selWeapon,true);
+  try{ const rec=record(side); rec.xp+=r.xp; if(r.won) rec.kills=(rec.kills||0)+1; saveRecord(side,rec); }catch(e){}
+  briefMission='dogfight';
+  $('dTitle').textContent=`DOGFIGHT · ${r.won?'VICTORY':'SHOT DOWN'}`;
+  const m=Math.floor(r.time/60), s=Math.floor(r.time%60), acc=r.shots?Math.round(r.hits/r.shots*100):0;
+  $('dText').innerHTML=`<p><b>${r.won?'ENEMY AIRCRAFT DESTROYED':r.why||'AIRCRAFT LOST'}</b></p><p>${r.won?`The ${spec.en} went down. You came out of it with ${r.hp}% of your plane left.`:`The fight is over. Try a different approach: get on his tail and fire in short bursts.`}</p>
+    <p style="margin-top:8px">Time: ${m}:${String(s).padStart(2,'0')} · Rounds fired: ${r.shots} · Hits: ${r.hits} (${acc}%) · Hits taken: ${r.taken}</p>`;
+  $('dStats').textContent=r.won?'1 kill':'0 kills'; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
+  $('dBanner').innerHTML=''; $('dTiles').innerHTML='';
+  $('dAgain').style.display=''; $('debrief').style.display='flex';
+}
+function showDogBriefing(){
+  briefMission='dogfight'; hideMenus(); $('briefing').style.display='flex';
+  $('bDate').textContent='Summer 1943'; $('bPlace').textContent='The Channel coast, over the white cliffs'; $('bTitle').textContent='DOGFIGHT: ONE AGAINST ONE';
+  $('bFrom').textContent='';
+  $('bText').innerHTML=`<p>A lone Bf 109 and a lone Spitfire meet over the water below a broken cloud deck. Nobody else is coming. One life each, and the first kill wins.</p>
+    <p>The 109 is faster in a dive and climbs well; the Spitfire turns tighter, so do not follow it round in a turn. Use the clouds and the sun, get behind the enemy and fire in short bursts. Lead your shots: the red circle shows where to aim.</p>`;
+  $('bObj').innerHTML='<b>OBJECTIVE</b> · Shoot down the enemy plane before he shoots you down. Do not hit the sea or the cliffs.';
+  $('weapons').style.display='none'; $('coopBtn').style.display='none'; $('modePick').innerHTML=''; $('squadPick').innerHTML='';
+  const cp=$('classPick'); cp.style.display='block';
+  cp.innerHTML='<span style="opacity:.75;margin-right:8px">FLY:</span>'+['german','usa'].map(s=>`<button class="sq${s===dflSide?' sel':''}" data-s="${s}">${DFL_SPEC[s].name.toUpperCase()}</button>`).join('');
+  cp.querySelectorAll('button').forEach(b=>b.onclick=()=>{ dflSide=b.dataset.s; cp.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); });
+  $('bTank').style.display='block';
+  $('bTank').textContent='Mouse steers (or A/D + arrows) · W/S throttle · Click or Space fires · Shift air brake · C cockpit / outside view · I invert the stick';
 }
 
 // ---------- briefing and menu entry ----------
@@ -13065,12 +13449,12 @@ const MAP_INFO={
   remagen:{date:'Western Front · March 1945',place:'The Ludendorff bridge over the Rhine',text:'Golden evening light on the Rhine. The Americans come up from the town of Remagen on the south bank; the Germans hold Erpel and the rocky Erpeler Ley on the north bank. In the middle stands the railway bridge, scarred and half wrecked but still crossable, with the sunset reflected in the river. The ground is open: cross the bridge, wade the shallows, or work along the quays.'},
   lorraine:{date:'Western Front · September 1944',place:'The Lorraine farmland, autumn',text:'Rolling autumn fields with waist-high stone walls, orchards, hay bales and a line of poplars along the farm track. The ground is open: cross it from wall to wall, hay bale to hay bale, and take the farmstead, the barn, the mill and the ridge fort.'},
   ardsummer:{date:'Western Front · Summer',place:'The Ardennes forest',text:'A deep green summer forest around a winding logging track, a lodge and a shattered sawmill. Warm light, a hazy distance and dense trees to creep through.'},
-  normandy:{date:'Western Front · June 1944',place:'A Normandy village, the bocage',text:'Small green fields walled in by thick hedgerows, sunken lanes and old stone farm buildings. Creep along the hedges, fight for the farmhouse, the barn, the church and the manor, and dig in wherever you like.'},
+  normandy:{date:'Western Front · 6 June 1944',place:'Omaha Beach, Normandy',text:'The landing: 224 m of open sand under the bluffs. Americans come in from the sea in the south, over the obstacles, the shingle and the seawall, then fight up the two draws and take the casemates; the Germans hold the strongpoints and the village behind. Clear both draws, then the battery above the village. Shells from the fleet and the batteries keep falling.'},
   ardennes:{date:'Western Front · Winter',place:'The Ardennes forest',text:'A snowbound pine forest cut by one winding logging track, with a lodge and a shattered sawmill. Thick fog, very close woods and a woodcutters camp. Fight between the trees and hold the crossroads.'}
 };
 MAP_INFO.alps={date:'Alpine Front · June 1940',place:'A sunlit pass in the Italian Alps',text:'A narrow mountain track climbs between green meadows and bare white limestone to a stone fort at the summit. Customs huts at the foot, a hospice halfway up and a rocky, echoing, cold fight in between. France holds the heights against the Italian push, or the other way round.'};
 const MAP_MENU=['stalingrad','kursk','berlin','seelow','ardennes','ardsummer','normandy','lorraine','cassino','remagen','alps','iwojima'];
-const sidesFor=id=>isIwo(id)?['usa','japan']:isAlp(id)?['france','italy']:(isLor(id)||isCas(id)||isRem(id))?['usa','german']:isNorm(id)?['usa','france','german']:isArd(id)?['france','german']:['soviet','german'];
+const sidesFor=id=>isIwo(id)?['usa','japan']:isAlp(id)?['france','italy']:(isLor(id)||isCas(id)||isRem(id))?['usa','german']:isNorm(id)?['usa','german']:isArd(id)?['france','german']:['soviet','german'];
 function showSidePick(title,sub,sides,pick,back){
   hideMenus(); state='menu'; $('sidePick').style.display='flex';
   $('spTitle').textContent=title; $('spSub').textContent=sub;
@@ -13144,6 +13528,9 @@ function showMissions(){
   if(selSide==='german'){ const c=document.createElement('div'); c.className='mcard';
     c.innerHTML=`<div class="mnum">✈</div><div class="mbody"><b>STUKA SORTIE${isDone('german','stuka')?' <span class="mdone">✓ COMPLETE</span>':''}</b><span>${AIR_STORY.title} · ${AIR_STORY.date}</span><small>Fly a Ju 87 · dive-bomb Stalingrad · land again</small></div>`;
     c.onclick=()=>showAirBriefing(); box.appendChild(c); }
+  { const c=document.createElement('div'); c.className='mcard';
+    c.innerHTML=`<div class="mnum">✈</div><div class="mbody"><b>DOGFIGHT</b><span>Bf 109 vs Spitfire · The Channel coast · Summer 1943</span><small>One on one · first kill wins · pick your side</small></div>`;
+    c.onclick=()=>showDogBriefing(); box.appendChild(c); }
   for(const id of MISSION_IDS){
     const st=STORY[selSide][id], info=MISSION_INFO[id], open=isUnlocked(selSide,id), done=isDone(selSide,id);
     const c=document.createElement('div'); c.className='mcard'+(open?'':' locked');
@@ -13798,7 +14185,7 @@ function groundType(p){
   for(const r of roofZones) if(p.x>r[0] && p.x<r[2] && p.z>r[1] && p.z<r[3]) return currentMap==='kursk'?'wood':'rubble';
   if(mapSnow) return 'snow';
   if(currentMap==='berlin') return 'rubble';
-  if(currentMap==='cassino'||currentMap==='remagen'||currentMap==='iwojima') return 'gravel';      // stony mountain tracks, cobbles and grit in the town
+  if(currentMap==='cassino'||currentMap==='remagen'||currentMap==='iwojima'||currentMap==='normandy') return 'gravel';      // stony mountain tracks, cobbles and grit in the town
   try{ if(grassAt(p.x,p.z)) return 'grass'; }catch(e){}
   return 'mud';
 }
@@ -14995,7 +15382,7 @@ function showAudioInfo(){
 }
 addEventListener('keydown',e=>{ if(e.code==='Escape' && state==='playing'){ e.preventDefault(); pauseGame(); try{ if(document.pointerLockElement) document.exitPointerLock(); }catch(err){} } });
 addEventListener('mousemove',e=>{ mouseX=e.clientX; });
-$('deploy').onclick=()=>{ if(briefMission==='stuka'){ startStuka(); lockPointer(); } else startMission(briefMission); };
+$('deploy').onclick=()=>{ if(briefMission==='stuka'){ startStuka(); lockPointer(); } else if(briefMission==='dogfight'){ startDogfight(dflSide); lockPointer(); } else startMission(briefMission); };
 $('duelBtn').onclick=()=>showDuelMenu();
 $('gfxBtn').onclick=()=>cycleGraphics();
 $('gfxBtnMenu').onclick=()=>cycleGraphics();
@@ -15015,7 +15402,7 @@ $('msBack').onclick=()=>$('toMenu').onclick();
 $('bBack').onclick=()=>{ if(menuFlow==='maps') showMapList(); else showMissions(); };
 $('dMissions').onclick=()=>{ if(menuFlow==='maps') showMapList(); else showMissions(); };
 $('dMenu').onclick=()=>$('toMenu').onclick();
-$('dAgain').onclick=()=>{ if(briefMission==='stuka'){ startStuka(); lockPointer(); } else startMission(briefMission); };
+$('dAgain').onclick=()=>{ if(briefMission==='stuka'){ startStuka(); lockPointer(); } else if(briefMission==='dogfight'){ startDogfight(dflSide); lockPointer(); } else startMission(briefMission); };
 $('continueBtn').onclick=()=>{ initAudio(); continueGame(); lockPointer(); };
 $('deleteSave').onclick=()=>{ clearSave(); refreshContinue(); };
 $('saveBtn').onclick=()=>{ writeSave(false); };
@@ -15053,7 +15440,7 @@ $('realMenu').onclick=()=>{ $('realDead').style.display='none'; $('toMenu').oncl
 $('restartBtn').onclick=()=>{
   if(!confirm('Restart this mission from the beginning? Your current progress in it will be lost.')) return;
   restarting=true;
-  try{ $('pause').style.display='none'; if(air.on){ startStuka(); } else startMission(currentMap); lockPointer(); }
+  try{ $('pause').style.display='none'; if(air.on&&air.dog){ startDogfight(dfl?dfl.side:dflSide); } else if(air.on){ startStuka(); } else startMission(currentMap); lockPointer(); }
   finally{ restarting=false; }
 };
 $('respawnBtn').onclick=()=>{

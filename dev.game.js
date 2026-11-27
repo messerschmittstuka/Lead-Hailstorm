@@ -9588,7 +9588,7 @@ function startStuka(){
   airFrame(0);
   setTimeout(()=>{ if(air.on && state==='playing') showMsg('AIRBORNE · STALINGRAD AHEAD · EAST ALONG THE RIVER',4); },500);
 }
-function airLeave(){
+function airLeave(){ camera.up.set(0,1,0); air.camUp=null;
   if(!air.on) return;
   air.on=false; air.phase='off'; airStopSounds();
   if(air.dog){ air.dog=false; dfl=null; const dh=$('dflHud'); if(dh) dh.style.display='none'; document.body.classList.remove('dogmode'); air.rings=[]; air.deb=[]; air.tracers=[]; }
@@ -9684,7 +9684,7 @@ function airFlight(dt){
     if(IS_TOUCH){ const tx=touch.joyX*0.7, ty=-touch.joyY*(air.inv?-1:1)*0.7; P.cx+=(tx-P.cx)*Math.min(1,dt*5); P.cy+=(ty-P.cy)*Math.min(1,dt*5); }
     else {
       P.cx=aClamp(P.cx+air.inX*0.0020+kx*dt*1.5,-1,1); P.cy=aClamp(P.cy-air.inY*0.0020*(air.inv?-1:1)+ky*dt*1.1,-1,1);
-      if(!kx && Math.abs(P.cx)<0.88) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
+      if(!kx) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
     }
     air.inX=air.inY=0;
     if(!IS_TOUCH){ if(keys.KeyW) P.thr=Math.min(1,P.thr+dt*0.5); if(keys.KeyS) P.thr=Math.max(0.15,P.thr-dt*0.5); }
@@ -10646,25 +10646,43 @@ function dflBuildWorld(){
 
 // ---------- flight model (the player's plane and the enemy's use the same one) ----------
 function dflFly(P,S,dt){ if(P===dfl.pl) dflFlyFull(P,S,dt); else dflFlyArc(P,S,dt); }
-// the player's model: the stick sets the bank all the way round to inverted; the lift follows the wings, so a pull while inverted drops the nose,
-// and climbing bleeds speed (tighter, slower turns) while diving builds it (wider, faster ones)
+// the player's model: a full 3D attitude (a quaternion), so loops, Immelmanns, Split-S and rolls all work.
+// stick forward/back pulls the nose toward the plane's own top; roll keys roll about the nose; lift follows the wings
+const _fq=new THREE.Quaternion(), _fv=new THREE.Vector3(), _ff=new THREE.Vector3(), _fu=new THREE.Vector3();
+function dflRotW(q,x,y,z,ang){ _fv.set(x,y,z); _fq.setFromAxisAngle(_fv,ang); q.premultiply(_fq); }
+function dflRotB(q,x,y,z,ang){ _fv.set(x,y,z); _fq.setFromAxisAngle(_fv,ang); q.multiply(_fq); }
+function dflDerive(P){
+  _ff.set(0,0,-1).applyQuaternion(P.q); _fu.set(0,1,0).applyQuaternion(P.q);
+  const fx=_ff.x, fy=_ff.y, fz=_ff.z; P.h=Math.atan2(fx,-fz); P.p=Math.asin(aClamp(fy,-1,1));
+  let sx=-fz, sz=fx; const sl=Math.hypot(sx,sz)||1; sx/=sl; sz/=sl;
+  const u0x=-sz*fy, u0y=sz*fx-sx*fz, u0z=sx*fy;
+  P.r=Math.atan2(_fu.x*sx+_fu.z*sz, _fu.x*u0x+_fu.y*u0y+_fu.z*u0z);
+}
 function dflFlyFull(P,S,dt){
-  const cxc=aClamp(P.cx,-1,1), tgt=Math.sign(cxc)*Math.pow(Math.abs(cxc),2.2)*Math.PI;      // gentle near the middle, full inverted at the end of the stick
-  P.r+=aClamp((tgt-P.r)*S.rollRate,-3.6,3.6)*dt; P.r=aClamp(P.r,-Math.PI,Math.PI);
-  const cp=Math.cos(P.p), sr=Math.sin(P.r), cr=Math.cos(P.r);
+  if(!P.q){ P.q=new THREE.Quaternion().setFromEuler(new THREE.Euler(P.p,-P.h,-P.r,'YXZ')); }
+  const q=P.q;
+  _ff.set(0,0,-1).applyQuaternion(q); _fu.set(0,1,0).applyQuaternion(q);
+  const fx=_ff.x, fy=_ff.y, fz=_ff.z, ux=_fu.x, uy=_fu.y, uz=_fu.z, cp=Math.hypot(fx,fz), sl=Math.max(cp,1e-4);
   const sf=aClamp(Math.sqrt(100/Math.max(P.s,50)),0.75,1.3), pull=P.cy*S.pitch*sf;
-  let pd=pull*cr-Math.abs(sr)*0.2+Math.min(0,cr)*0.25;
-  P.stall=P.s<S.vmin; if(P.stall) pd-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3);
-  if(P.y>1300){ pd-=dflSS(1300,1550,P.y)*1.2; airWarn('TOO HIGH - LEVEL OFF',0.3); }
-  P.h+=(sr*2.0*9.8*S.turn/Math.max(P.s,40)*Math.max(0.35,cp)+pull*sr/Math.max(cp,0.35))*dt;
-  P.g=1+Math.max(0,Math.abs(pull))*P.s/9.8;
-  P.p=aClamp(P.p+pd*dt,-1.45,1.35);
+  // the horizontal part of the lift turns the plane (zero when level or inverted, most when banked); it falls with speed, so a slow climb turns tighter and a fast dive wider
+  const bankTurn=(ux*(-fz)+uz*fx)*2.0*9.8*S.turn/Math.max(P.s,40);
+  // nose-down tendencies measured against the horizon: bank sag, inverted lift, stall, ceiling
+  let wp=-Math.abs(Math.sin(P.r))*0.2+Math.min(0,uy)*0.25;
+  P.stall=P.s<S.vmin; if(P.stall) wp-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3);
+  if(P.y>1300){ wp-=dflSS(1300,1550,P.y)*1.2; airWarn('TOO HIGH - LEVEL OFF',0.3); }
+  // roll: the stick is a roll rate; with it centred the wings ease level when you are the right way up
+  let roll=P.cx*S.rollRate*1.1; if(Math.abs(P.cx)<0.08 && Math.abs(P.r)<1.2 && cp>0.5) roll+=-P.r*0.35;
+  dflRotB(q,0,0,1,-roll*dt);
+  dflRotB(q,1,0,0,pull*dt);
+  dflRotW(q,0,1,0,-bankTurn*dt);
+  const w=aClamp(sl*3,0,1); if(w>0.01) dflRotW(q,-fz/sl,0,fx/sl,wp*dt*w);
+  q.normalize(); dflDerive(P);
+  P.g=1+Math.abs(pull)*P.s/9.8;
   const target=S.vmin+10+P.thr*(S.vmax-S.vmin-10);
-  let ds=(P.p>-0.1?(target-P.s)*0.17:(target-P.s)*0.05)-9.8*Math.sin(P.p)*1.35-0.00006*P.s*P.s*(P.brake?4:1)-Math.abs(pull)*P.s*0.05-Math.abs(sr)*P.s*0.012;
+  let ds=(P.p>-0.1?(target-P.s)*0.17:(target-P.s)*0.05)-9.8*Math.sin(P.p)*1.35-0.00006*P.s*P.s*(P.brake?4:1)-Math.abs(pull)*P.s*0.05-Math.abs(Math.sin(P.r))*P.s*0.012;
   P.s=aClamp(P.s+ds*dt,S.vmin*0.7,S.vmax+30);
-  const cp2=Math.cos(P.p);
-  P.x+=Math.sin(P.h)*cp2*P.s*dt; P.z+=-Math.cos(P.h)*cp2*P.s*dt; P.y+=Math.sin(P.p)*P.s*dt; P.vy=Math.sin(P.p)*P.s;
-  if(P.y>1650){ P.y=1650; P.p=Math.min(P.p,0); }
+  P.x+=_ff.x*P.s*dt; P.z+=_ff.z*P.s*dt; P.y+=_ff.y*P.s*dt; P.vy=_ff.y*P.s;
+  if(P.y>1650){ P.y=1650; }
 }
 function dflFlyArc(P,S,dt){
   P.r+=(P.cx*1.05-P.r)*Math.min(1,dt*S.rollRate);
@@ -10684,6 +10702,7 @@ function dflFlyArc(P,S,dt){
 }
 // a plane that is out of control falls, rolling
 function dflFall(P,dt){
+  if(P.q) P.q=null;
   P.p=Math.max(P.p-dt*0.5,-1.1); P.r+=dt*3.2*(P.fall||1); P.s=Math.min(P.s+dt*24,140);
   P.h+=dt*0.25*(P.fall||1);
   const cp=Math.cos(P.p); P.x+=Math.sin(P.h)*cp*P.s*dt; P.z+=-Math.cos(P.h)*cp*P.s*dt; P.y+=Math.sin(P.p)*P.s*dt;
@@ -10708,7 +10727,8 @@ function dflAI(dt){
     else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){ A.mode='break'; A.t=0.9+Math.random()*0.7; A.dir=Math.random()<.5?1:-1; A.brkCD=9; }
   } else if(A.t<=0) A.mode='engage';
   A.brkCD-=dt;
-  const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+Math.sin(P.h)*cpP*P.s*tl, ty=P.y+pfy*P.s*tl, tz=P.z-Math.cos(P.h)*cpP*P.s*tl;
+  if(!A.ev) A.ev=new V3(pfx*P.s,pfy*P.s,pfz*P.s); const ke=Math.min(1,dt*0.45); A.ev.x+=(pfx*P.s-A.ev.x)*ke; A.ev.y+=(pfy*P.s-A.ev.y)*ke; A.ev.z+=(pfz*P.s-A.ev.z)*ke;      // he cannot read your speed: his estimate takes a couple of seconds to catch up, so if you slow down he flies past
+  const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+A.ev.x*tl, ty=P.y+A.ev.y*tl, tz=P.z+A.ev.z*tl;
   const dh=dflWrap(Math.atan2(tx-E.x,-(tz-E.z))-E.h), dp=Math.atan2(ty-E.y,Math.hypot(tx-E.x,tz-E.z))-E.p;
   let cx=0, cy=0, thr=0.8;
   if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>450?1:(dist>250?0.75:0.5); if(dist<200&&dot>0.9) thr=0.45; }
@@ -10739,7 +10759,7 @@ function dflPlayerInput(dt){
   if(IS_TOUCH){ const tx=touch.joyX*0.7, ty=-touch.joyY*(air.inv?-1:1)*0.7; P.cx+=(tx-P.cx)*Math.min(1,dt*5); P.cy+=(ty-P.cy)*Math.min(1,dt*5); }
   else {
     P.cx=aClamp(P.cx+air.inX*0.0020+kx*dt*1.5,-1,1); P.cy=aClamp(P.cy-air.inY*0.0020*(air.inv?-1:1)+ky*dt*1.1,-1,1);
-    if(!kx && Math.abs(P.cx)<0.88) P.cx*=Math.exp(-dt*0.8); if(!ky) P.cy*=Math.exp(-dt*1.0);
+    if(!kx) P.cx*=Math.exp(-dt*2.5); if(!ky) P.cy*=Math.exp(-dt*1.0);
   }
   air.inX=air.inY=0;
   if(!IS_TOUCH){ if(keys.KeyW) P.thr=Math.min(1,P.thr+dt*0.5); if(keys.KeyS) P.thr=Math.max(0.2,P.thr-dt*0.5); }
@@ -10824,22 +10844,25 @@ function dflFrameWorldPlanes(dt){
   if(!P.dead && Math.hypot(P.x,P.z)>DFC.LIM){ dfl.outT+=dt; airWarn('TURN BACK!',0.3); if(dfl.outT>9) dflEnd('lost','YOU LEFT THE AREA'); } else dfl.outT=0;
 }
 function dflPoseObj(O,X,show){
-  O.g.visible=show&&!X.gone; O.g.position.set(X.x,X.y,X.z); O.g.rotation.order='YXZ'; O.g.rotation.set(X.p,-X.h,-X.r);
+  O.g.visible=show&&!X.gone; O.g.position.set(X.x,X.y,X.z); if(X.q) O.g.quaternion.copy(X.q); else { O.g.rotation.order='YXZ'; O.g.rotation.set(X.p,-X.h,-X.r); }
 }
 function dflCamera(dt){
   const P=dfl.pl, cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp;
   air.shake=Math.max(0,air.shake-dt*1.6); const sh=air.shake*1.3;
   const dead=P.gone;
   if(air.view===0 || dead){
-    const back=17+(P.s-100)*0.04, tx=P.x-fx*back, ty=P.y-fy*back+4.6, tz=P.z-fz*back;
+    const back=17+(P.s-100)*0.04, wv=P.q?dflSS(0.55,0.92,Math.abs(fy)):0;
+    let cux=0,cuy=1,cuz=0; if(P.q){ _fu.set(0,1,0).applyQuaternion(P.q); cux=_fu.x*wv; cuy=(1-wv)+_fu.y*wv; cuz=_fu.z*wv; const cl=Math.hypot(cux,cuy,cuz)||1; cux/=cl; cuy/=cl; cuz/=cl; }
+    air.camUp=air.camUp||new V3(0,1,0); const kc=Math.min(1,dt*6); air.camUp.x+=(cux-air.camUp.x)*kc; air.camUp.y+=(cuy-air.camUp.y)*kc; air.camUp.z+=(cuz-air.camUp.z)*kc; air.camUp.normalize();
+    const tx=P.x-fx*back+air.camUp.x*4.6, ty=P.y-fy*back+air.camUp.y*4.6, tz=P.z-fz*back+air.camUp.z*4.6;
     if(!air.cam) air.cam={x:tx,y:ty,z:tz};
     const k=dead?0:1-Math.exp(-dt*9); air.cam.x+=(tx-air.cam.x)*k; air.cam.y+=(ty-air.cam.y)*k; air.cam.z+=(tz-air.cam.z)*k;
     camera.position.set(air.cam.x+(Math.random()-.5)*sh,Math.max(air.cam.y,dflGround(air.cam.x,air.cam.z)+3)+(Math.random()-.5)*sh,air.cam.z+(Math.random()-.5)*sh);
-    camera.lookAt(P.x+fx*30,P.y+fy*30+1.2,P.z+fz*30); camera.fov=64+aClamp((P.s-100)*0.12,0,8);
+    camera.up.copy(air.camUp); camera.lookAt(P.x+fx*30,P.y+fy*30+1.2,P.z+fz*30); camera.fov=64+aClamp((P.s-100)*0.12,0,8);
   } else {
     air.cam=null;
     camera.position.set(P.x+fx*0.8+(Math.random()-.5)*sh,P.y+0.9+(Math.random()-.5)*sh,P.z+fz*0.8+(Math.random()-.5)*sh);
-    const qp=new THREE.Quaternion().setFromEuler(new THREE.Euler(P.p,-P.h,-P.r,'YXZ')); camera.quaternion.copy(qp); camera.fov=78;
+    const qp=P.q?P.q.clone():new THREE.Quaternion().setFromEuler(new THREE.Euler(P.p,-P.h,-P.r,'YXZ')); camera.up.set(0,1,0); camera.quaternion.copy(qp); camera.fov=78;
   }
   camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
 }
@@ -10939,7 +10962,8 @@ function startDogfight(side){
   try{ const u=air.sea.uniforms; u.uHaze.value.copy(scene.fog.color); u.uSun.value.copy(sun.position).normalize(); }catch(e){}
   camera.far=9000; camera.near=1.5; camera.updateProjectionMatrix();
   const eside=side==='german'?'usa':'german';
-  const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2); en.hp=50;
+  const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2);
+  pl.q=new THREE.Quaternion().setFromEuler(new THREE.Euler(pl.p,-pl.h,-pl.r,'YXZ')); en.hp=50;
   en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022};
   dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
   air.pl=pl;

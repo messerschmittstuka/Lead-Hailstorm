@@ -10433,7 +10433,7 @@ function airCamera(dt){
 
 // ---------- the whole mission, once per frame ----------
 function airFrame(dt){
-  if(air.dog){ dogFrame(dt); return; }
+  if(air.dog){ dflFrame(dt); return; }
   air.t+=dt; air.dropCD-=dt; air.hitMsgT-=dt;
   airFlight(dt);
   airUpdateBombs(dt); airFireGuns(dt); airUpdateFlak(dt); airUpdateBursts(dt); airUpdateFighters(dt); airUpdateWorld(dt); airUpdateTracers(dt); airUpdateFires(dt);
@@ -10495,9 +10495,32 @@ function dflNewState(x,y,z,h){ return {x,y,z,h,p:0,r:0,s:100,thr:0.75,cx:0,cy:0,
 
 function dflBuildWorld(){
   const root=new THREE.Group(); air.root=root; seed=777;
-  const seaTex=canvasTex(256,(x,s)=>{ x.fillStyle='#51707b'; x.fillRect(0,0,s,s); blots(x,s,40,20,70,'rgba(30,50,60,.28)'); blots(x,s,40,10,40,'rgba(190,210,215,.16)'); specks(x,s,500,2,['rgba(220,235,240,.35)','rgba(20,40,50,.3)']); });
-  seaTex.wrapS=seaTex.wrapT=THREE.RepeatWrapping; seaTex.repeat.set(160,160);
-  const sea=new THREE.Mesh(new THREE.PlaneGeometry(40000,40000),new THREE.MeshLambertMaterial({map:seaTex})); sea.rotation.x=-Math.PI/2; root.add(sea);
+  // the sea: a shader with waves at several scales that never tile, glints from the sun and foam on the crests; it fades into the haze with distance
+  const seaM=new THREE.ShaderMaterial({fog:false,uniforms:{uT:{value:0},uHaze:{value:new THREE.Color(0xaab5c2)},uSun:{value:new THREE.Vector3(-0.3,0.55,0.4).normalize()},uDeep:{value:new THREE.Color(0x2a4856)},uShallow:{value:new THREE.Color(0x4d7684)}},
+    vertexShader:'varying vec3 vW; void main(){ vec4 w=modelMatrix*vec4(position,1.0); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
+    fragmentShader:`varying vec3 vW; uniform float uT; uniform vec3 uHaze,uSun,uDeep,uShallow;
+      float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float n(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y); }
+      float hgt(vec2 p){ float t=uT; vec2 q=p+vec2(n(p*0.0013)*900.0,n(p*0.0013+9.0)*900.0);
+        return n(q*0.0042+vec2(t*0.02,t*0.008))*1.1+n(q*0.015+vec2(-t*0.05,t*0.04)+7.0)*0.6+n(p*0.058+vec2(t*0.11,-t*0.08)+19.0)*0.28+n(p*0.21+vec2(t*0.2,t*0.15)+31.0)*0.1; }
+      void main(){
+        vec2 p=vW.xz; float dist=length(vW-cameraPosition), e=1.2+dist*0.0015;
+        float h0=hgt(p), hx=hgt(p+vec2(e,0.0)), hz=hgt(p+vec2(0.0,e));
+        float k=7.0/(1.0+dist*0.0009);
+        vec3 nr=normalize(vec3(-(hx-h0)/e*k,1.0,-(hz-h0)/e*k));
+        vec3 view=normalize(cameraPosition-vW);
+        float fres=0.04+0.7*pow(1.0-max(dot(nr,view),0.0),4.0);
+        vec3 base=mix(uDeep,uShallow,smoothstep(0.55,1.7,h0)); base*=0.82+0.3*n(p*0.0009+3.0);
+        vec3 col=base*(0.5+0.5*max(dot(nr,normalize(uSun)),0.0));
+        col=mix(col,mix(uHaze,vec3(0.5,0.58,0.66),0.5),fres);
+        vec3 r=reflect(-normalize(uSun),nr); col+=vec3(1.0,0.93,0.8)*pow(max(dot(r,view),0.0),70.0)*0.7;
+        float crest=smoothstep(1.5,1.95,h0+n(p*0.35+uT*0.25)*0.28); col=mix(col,vec3(0.86,0.9,0.92),crest*0.5*(1.0-smoothstep(1200.0,3800.0,dist)));
+        col=mix(col,uHaze,smoothstep(3500.0,8500.0,dist));
+        gl_FragColor=vec4(col,1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`});
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(40000,40000),seaM); sea.rotation.x=-Math.PI/2; root.add(sea); air.sea=seaM;
   const fieldTex=canvasTex(512,(x,s)=>{ x.fillStyle='#6d7f47'; x.fillRect(0,0,s,s); const cols=['#7b8c4a','#8a9650','#9aa35a','#677a40','#a6a45e','#5f7440']; for(let i=0;i<28;i++){ x.fillStyle=cols[i%cols.length]; x.fillRect(Math.random()*s*0.9,Math.random()*s*0.9,40+Math.random()*130,30+Math.random()*100); } specks(x,s,1500,3,['rgba(60,70,40,.4)','rgba(150,150,90,.3)']); });
   fieldTex.wrapS=fieldTex.wrapT=THREE.RepeatWrapping; fieldTex.repeat.set(40,40);
   const chalk=new THREE.MeshLambertMaterial({color:0xe6e2d4}), grass=new THREE.MeshLambertMaterial({map:fieldTex});
@@ -10705,6 +10728,7 @@ function dflFrame(dt){
   air.warnT=Math.max(0,air.warnT-dt);
   dflCamera(dt); if(air.sky) air.sky.position.copy(camera.position);
   if(air.clouds) for(const c of air.clouds){ c.mesh.position.x=camera.position.x; c.mesh.position.z=camera.position.z; c.m.uniforms.uT.value=air.t; }
+  if(air.sea) air.sea.uniforms.uT.value=air.t;
   dflHud(dt); airUpdateSounds(dt);
   if(air.endT>0){ air.endT-=dt; if(air.endT<=0) dflDebrief(); }
   air.musT=(air.musT||0)-dt; if(air.musT<=0){ air.musT=1; musicSetIntensity(0.75); }
@@ -10786,6 +10810,7 @@ function startDogfight(side){
   mapRoot.visible=false; ground.visible=false; hillGroup.visible=false; tunGroup.visible=false; snow.visible=false;
   dflBuildWorld(); scene.add(air.root);
   airApplyTod();
+  try{ const u=air.sea.uniforms; u.uHaze.value.copy(scene.fog.color); u.uSun.value.copy(sun.position).normalize(); }catch(e){}
   camera.far=9000; camera.near=1.5; camera.updateProjectionMatrix();
   const eside=side==='german'?'usa':'german';
   const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2);

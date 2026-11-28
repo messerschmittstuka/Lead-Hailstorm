@@ -10469,8 +10469,8 @@ function airDebrief(){
 
 /* ================= DOGFIGHT: Bf 109 vs Spitfire, one on one over the Channel coast. One life each: the first kill wins ================= */
 const DFL_SPEC={
-  german:{name:'Bf 109 G',glb:'bf109',vmin:58,vmax:160,cruise:102,rollRate:2.6,turn:2.15,pitch:0.78,flag:'LUFTWAFFE',en:'SPITFIRE'},
-  usa:{name:'Spitfire Mk IX',glb:'spitfire',vmin:54,vmax:152,cruise:96,rollRate:3.1,turn:2.45,pitch:0.9,flag:'ROYAL AIR FORCE',en:'BF 109'}
+  german:{name:'Bf 109 G',glb:'bf109',hub:[0,0.6],vmin:58,vmax:160,cruise:102,rollRate:2.6,turn:2.15,pitch:0.78,flag:'LUFTWAFFE',en:'SPITFIRE'},
+  usa:{name:'Spitfire Mk IX',glb:'spitfire',hub:[0,-0.07],vmin:54,vmax:152,cruise:96,rollRate:3.1,turn:2.45,pitch:0.9,flag:'ROYAL AIR FORCE',en:'BF 109'}
 };
 const DFC={COAST:2600,CLIFF:70,LIM:4200,AMMO:600,DMG_P:6,DMG_E:2.5,HIT_R:7.5};
 let dfl=null, dflSide='german', dflHudBuilt=false;
@@ -10595,11 +10595,14 @@ function dflMakePlane(side){
   if(src){
     const m=src.clone(true); g.add(m);
     m.traverse(o=>{ if(o.isMesh && o.material){ for(const q of (Array.isArray(o.material)?o.material:[o.material])){ if(q.name==='glass'){ q.transparent=true; q.opacity=0.45; q.depthWrite=false; q.side=THREE.DoubleSide; } } } });
+    // the propeller is its own piece in the model; give it a pivot on the hub so it can spin
+    let pr=null; m.traverse(o=>{ if(o.name==='fighter_prop') pr=o; });
+    if(pr){ const hub=S.hub, pv=new THREE.Group(); pv.position.set(hub[0],hub[1],-4.1); pr.parent.add(pv); pr.position.set(-hub[0],-hub[1],4.1); pv.add(pr); g.userData.prop=pv; }
     const bb=new THREE.Box3().setFromObject(m); let sx=0,sy=0,n=0;
     m.traverse(o=>{ if(!o.isMesh) return; const p=o.geometry.attributes.position; for(let i=0;i<p.count;i++) if(p.getZ(i)<bb.min.z+0.3){ sx+=p.getX(i); sy+=p.getY(i); n++; } });
     if(n) nose.set(sx/n,sy/n,bb.min.z);
   } else { g.add(airBuildYak().g); }
-  const disc=new THREE.Mesh(new THREE.CircleGeometry(1.45,28),new THREE.MeshBasicMaterial({color:0x1c1c1a,transparent:true,opacity:0.2,side:THREE.DoubleSide,depthWrite:false}));      // the blur of the propeller
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(1.45,28),new THREE.MeshBasicMaterial({color:0x1c1c1a,transparent:true,opacity:0.12,side:THREE.DoubleSide,depthWrite:false}));      // the blur of the propeller
   disc.position.copy(nose); disc.position.z-=0.05; g.add(disc);
   return {g,nose};
 }
@@ -10891,6 +10894,7 @@ function dflFrame(dt){
   airUpdateTracers(dt); dflBullets(dt); airUpdateFires(dt);
   for(let i=air.delayed.length-1;i>=0;i--){ const d=air.delayed[i]; d.t-=dt; if(d.t<=0){ air.delayed.splice(i,1); d.fn(); } }
   dfl.flash=Math.max(0,dfl.flash-dt*1.5);
+  for(const [o,X] of [[dfl.pm,dfl.pl],[dfl.em,dfl.en]]){ const pv=o.g.userData.prop; if(pv) pv.rotation.z-=(X.dead?6:16+X.thr*30)*dt; }      // the propeller turns with the throttle
   dflPoseObj(dfl.pm,dfl.pl,air.view===0||dfl.pl.gone); dflPoseObj(dfl.em,dfl.en,true);
   air.warnT=Math.max(0,air.warnT-dt);
   dflCamera(dt); if(air.sky) air.sky.position.copy(camera.position);

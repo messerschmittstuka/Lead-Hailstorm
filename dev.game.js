@@ -10515,10 +10515,11 @@ const dflSS=(a,b,x)=>{ const t=Math.min(1,Math.max(0,(x-a)/(b-a))); return t*t*(
 const dflCoastZ=x=>DFC.COAST+170*Math.sin(x*0.0011+0.6)+80*Math.sin(x*0.0029+2.0)+40*Math.sin(x*0.0071);
 const dflRiverX=z=>900+420*Math.sin(z*0.0021)+200*Math.sin(z*0.0053+2);
 const DFL_HB={x:dflRiverX(DFC.COAST)}; DFL_HB.z=dflCoastZ(DFL_HB.x);
+const DFL_AF={x:-1900,h:72,hw:60,hl:520}; DFL_AF.z=dflCoastZ(DFL_AF.x)+900;      // the airfield on the plateau, runway running inland
 // [height, river water 0..1, river-bank-clear 0..1, distance inland from the shore, harbour flat 0..1]
 function dflTerrInfo(x,z){
   const d=z-dflCoastZ(x);
-  if(d<-125) return [-3,0,1,d,0];
+  if(d<-125) return [-3,0,1,d,0,0];
   const rd=Math.abs(x-dflRiverX(z)), wd=55+85*(1-dflSS(0,1800,d));
   const core=1-dflSS(wd*0.5,wd*0.72,rd), bank=1-dflSS(wd*0.6,wd*4.5,rd), rb=1-dflSS(wd*0.8,wd*1.5,rd);
   let h=-3+5.5*dflSS(-110,60,d);
@@ -10528,11 +10529,13 @@ function dflTerrInfo(x,z){
   h+=(4.2-h)*low*dflSS(0,90,d);
   const bed=0.9+11*dflSS(0,2600,d);
   h+=(bed-h)*Math.min(1,Math.max(bank*(1-low),1-dflSS(wd*0.5,wd*1.1,rd))*0.92)*dflSS(0,80,d);
-  return [h,core*dflSS(10,60,d),rb,d,low];
+  const AF=DFL_AF, afm=1-dflSS(0,260,Math.hypot(Math.max(Math.abs(x-AF.x)-AF.hw,0),Math.max(Math.abs(z-AF.z)-AF.hl,0)));
+  h+=(AF.h-h)*afm;
+  return [h,core*dflSS(10,60,d),rb,d,low,afm];
 }
 const dflGround=(x,z)=>z<DFC.COAST-800?0:Math.max(0,dflTerrInfo(x,z)[0]);
 function dflWoodAt(x,z){ const t=dflTerrInfo(x,z); if(t[3]<170) return 0;
-  return (dflN(x*0.0014+11,z*0.0014)*0.7+dflN(x*0.005,z*0.005+4)*0.3)*(1-t[2])*(1-t[4]); }
+  return (dflN(x*0.0014+11,z*0.0014)*0.7+dflN(x*0.005,z*0.005+4)*0.3)*(1-t[2])*(1-t[4])*(1-t[5]); }
 function dflInst(root,geo,mat,list){
   const im=new THREE.InstancedMesh(geo,mat,list.length), o=new THREE.Object3D(), c=new THREE.Color();
   list.forEach((b,i)=>{ o.position.set(b.x,b.y,b.z); o.rotation.set(0,b.ry||0,0); o.scale.set(b.sx,b.sy,b.sz); o.updateMatrix(); im.setMatrixAt(i,o.matrix); c.setHex(b.c); im.setColorAt(i,c); });
@@ -10595,9 +10598,9 @@ function dflBuildLand(root){
     walls.push({x,y:g+h/2,z,sx:w,sy:h,sz:d,ry,c:wc}); roofs.push({x,y:g+h+rh/2,z,sx:w*1.15,sy:rh,sz:d*1.15,ry,c:rc}); };
   const HB=DFL_HB;
   for(let n=0,tries=0;n<120 && tries<2000;tries++){ const a=rnd()*6.283, r=90+rnd()*300, x=HB.x+Math.cos(a)*r, z=HB.z+80+Math.sin(a)*r*0.8, t=dflTerrInfo(x,z);
-    if(t[3]<30||t[1]>0.02||t[2]>0.5||t[0]<2.5) continue; house(x,z,7+rnd()*6,7+rnd()*5,5+rnd()*4,(rnd()<0.5?0:Math.PI/2)+(rnd()-.5)*0.2); n++; }
+    if(t[3]<30||t[1]>0.02||t[2]>0.5||t[0]<2.5||t[5]>0.02) continue; house(x,z,7+rnd()*6,7+rnd()*5,5+rnd()*4,(rnd()<0.5?0:Math.PI/2)+(rnd()-.5)*0.2); n++; }
   for(let hm=0;hm<16;hm++){ const cx=(rnd()-.5)*9000, cz=DFC.COAST+500+rnd()*3200, t0=dflTerrInfo(cx,cz); if(t0[2]>0.3||dflWoodAt(cx,cz)>0.5||t0[3]<200) { hm--; if(rnd()<0.02) break; continue; }
-    const cnt=4+((rnd()*6)|0); for(let b=0;b<cnt;b++){ const x=cx+(rnd()-.5)*160, z=cz+(rnd()-.5)*160, t=dflTerrInfo(x,z); if(t[2]>0.4||t[1]>0.02) continue; house(x,z,8+rnd()*10,6+rnd()*5,4.5+rnd()*3,rnd()*3.14); } }
+    const cnt=4+((rnd()*6)|0); for(let b=0;b<cnt;b++){ const x=cx+(rnd()-.5)*160, z=cz+(rnd()-.5)*160, t=dflTerrInfo(x,z); if(t[2]>0.4||t[1]>0.02||t[5]>0.02) continue; house(x,z,8+rnd()*10,6+rnd()*5,4.5+rnd()*3,rnd()*3.14); } }
   dflInst(root,new THREE.BoxGeometry(1,1,1),airMat(0xffffff),walls);
   const rg=new THREE.CylinderGeometry(0,0.72,1,4,1); rg.rotateY(Math.PI/4); dflInst(root,rg,airMat(0xffffff),roofs);
   // church and lighthouse
@@ -10616,6 +10619,18 @@ function dflBuildLand(root){
   for(let i=0;i<5;i++){ const bx=HB.x-250+rnd()*500, bz=cz0(bx)-60-rnd()*160; aBox(root,5,2,12+rnd()*10,airMat(hull[(rnd()*5)|0]),bx,1,bz,0,rnd()*3.14,0); }
   for(let i=0;i<4;i++){ const cx=HB.x-110+i*70, cz=cz0(cx)+16, cy=gy(cx,cz); aBox(root,2,24,2,airMat(0xb5382c),cx,cy+12,cz); aBox(root,2,1.6,26,airMat(0xb5382c),cx,cy+24,cz-8); }
   for(let i=0;i<7;i++){ const wx=HB.x-250+i*85, wz=cz0(wx)+75+rnd()*30, wy=gy(wx,wz); aBox(root,30,9,14,airMat(0x8a8c86),wx,wy+4.5,wz); aBox(root,31,2,15,airMat(0x5c4a42),wx,wy+10,wz); }
+  // the airfield: a runway with a centre line, threshold bars and edge lights, two hangars, a tower and a windsock
+  { const AF=DFL_AF, ay=AF.h, dk=airMat(0x3b3d3f), wh=airMat(0xe8e6dc);
+    aBox(root,40,0.5,AF.hl*2,dk,AF.x,ay+0.25,AF.z);
+    for(let k=-8;k<=8;k++) aBox(root,1.2,0.52,22,wh,AF.x,ay+0.28,AF.z+k*58);
+    for(const e of [-1,1]) for(let i=-7;i<=7;i+=2) aBox(root,1.8,0.52,10,wh,AF.x+i*2.4,ay+0.28,AF.z+e*(AF.hl-10));
+    for(let i=0;i<3;i++){ aBox(root,34,12,22,airMat(0x7d8079),AF.x+110,ay+6,AF.z-300+i*60); aBox(root,35,2.4,23,airMat(0x4e4a48),AF.x+110,ay+13,AF.z-300+i*60); }
+    aBox(root,8,18,8,airMat(0xcfc6b0),AF.x-90,ay+9,AF.z-120); aBox(root,10,3,10,airMat(0x2b2d2b),AF.x-90,ay+19.5,AF.z-120);
+    aCyl(root,0.25,0.25,10,airMat(0xcfcfcf),AF.x-60,ay+5,AF.z+300,0,0,0,6); aBox(root,0.4,1.4,3.6,airMat(0xe8602a),AF.x-60,ay+10,AF.z+301.8);
+    const lamp=(x,z,c)=>{ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex,color:c,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.9,fog:true})); sp.position.set(x,ay+1.6,z); sp.scale.setScalar(7); root.add(sp); };
+    for(let z=-AF.hl;z<=AF.hl;z+=48) for(const sd of [-1,1]) lamp(AF.x+sd*21,AF.z+z,0xfff2cc);
+    for(let i=-4;i<=4;i++){ lamp(AF.x+i*4,AF.z-AF.hl-2,0x40ff70); lamp(AF.x+i*4,AF.z+AF.hl+2,0xff4a3a); }
+  }
   // a bridge over the river
   { const zb=DFC.COAST+800, rx=dflRiverX(zb), wd=55+85*(1-dflSS(0,1800,zb-dflCoastZ(rx))), by=Math.max(gy(rx-wd*1.2,zb),gy(rx+wd*1.2,zb))+1.5; aBox(root,wd*2.8,1.4,9,airMat(0x77746c),rx,by,zb); aBox(root,wd*2.8,1.4,0.7,airMat(0x4e4a48),rx,by+1.2,zb-4.4); aBox(root,wd*2.8,1.4,0.7,airMat(0x4e4a48),rx,by+1.2,zb+4.4); }
 }
@@ -10700,11 +10715,13 @@ function dflFlyFull(P,S,dt){
   _ff.set(0,0,-1).applyQuaternion(q); _fu.set(0,1,0).applyQuaternion(q);
   const fx=_ff.x, fy=_ff.y, fz=_ff.z, ux=_fu.x, uy=_fu.y, uz=_fu.z, cp=Math.hypot(fx,fz), sl=Math.max(cp,1e-4);
   // the controls go soft when you are slow, stiffen on the heavy 109 when you are fast, and sag with a damaged tail
-  const sf=aClamp(Math.sqrt(100/Math.max(P.s,50)),0.75,1.3), mush=aClamp((P.s-42)/38,0.3,1), cdm=1-0.55*D.ctl, ra=mush*cdm/(1+S.hv*Math.max(0,P.s-110)/50);
+  P.coughT=Math.max(0,(P.coughT||0)-dt); P.stiffT=Math.max(0,(P.stiffT||0)-dt);
+  const hpk=0.72+0.28*aClamp(P.hp/100,0,1);      // the more shot-up the hull, the worse everything responds
+  const sf=aClamp(Math.sqrt(100/Math.max(P.s,50)),0.75,1.3), mush=aClamp((P.s-42)/38,0.3,1), cdm=(1-0.55*D.ctl)*hpk*(P.stiffT>0?0.72:1), ra=mush*cdm/(1+S.hv*Math.max(0,P.s-110)/50);
   const pull=P.cy*S.pitch*sf*mush*cdm;
   // the Spitfire's carburettor starves when you push the stick forward: the engine coughs and cuts
   if(S.cut){ if(pull<-0.3 && uy>0.2){ P.negT=(P.negT||0)+dt; if(P.negT>0.45 && !(P.cutT>0)){ P.cutT=1.5; airWarn('ENGINE CUTTING - NEGATIVE G',1.2); } } else P.negT=Math.max(0,(P.negT||0)-dt*2); P.cutT=Math.max(0,(P.cutT||0)-dt); }
-  const thr=P.cutT>0?0:P.thr;
+  const thr=P.cutT>0?0:P.thr*(P.coughT>0?0.3:1);
   const bankTurn=(ux*(-fz)+uz*fx)*2.0*9.8*S.turn/Math.max(P.s,40);
   let wp=-Math.abs(Math.sin(P.r))*0.2+Math.min(0,uy)*0.25-(D.wl+D.wr)*0.12;
   P.stall=P.s<S.vmin; if(P.stall) wp-=0.7*Math.min(1,(S.vmin-P.s)/12+0.3); else if(P.s<S.vmin+7){ airWarn('STALL WARNING',0.2); air.shake=Math.max(air.shake,0.12); }
@@ -10719,7 +10736,7 @@ function dflFlyFull(P,S,dt){
   const w=aClamp(sl*3,0,1); if(w>0.01) dflRotW(q,-fz/sl,0,fx/sl,wp*dt*w);
   q.normalize(); dflDerive(P);
   P.g=1+Math.abs(pull)*P.s/9.8;
-  let target=S.vmin+10+thr*(S.vmax-S.vmin-10)*(1-0.7*D.eng); if(D.eng>=1) target=S.vmin*0.75;
+  let target=(S.vmin+10+thr*(S.vmax-S.vmin-10)*(1-0.7*D.eng))*(0.9+0.1*hpk); if(D.eng>=1) target=S.vmin*0.75;
   let ds=(P.p>-0.1?(target-P.s)*S.climb:(target-P.s)*0.05)-9.8*Math.sin(P.p)*S.dive-0.00006*P.s*P.s*(P.brake?4:1)-Math.abs(pull)*P.s*0.05-Math.abs(Math.sin(P.r))*P.s*0.012;
   P.s=aClamp(P.s+ds*dt,S.vmin*0.7,S.vmax+30);
   P.x+=_ff.x*P.s*dt; P.z+=_ff.z*P.s*dt; P.y+=_ff.y*P.s*dt; P.vy=_ff.y*P.s;
@@ -10828,6 +10845,7 @@ function dflPlayerInput(dt){
     if(!kx) P.cx*=Math.exp(-dt*2.5); if(!ky) P.cy*=Math.exp(-dt*1.0);
   }
   air.inX=air.inY=0;
+  { const wd=P.dmg.wound; if(wd>0.05){ P.cx=aClamp(P.cx+(Math.random()-.5)*0.07*wd,-1,1); P.cy=aClamp(P.cy+(Math.random()-.5)*0.07*wd,-1,1); } }      // a wounded pilot's hands shake
   if(!IS_TOUCH){ if(keys.KeyW) P.thr=Math.min(1,P.thr+dt*0.5); if(keys.KeyS) P.thr=Math.max(0.2,P.thr-dt*0.5); }
   P.brake=!!(keys.ShiftLeft||keys.ShiftRight||air.touchBrake);
   const po=dflPullout(P); if(po!==null){ P.cx=0; P.cy=Math.cos(P.r)>=0?1:-1; airWarn('PULL UP!',0.25); }
@@ -10840,7 +10858,7 @@ function dflPlayerGuns(dt){
   while(P.fireCD<=0 && P.ammo>0){
     P.fireCD+=S.rof; P.ammo--; dfl.shots++; P.heat+=S.heat;
     const cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp, side=(P.ammo&1)?2.2:-2.2;
-    const ox=P.x+Math.cos(P.h)*side, oy=P.y-0.3, oz=P.z+Math.sin(P.h)*side, ax=P.x+fx*S.conv, ay=P.y+fy*S.conv, az=P.z+fz*S.conv, sp=S.spread;      // the guns are set to cross at one range
+    const ox=P.x+Math.cos(P.h)*side, oy=P.y-0.3, oz=P.z+Math.sin(P.h)*side, ax=P.x+fx*S.conv, ay=P.y+fy*S.conv, az=P.z+fz*S.conv, sp=S.spread+P.dmg.wound*7;      // the guns are set to cross at one range
     airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*sp,ay-oy+(Math.random()-.5)*sp,az-oz+(Math.random()-.5)*sp,780+P.s,1.15,false,9.8);
     spawnPuff(new V3(ox+fx*2.4,oy+fy*2.4,oz+fz*2.4),0xffe2a0,1.9+Math.random()*0.8,0.06,true,0,0,0,1);
     if(P.ammo%3===0) sndShot(false); air.shake=Math.max(air.shake,0.05);
@@ -10870,7 +10888,9 @@ function dflBullets(dt){
     const u=aClamp(((tgt.x-ax)*sx+(tgt.y-ay)*sy+(tgt.z-az)*sz)/l2,0,1), hx=ax+sx*u, hy=ay+sy*u, hz=az+sz*u, d=Math.hypot(hx-tgt.x,hy-tgt.y,hz-tgt.z);
     if(d<DFC.HIT_R){
       t.life=0; tgt.hitT=0.25; spawnPuff(new V3(hx,hy,hz),0xffd890,3,0.25,true,0); spawnPuff(new V3(hx,hy,hz),0x3a3836,4,0.8,false,0.5);
-      if(t.en){ const dm=dfl.espec.dmgE; tgt.hp-=dm; dflDamage(tgt,hx,hz,dm>3); dfl.hitsTaken++; air.shake=Math.max(air.shake,0.45); dfl.flash=0.35; if(!dfl.hitMsg||dfl.t-dfl.hitMsg>1.5){ dfl.hitMsg=dfl.t; showMsg('YOU ARE HIT',0.8); tone(180,90,0.12,0.12,'square'); } if(tgt.hp<=0) dflDie(tgt); }
+      if(t.en){ const dm=dfl.espec.dmgE; tgt.hp-=dm; dflDamage(tgt,hx,hz,dm>3);
+        if(tgt.q){ dflRotB(tgt.q,1,0,0,(Math.random()-.5)*0.08); dflRotB(tgt.q,0,0,1,(Math.random()-.5)*0.1); tgt.s=Math.max(dfl.spec.vmin*0.8,tgt.s-0.7); tgt.stiffT=1.1; if(Math.random()<0.3) tgt.coughT=0.7; }
+        dfl.hitsTaken++; air.shake=Math.max(air.shake,0.45); dfl.flash=0.35; if(!dfl.hitMsg||dfl.t-dfl.hitMsg>1.5){ dfl.hitMsg=dfl.t; showMsg('YOU ARE HIT',0.8); tone(180,90,0.12,0.12,'square'); } if(tgt.hp<=0) dflDie(tgt); }
       else { const dm=dfl.spec.dmg; tgt.hp-=dm; dflDamage(tgt,hx,hz,dm>6); dfl.hits++; dfl.hm=1; tone(1700,1100,0.05,0.09,'square'); noise(0.05,3200,0.1,'highpass');
         for(let k=0;k<3;k++) spawnPuff(new V3(hx+(Math.random()-.5)*5,hy+(Math.random()-.5)*5,hz+(Math.random()-.5)*5),0xa8a8a2,1.2,0.5,false,0);
         if(tgt.hp>0 && !tgt.m70 && tgt.hp<=tgt.hpMax*0.7){ tgt.m70=1; showMsg('HIT · HE IS TRAILING SMOKE',1.4); }
@@ -10894,11 +10914,19 @@ function dflExplode(X,onSea){
   if(X===dfl.pl) air.shake=1.2;
 }
 function dflEnd(kind,why){
-  if(dfl.res) return; const P=dfl.pl;
-  const won=kind==='won';
-  dfl.res={kind,won,why,time:dfl.t,shots:dfl.shots,hits:dfl.hits,taken:dfl.hitsTaken,hp:Math.max(0,Math.round(P.hp)),xp:won?Math.round(300+P.hp*2):40};
+  if(dfl.res) return; const P=dfl.pl, E=dfl.en, won=kind==='won', D=P.dmg;
+  const dealt=1-Math.max(0,E.hp)/(E.hpMax||100), hpL=Math.max(0,P.hp)/100, wear=D.eng+D.wl+D.wr+D.ctl+D.leak+D.wound+(D.fire?1:0);
+  let xp, rank='';
+  if(won){ xp=Math.round(200+hpL*200+Math.max(0,3-wear)*30); rank=wear<0.6&&hpL>0.8?'CLEAN KILL':hpL<0.3?'NARROW WIN':'HARD-FOUGHT WIN'; }
+  else if(kind==='landed'){ xp=Math.round(70+hpL*60+dealt*80); rank='ESCAPED'; }
+  else if(kind==='bailed'){ xp=Math.round(30+dealt*70); rank='BAILED OUT'; }
+  else xp=Math.round(15+dealt*60);
+  dfl.res={kind,won,why,rank,time:dfl.t,shots:dfl.shots,hits:dfl.hits,taken:dfl.hitsTaken,hp:Math.max(0,Math.round(P.hp)),xp};
   air.endT=3.4; dfl.phase=kind;
-  if(won){ sting('victory'); showMsg('VICTORY · THE '+dfl.spec.en+' IS DOWN',3.2); } else { sting('death'); showMsg(why||'YOU WERE SHOT DOWN',3.2); }
+  if(won){ sting('victory'); showMsg('VICTORY · THE '+dfl.spec.en+' IS DOWN',3.2); }
+  else if(kind==='landed'){ sting('victory'); showMsg(why||'YOU LANDED SAFELY',3.2); }
+  else if(kind==='bailed'){ sting('death'); showMsg(why||'YOU BAILED OUT',3.2); }
+  else { sting('death'); showMsg(why||'YOU WERE SHOT DOWN',3.2); }
 }
 
 // ---------- the frame ----------
@@ -10923,6 +10951,33 @@ function dflBurn(X,dt){
     spawnPuff(new V3(bx-fx*6.2+j(),by-fy*6.2+j()+0.4,bz-fz*6.2+j()),0xd8401a,6.4,0.55,true,1.2,0,0,0.8); }
   if(burning && X.sparkT<=0){ X.sparkT=0.09; spawnPuff(new V3(bx-fx*3+(Math.random()-.5)*2,by-fy*3,bz-fz*3+(Math.random()-.5)*2),0xffc060,0.55,1.0,true,-3.5,(Math.random()-.5)*5,(Math.random()-.5)*5,1); }
 }
+const dflOnField=P=>{ const AF=DFL_AF; return Math.abs(P.x-AF.x)<AF.hw+25 && Math.abs(P.z-AF.z)<AF.hl+40; };
+// a landing: on the runway, wings level, nose near level, gentle, and slow enough
+function dflTryLand(P,gy){
+  if(!dflOnField(P)) return false;
+  if(P.s<100 && Math.abs(P.p)<0.24 && Math.abs(P.r)<0.45 && P.vy>-10){ P.landed=true; P.y=gy+2.0; P.s=Math.min(P.s,40); P.p=0; P.r=0; if(P.q) dflDerive(P); showMsg('LANDED SAFELY',2); dflEnd('landed','YOU LANDED AT THE AIRFIELD'); return true; }
+  return false;
+}
+// jump out: the plane falls away and you come down under a canopy; the fight is lost but you live (not if you are too low for the chute to open)
+function dflBail(){
+  if(!dfl||dfl.res||dfl.bail||state!=='playing') return; const P=dfl.pl; if(P.dead||P.gone) return;
+  const gy=dflGround(P.x,P.z), low=P.y-gy<120;
+  const g=new THREE.Group(), cm=airMat(0xd9d3b9,{side:THREE.DoubleSide});
+  if(!low){ const can=new THREE.Mesh(new THREE.SphereGeometry(5.5,18,9,0,Math.PI*2,0,1.45),cm); can.position.y=8; g.add(can);
+    const pts=[]; for(let i=0;i<8;i++){ const a=i/8*6.283; pts.push(new THREE.Vector3(Math.cos(a)*5.4,8+0.4,Math.sin(a)*5.4), new THREE.Vector3(0,0.9,0)); }
+    g.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0x2a2a28}))); }
+  const body=new THREE.Mesh(new THREE.BoxGeometry(0.7,1.5,0.5),airMat(0x4a4d3a)); g.add(body); g.position.set(P.x,P.y,P.z); air.root.add(g);
+  dfl.chute=g; dfl.bail={t:0,low,x:P.x,z:P.z,ph:Math.random()*6.28};
+  P.dead=true; P.hp=Math.min(P.hp,1); P.q=null; dflRadio('Chute! Watch the sea.','Fallschirm! Achte auf das Wasser.',1);
+  showMsg(low?'TOO LOW FOR THE CHUTE':'YOU BAILED OUT',2.4);
+}
+function dflBailTick(dt){
+  const b=dfl.bail; if(!b||dfl.res) return; b.t+=dt; const g=dfl.chute, P=dfl.pl;
+  g.position.x=b.x+Math.sin(b.t*0.5+b.ph)*3+b.t*3; g.position.z=b.z+Math.cos(b.t*0.4+b.ph)*3; g.position.y-=(b.low?55:13)*dt; g.rotation.z=Math.sin(b.t*1.1)*0.1;
+  const gy=Math.max(0,dflGround(g.position.x,g.position.z));
+  if(b.low){ if(g.position.y<=gy+1){ dflEnd('lost','YOU BAILED OUT TOO LOW'); } }
+  else if(b.t>8.5 || g.position.y<=gy+1) dflEnd('bailed','YOU BAILED OUT');
+}
 function dflFrameWorldPlanes(dt){
   const P=dfl.pl, E=dfl.en, S=dfl.spec, ES=dfl.espec;
   // player
@@ -10935,7 +10990,8 @@ function dflFrameWorldPlanes(dt){
   // crashes
   for(const X of [P,E]){
     if(X.gone) continue; const gy=dflGround(X.x,X.z);
-    if(X.y-gy<2.6){ X.gone=true; const sea=gy===0; dflExplode(X,sea); if(X===P){ air.phase='crashed'; dfl.pm.g.visible=false; dflEnd(dfl.decide||'lost',gy>0?'YOU FLEW INTO THE CLIFFS':sea?'YOU HIT THE SEA':'YOU CRASHED'); } else { dfl.em.g.visible=false; dflEnd(dfl.decide||'won','THE ENEMY CRASHED'); } }
+    if(X===P && !P.dead && X.y-gy<2.6 && dflTryLand(P,gy)) continue;
+    if(X.y-gy<2.6){ X.gone=true; const sea=gy===0; dflExplode(X,sea); if(X===P){ air.phase='crashed'; dfl.pm.g.visible=false; if(!dfl.bail) dflEnd(dfl.decide||'lost',dflOnField(P)?'YOU CRASHED ON THE RUNWAY':gy>0?'YOU FLEW INTO THE CLIFFS':sea?'YOU HIT THE SEA':'YOU CRASHED'); } else { dfl.em.g.visible=false; dflEnd(dfl.decide||'won','THE ENEMY CRASHED'); } }
   }
   // collision between the two
   if(!P.gone && !E.gone && Math.hypot(P.x-E.x,P.y-E.y,P.z-E.z)<5.5){ for(const X of [P,E]){ X.gone=true; dflExplode(X,false); } dfl.pm.g.visible=false; dfl.em.g.visible=false; air.phase='crashed'; dflEnd('lost','YOU COLLIDED IN MID-AIR'); }
@@ -10950,6 +11006,12 @@ function dflCamera(dt){
   const P=dfl.pl, cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp;
   air.shake=Math.max(0,air.shake-dt*1.6); const sh=air.shake*1.3;
   const dead=P.gone;
+  if(dfl.bail && dfl.chute){      // you are under the canopy: the camera drifts round you
+    const g=dfl.chute.position, a=dfl.bail.t*0.45+0.8, tx=g.x+Math.cos(a)*30, ty=g.y+10, tz=g.z+Math.sin(a)*30;
+    if(!air.cam) air.cam={x:tx,y:ty,z:tz}; const kk=1-Math.exp(-dt*3); air.cam.x+=(tx-air.cam.x)*kk; air.cam.y+=(ty-air.cam.y)*kk; air.cam.z+=(tz-air.cam.z)*kk;
+    camera.up.set(0,1,0); camera.position.set(air.cam.x,Math.max(air.cam.y,dflGround(air.cam.x,air.cam.z)+3),air.cam.z); camera.lookAt(g.x,g.y+4,g.z); camera.fov=58;
+    camera.updateProjectionMatrix(); camera.updateMatrixWorld(true); return;
+  }
   if(dfl.decide==='won' && !dead){      // kill cam: swing round the stricken enemy
     const E=dfl.en; if(dfl.kcT===undefined) dfl.kcT=dfl.t; const ang=0.7+(dfl.t-dfl.kcT)*0.55, tx=E.x+Math.cos(ang)*75, ty=E.y+20+Math.sin((dfl.t-dfl.kcT)*0.8)*8, tz=E.z+Math.sin(ang)*75;
     if(!air.cam) air.cam={x:tx,y:ty,z:tz}; const kk=1-Math.exp(-dt*2.5); air.cam.x+=(tx-air.cam.x)*kk; air.cam.y+=(ty-air.cam.y)*kk; air.cam.z+=(tz-air.cam.z)*kk;
@@ -10987,6 +11049,7 @@ function dflRadioTick(dt){
     dflRadio(`Bandit at ${ck} o'clock, ${hl}. Tally ho.`,`Feindjaeger ${ck} Uhr, ${hd}. Angreifen!`,1); }
   const cp=Math.cos(P.p), pfx=Math.sin(P.h)*cp, pfy=Math.sin(P.p), pfz=-Math.cos(P.h)*cp;
   if(dist<550 && -(dx*pfx+dy*pfy+dz*pfz)/dist>0.7 && E.ai.firing) dflRadio("Break! He's on your six!","Achtung! Er sitzt dir im Nacken!");
+  if(dfl.bad && !dfl.rAF){ dfl.rAF=1; const AF=DFL_AF, a=dflWrap(Math.atan2(AF.x-P.x,-(AF.z-P.z))-P.h), ck=((Math.round(a/(Math.PI/6))%12)+12)%12||12, km=(Math.hypot(AF.x-P.x,AF.z-P.z)/1000).toFixed(1); dflRadio(`Airfield at ${ck} o'clock, ${km} km. Put it down, or bail out.`,`Flugplatz bei ${ck} Uhr, ${km} km. Landen oder aussteigen.`,1); }
   if(P.dmg.fire) dflRadio("You're on fire! Get it down!","Du brennst! Runter damit!");
   else if(P.hp<28) dflRadio("Mayday, you're losing it!","Du bist schwer getroffen!");
   if(P.ammo<P.ammoMax*0.18 && P.ammo>0) dflRadio("Ammo low. Make it count.","Munition knapp. Jeder Schuss muss sitzen!");
@@ -11006,7 +11069,7 @@ function dflFrame(dt){
   dflCamera(dt); if(air.sky) air.sky.position.copy(camera.position);
   if(air.clouds) for(const c of air.clouds){ c.mesh.position.x=camera.position.x; c.mesh.position.z=camera.position.z; c.m.uniforms.uT.value=air.t; }
   if(air.sea) air.sea.uniforms.uT.value=air.t;
-  dflHud(dt); dflRadioTick(dt); airUpdateSounds(dt);
+  dflBailTick(dt); dflHud(dt); dflRadioTick(dt); airUpdateSounds(dt);
   if(air.endT>0){ air.endT-=dt; if(air.endT<=0) dflDebrief(); }
   air.musT=(air.musT||0)-dt; if(air.musT<=0){ air.musT=1; musicSetIntensity(0.75); }
 }
@@ -11036,12 +11099,13 @@ body.dogmode #ahWrap,body.dogmode #tReload,body.dogmode #tJump,body.dogmode #tCr
     (document.head||document.body).appendChild(st);
     const w=document.createElement('div'); w.id='dflHud';
     w.innerHTML='<div id="dflVig"></div><div id="dflPip"></div><div id="dflLead"></div><div id="dflEn"><span id="dflEnT"></span></div><div id="dflSpd"></div><div id="dflAlt"></div><div id="dflTop"></div><div id="dflWarn"></div>';
-    w.insertAdjacentHTML('beforeend','<div id="dflBO"></div><div id="dflHM"></div><div id="dflG"></div><div id="dflDam"></div><div id="dflRad"></div>');
+    w.insertAdjacentHTML('beforeend','<div id="dflBO"></div><div id="dflHM"></div><div id="dflG"></div><div id="dflDam"></div><div id="dflRad"></div><div id="dflAF"></div>');
     const st2=document.createElement('style'); st2.textContent=`
 #dflBO{position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,0) 18%,rgba(0,0,0,.96) 78%);opacity:0}
 #dflHM{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;opacity:0}
 #dflHM::before,#dflHM::after{content:'';position:absolute;left:50%;top:50%;width:3px;height:30px;margin:-15px 0 0 -1px;background:#ff5a3a;box-shadow:0 0 4px #000}
 #dflHM::before{transform:rotate(45deg)} #dflHM::after{transform:rotate(-45deg)}
+#dflAF{position:absolute;display:none;transform:translate(-50%,-50%);font-size:13px;letter-spacing:1px;color:#9be28f;white-space:nowrap;text-shadow:0 1px 2px #000;text-align:center}
 #dflRad{position:absolute;left:50%;bottom:172px;transform:translateX(-50%);font-size:15px;letter-spacing:1.5px;padding:3px 14px;background:rgba(0,0,0,.45);border-left:3px solid #cfd8b8;opacity:0;white-space:nowrap}
 #dflDam{position:absolute;left:26px;top:128px;font-size:13px;letter-spacing:1px;line-height:1.55}
 #dflG{position:absolute;left:26px;bottom:134px;font-size:18px;font-weight:bold;letter-spacing:1px;padding:2px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(240,243,230,.45)}`;
@@ -11077,9 +11141,16 @@ function dflHud(dt){
     const wv=D.wound>0.25?D.wound:0; renderer.domElement.style.filter=wv?`blur(${(wv*2.6).toFixed(1)}px)`:'';      // a wounded pilot's sight goes soft
   }
   $('dflVig').style.opacity=Math.max(dfl.flash,P.dmg.wound*0.45).toFixed(2);
+  { const D=P.dmg, bad=!P.dead && (P.hp<45||D.fire||D.eng>0.5||D.ctl>0.5||D.wl>0.5||D.wr>0.5||D.wound>0.3||D.leak>0.6); dfl.bad=bad; const af=$('dflAF');
+    if((bad||dfl.afOn) && !P.dead){ const AF=DFL_AF, dxa=AF.x-P.x, dza=AF.z-P.z, km=(Math.hypot(dxa,dza)/1000).toFixed(1);
+      _dflv.set(AF.x,AF.h+8,AF.z).project(camera);
+      const txt=`▼ AIRFIELD ${km} km${Math.hypot(dxa,dza)<2200?'<br>LAND: LEVEL, SLOW, GENTLE':''}${bad?'<br><b style="color:#ff8a6a">B = BAIL OUT</b>':''}`;
+      if(_dflv.z<1 && Math.abs(_dflv.x)<0.92 && Math.abs(_dflv.y)<0.9){ af.style.left=((_dflv.x*0.5+0.5)*W)+'px'; af.style.top=((-_dflv.y*0.5+0.5)*H)+'px'; }
+      else { const a=dflWrap(Math.atan2(dxa,-dza)-P.h); af.style.left=(W*0.5+Math.max(-0.42,Math.min(0.42,Math.sin(a)*0.6))*W)+'px'; af.style.top=(H*0.2)+'px'; }
+      if(dfl._af!==txt){ dfl._af=txt; af.innerHTML=txt; } af.style.display='block'; } else af.style.display='none'; }
   // G-force: the readout, tunnel vision when you hold a hard pull, and the shake
   const gd=P.dead?1:1+(P.g-1)*0.55*(P.cy<0?-1:1); dfl.gd=gd;
-  const gt=dflSS(4.0,6.0,gd); dfl.bo=(dfl.bo||0)+(gt-(dfl.bo||0))*Math.min(1,dt*(gt>(dfl.bo||0)?0.55:1.3)); $('dflBO').style.opacity=dfl.bo.toFixed(2);
+  const gt=Math.max(dflSS(4.0,6.0,gd),P.dmg.wound*0.5); dfl.bo=(dfl.bo||0)+(gt-(dfl.bo||0))*Math.min(1,dt*(gt>(dfl.bo||0)?0.55:1.3)); $('dflBO').style.opacity=dfl.bo.toFixed(2);
   $('dflG').textContent=gd.toFixed(1)+' G'; $('dflG').style.color=gd>5?'#ff8a6a':gd>3.5?'#e0b050':'#f0f3e6';
   if(gd>3 && !P.dead) air.shake=Math.max(air.shake,(gd-3)*0.05);
   dfl.hm=Math.max(0,(dfl.hm||0)-dt*5); { const hm=$('dflHM'); hm.style.opacity=dfl.hm.toFixed(2); hm.style.left=$('dflPip').style.left||'50%'; hm.style.top=$('dflPip').style.top||'50%'; }
@@ -11095,6 +11166,8 @@ function dflHud(dt){
 function dogKey(e){
   if(e.code==='KeyC') air.view=(air.view+1)%2;
   else if(e.code==='KeyI'){ air.inv=!air.inv; showMsg(air.inv?'PULL BACK / DOWN = NOSE UP':'PUSH FORWARD / UP = NOSE UP',1.5); }
+  else if(e.code==='KeyB'){ dflBail(); }
+  else if(e.code==='KeyH'){ dfl.afOn=!dfl.afOn; showMsg(dfl.afOn?'AIRFIELD MARKER ON':'AIRFIELD MARKER OFF',1.2); }
   else if(e.code==='KeyL'){ dfl.leadAid=!(dfl.leadAid!==false); showMsg(dfl.leadAid?'LEAD AID ON':'LEAD AID OFF - JUDGE THE DEFLECTION YOURSELF',1.6); }
   else if(e.code==='Space') e.preventDefault();
 }
@@ -11140,11 +11213,11 @@ function dflDebrief(){
   setSpawn(); spawnWorld(selSide,selWeapon,true);
   try{ const rec=record(side); rec.xp+=r.xp; if(r.won) rec.kills=(rec.kills||0)+1; saveRecord(side,rec); }catch(e){}
   briefMission='dogfight';
-  $('dTitle').textContent=`DOGFIGHT · ${r.won?'VICTORY':'SHOT DOWN'}`;
+  $('dTitle').textContent=`DOGFIGHT · ${r.won?'VICTORY':r.kind==='landed'?'ESCAPED':r.kind==='bailed'?'BAILED OUT':'SHOT DOWN'}`;
   const m=Math.floor(r.time/60), s=Math.floor(r.time%60), acc=r.shots?Math.round(r.hits/r.shots*100):0;
-  $('dText').innerHTML=`<p><b>${r.won?'ENEMY AIRCRAFT DESTROYED':r.why||'AIRCRAFT LOST'}</b></p><p>${r.won?`The ${spec.en} went down. You came out of it with ${r.hp}% of your plane left.`:`The fight is over. Try a different approach: get on his tail and fire in short bursts.`}</p>
+  $('dText').innerHTML=`<p><b>${r.won?'ENEMY AIRCRAFT DESTROYED':r.why||'AIRCRAFT LOST'}</b>${r.rank?` · ${r.rank}`:''}</p><p>${r.won?`The ${spec.en} went down. You came out of it with ${r.hp}% of your plane left.`:r.kind==='landed'?`You put the damaged plane down on the runway and walked away. The ${spec.en} is still up there.`:r.kind==='bailed'?`You got out and came down alive. The plane is lost and the ${spec.en} claims the fight.`:`The fight is over. Try a different approach: get on his tail and fire in short bursts.`}</p>
     <p style="margin-top:8px">Time: ${m}:${String(s).padStart(2,'0')} · Rounds fired: ${r.shots} · Hits: ${r.hits} (${acc}%) · Hits taken: ${r.taken}</p>`;
-  $('dStats').textContent=r.won?'1 kill':'0 kills'; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
+  $('dStats').textContent=r.won?'1 kill':(r.kind==='landed'||r.kind==='bailed')?'survived':'0 kills'; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
   $('dBanner').innerHTML=''; $('dTiles').innerHTML='';
   $('dAgain').style.display=''; $('debrief').style.display='flex';
 }

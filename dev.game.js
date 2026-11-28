@@ -9170,6 +9170,18 @@ function airBuildScenery(root){
   const sky=new THREE.Mesh(new THREE.SphereGeometry(8000,24,12),new THREE.MeshBasicMaterial({map:canvasTex(256,(x,s)=>{ const g=x.createLinearGradient(0,0,0,s); g.addColorStop(0,'#5d6c7c'); g.addColorStop(0.42,'#8896a4'); g.addColorStop(0.5,'#b4bfc9'); g.addColorStop(0.56,'#aab5c2'); g.addColorStop(1,'#aab5c2'); x.fillStyle=g; x.fillRect(0,0,s,s); }),side:THREE.BackSide,fog:false,depthWrite:false}));
   sky.renderOrder=-10; sky.frustumCulled=false; root.add(sky); air.sky=sky;
 }
+// the same cloud density the shader draws, so the AI (and the HUD) can tell when a plane is inside cloud
+const dflFr=v=>v-Math.floor(v);
+function dflH(x,y){ let a=dflFr(x*0.1031), b=dflFr(y*0.1031), c=a; const d=a*(b+33.33)+b*(c+33.33)+c*(a+33.33); a+=d; b+=d; c+=d; return dflFr((a+b)*c); }
+function dflNz(x,y){ const ix=Math.floor(x), iy=Math.floor(y), fx=dflFr(x), fy=dflFr(y), u=fx*fx*(3-2*fx), v=fy*fy*(3-2*fy), a=dflH(ix,iy), b=dflH(ix+1,iy), c=dflH(ix,iy+1), d=dflH(ix+1,iy+1); return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v; }
+function dflFbm(x,y){ let a=0.5, sm=0; for(let i=0;i<5;i++){ sm+=a*dflNz(x,y); x=x*2.07+17; y=y*2.07+9; a*=0.5; } return sm; }
+function dflCloudAt(x,y,z){
+  if(!air.clouds) return 0; let m=0;
+  for(const c of air.clouds){ if(Math.abs(y-c.mesh.position.y)>45) continue; const u=c.m.uniforms, sc=u.uSc.value, spd=u.uSpd.value, sd=u.uSeed.value, t=air.t;
+    const px=x*sc+t*spd+sd, py=z*sc+t*spd*0.35+sd, wx=dflFbm(px*0.6+3,py*0.6+3)-0.5, wy=dflFbm(px*0.6+9,py*0.6+9)-0.5, cc=dflFbm(px+wx*1.6,py+wy*1.6), cov=u.uCov.value;
+    m=Math.max(m,dflSS(cov,cov+0.2,cc)); }
+  return m;
+}
 function airMakeClouds(root){
   const out=[];
   const mk=(y,sc,cov,dark,op,spd,seed)=>{
@@ -9177,7 +9189,7 @@ function airMakeClouds(root){
       uniforms:{uT:{value:0},uSc:{value:sc},uCov:{value:cov},uDark:{value:dark},uOp:{value:op},uSpd:{value:spd},uSeed:{value:seed},uHaze:{value:new THREE.Color(0xaab5c2)}},
       vertexShader:'varying vec3 vW; void main(){ vec4 w=modelMatrix*vec4(position,1.0); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }',
       fragmentShader:`varying vec3 vW; uniform float uT,uSc,uCov,uDark,uOp,uSpd,uSeed; uniform vec3 uHaze;
-        float h(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+        float h(vec2 p){ vec3 q=fract(vec3(p.xyx)*0.1031); q+=dot(q,q.yzx+33.33); return fract((q.x+q.y)*q.z); }
         float n(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y); }
         float fbm(vec2 p){ float a=0.5,s=0.0; for(int i=0;i<5;i++){ s+=a*n(p); p=p*2.07+vec2(17.0,9.0); a*=0.5; } return s; }
         void main(){
@@ -10744,6 +10756,12 @@ function dflPullout(P){
 }
 
 // ---------- the enemy pilot ----------
+function dflSees(E,P,dist){
+  if(dist>4200) return false;
+  if(dflCloudAt(P.x,P.y,P.z)>0.45 || dflCloudAt(E.x,E.y,E.z)>0.45) return false;
+  if(dist>250){ const sd=dfl.sunDir; if(((P.x-E.x)*sd.x+(P.y-E.y)*sd.y+(P.z-E.z)*sd.z)/dist>0.955) return false; }
+  return true;
+}
 function dflAI(dt){
   const E=dfl.en, P=dfl.pl, A=E.ai, S=dfl.espec;
   A.t-=dt; A.fireT-=dt;
@@ -10752,15 +10770,20 @@ function dflAI(dt){
   const dot=(dx*fx+dy*fy+dz*fz)/dist;
   const cpP=Math.cos(P.p), pfx=Math.sin(P.h)*cpP, pfy=Math.sin(P.p), pfz=-Math.cos(P.h)*cpP, pdot=-(dx*pfx+dy*pfy+dz*pfz)/dist;      // 1 = the player is aiming at me
   if(A.mode==='engage'){
-    if(dist<90 && dot<0.0){ A.mode='extend'; A.t=0.7+Math.random()*0.5; A.dir=Math.random()<.5?1:-1; }
+    if(dist<90 && dot<0.0){ if(dfl.eside==='german'){ A.mode='zoom'; A.t=1.6; A.t0=1.6; } else { A.mode='extend'; A.t=0.7+Math.random()*0.5; } A.dir=Math.random()<.5?1:-1; }
     else if(dot<-0.2 && dist<650 && pdot>0.8 && A.brkCD<=0){      // the player is on his tail: he picks a way out, by temperament
-      const W=A.style==='aggressive'?{break:.5,scissors:.3,zoom:.2}:A.style==='cautious'?{break:.4,dive:.35,zoom:.25}:{break:.15,scissors:.25,dive:.2,zoom:.15,barrel:.25};
+      const bnz=dfl.eside==='german', W=A.style==='tricky'?{break:.15,scissors:.25,dive:.2,zoom:.15,barrel:.25}:bnz?{dive:.4,zoom:.35,break:.25}:{break:.4,scissors:.4,barrel:.2};      // the 109 lives by diving and zooming, the Spitfire by turning
       let x=Math.random(), pick='break'; for(const k in W){ if(x<W[k]){ pick=k; break; } x-=W[k]; }
       A.mode=pick; A.dir=Math.random()<.5?1:-1; A.t=({break:0.9+Math.random()*0.7,scissors:2.8,dive:1.9,zoom:1.8,barrel:1.8})[pick]; A.t0=A.t; A.brkCD=A.style==='tricky'?6:9; }
   } else if(A.t<=0) A.mode='engage';
   A.brkCD-=dt;
-  if(!A.ev) A.ev=new V3(pfx*P.s,pfy*P.s,pfz*P.s); const ke=Math.min(1,dt*0.45); A.ev.x+=(pfx*P.s-A.ev.x)*ke; A.ev.y+=(pfy*P.s-A.ev.y)*ke; A.ev.z+=(pfz*P.s-A.ev.z)*ke;      // he cannot read your speed: his estimate takes a couple of seconds to catch up, so if you slow down he flies past
-  const tl=Math.min(1.6,dist/820)*A.lead, tx=P.x+A.ev.x*tl, ty=P.y+A.ev.y*tl, tz=P.z+A.ev.z*tl;
+  // what he can see: nothing in cloud or straight into the sun; while he cannot see you he goes on flying at where you were headed
+  const see=dflSees(E,P,dist); A.see=see;
+  if(!A.ev) A.ev=new V3(pfx*P.s,pfy*P.s,pfz*P.s);
+  if(see){ if(A.lostT>1.5) showMsg('HE HAS SPOTTED YOU AGAIN',1.4); A.lostT=0; A.lx=P.x; A.ly=P.y; A.lz=P.z; const ke=Math.min(1,dt*0.45); A.ev.x+=(pfx*P.s-A.ev.x)*ke; A.ev.y+=(pfy*P.s-A.ev.y)*ke; A.ev.z+=(pfz*P.s-A.ev.z)*ke; }      // he cannot read your speed
+  else { const was=A.lostT||0; A.lostT=was+dt; if(was<1.5 && A.lostT>=1.5) showMsg('THE ENEMY HAS LOST SIGHT OF YOU',1.8); }
+  if(A.lx===undefined){ A.lx=P.x; A.ly=P.y; A.lz=P.z; }
+  const ex=Math.min(A.lostT||0,7), tl=Math.min(1.6,dist/820)*A.lead+ex, tx=A.lx+A.ev.x*tl, ty=A.ly+A.ev.y*tl, tz=A.lz+A.ev.z*tl;
   const dh=dflWrap(Math.atan2(tx-E.x,-(tz-E.z))-E.h), dp=Math.atan2(ty-E.y,Math.hypot(tx-E.x,tz-E.z))-E.p;
   let cx=0, cy=0, thr=0.8;
   if(A.mode==='engage'){ cx=aClamp(dh*2.2,-1,1); cy=aClamp(dp*2.6+Math.abs(E.r)*0.12+(Math.abs(dh)>1.3?0.35:0),-1,1); thr=dist>450?1:(dist>250?0.75:0.5); if(dist<200&&dot>0.9) thr=0.45; }
@@ -10771,12 +10794,17 @@ function dflAI(dt){
   else if(A.mode==='barrel'){ cx=Math.sin(dfl.t*5.5); cy=0.45; thr=0.8; }
   else { cx=A.dir*0.8; cy=0.45; thr=0.7; }      // after an overshoot: a hard turn back into the fight, not a run for the horizon
   if(E.y<260){ cy=Math.max(cy,aClamp((260-E.y)/140,0,1)); cx*=0.5; } else if(E.y>1400) cy=Math.min(cy,-0.4);
+  // energy: too slow is dead meat, so he noses over for speed while he has the height; a lost target is searched for in lazy weaves; a burning plane runs
+  if(E.s<S.vmin+13 && E.y>450) A.rec=true; else if(E.s>S.vmin+30) A.rec=false;
+  if(A.rec){ cx=0; cy=-0.35; thr=1; }
+  else if((A.lostT||0)>6){ cx=Math.sin(dfl.t*0.35)*0.6; cy=0.06; thr=0.85; }
+  if(E.dmg.fire || E.hp<E.hpMax*0.2){ cx=Math.sin(dfl.t*0.9)*0.4; cy=Math.min(cy,-0.22); thr=1; }
   const out=Math.hypot(E.x,E.z)>3300; if(out){ const hd=dflWrap(Math.atan2(-E.x,E.z)-E.h); cx=aClamp(hd*2,-1,1); }
   { const po=dflPullout(E); if(po!==null) cy=po; }
   { const D=E.dmg, cc=1-0.55*D.ctl; cx=aClamp(cx*cc+(D.wr-D.wl)*0.5,-1,1); cy*=cc; }
   const k=Math.min(1,dt*3.2); E.cx+=(cx-E.cx)*k; E.cy+=(cy-E.cy)*k; E.thr+=(thr-E.thr)*Math.min(1,dt); E.brake=false;
   // guns: fire when the nose is on the player
-  if(A.mode==='engage' && dist<(A.style==='aggressive'?780:A.style==='cautious'?620:700) && Math.abs(dh)<0.17*(A.style==='aggressive'?1.15:A.style==='cautious'?0.85:1) && Math.abs(dp)<0.15*(A.style==='aggressive'?1.15:A.style==='cautious'?0.85:1) && E.ammo>0 && P.hp>0 && !P.dead){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
+  if(A.mode==='engage' && dist<(A.style==='aggressive'?780:A.style==='cautious'?620:700) && Math.abs(dh)<0.17*(A.style==='aggressive'?1.15:A.style==='cautious'?0.85:1) && Math.abs(dp)<0.15*(A.style==='aggressive'?1.15:A.style==='cautious'?0.85:1) && E.ammo>0 && P.hp>0 && !P.dead && A.see && !E.dmg.fire){ if(A.fireT<=0&&!A.firing){ A.firing=true; A.burst=0.5+Math.random()*0.6; } }
   if(A.firing){ A.burst-=dt; if(A.burst<=0){ A.firing=false; A.fireT=0.8+Math.random()*1.4; } }
 }
 function dflEnemyGuns(dt){
@@ -10944,6 +10972,27 @@ function dflCamera(dt){
   }
   camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
 }
+// radio: the squelch and a line from control (or the Luftwaffe controller), now and then, when something happens
+function dflRadio(en,de,gap){
+  if(dfl.radCD>0 && !gap) return; dfl.radCD=7; dfl.radT=3.4; const g=dfl.side==='german', txt=g?de:en;
+  const el=$('dflRad'); el.textContent=(g?'FLUGLEITUNG: ':'CONTROL: ')+txt; el.style.opacity=1; el.style.borderLeftColor=g?'#9aa6b8':'#cfd8b8';
+  try{ noise(0.1,2600,0.07,'bandpass'); tone(1900,1700,0.05,0.04,'square'); }catch(e){}
+}
+function dflRadioTick(dt){
+  const P=dfl.pl, E=dfl.en; dfl.radCD=Math.max(0,(dfl.radCD||0)-dt); dfl.radT=Math.max(0,(dfl.radT||0)-dt);
+  const el=$('dflRad'); if(el && dfl.radT<=0.4) el.style.opacity=Math.max(0,dfl.radT/0.4).toFixed(2);
+  if(P.dead||state!=='playing'||dfl.res) return;
+  const dx=E.x-P.x, dy=E.y-P.y, dz=E.z-P.z, dist=Math.hypot(dx,dy,dz);
+  if(!dfl.rStart && dfl.t>2){ dfl.rStart=1; const a=dflWrap(Math.atan2(dx,-dz)-P.h), ck=((Math.round(a/(Math.PI/6))%12)+12)%12||12, hl=dy>150?'high':dy<-150?'low':'level', hd=dy>150?'hoch':dy<-150?'tief':'gleiche Hoehe';
+    dflRadio(`Bandit at ${ck} o'clock, ${hl}. Tally ho.`,`Feindjaeger ${ck} Uhr, ${hd}. Angreifen!`,1); }
+  const cp=Math.cos(P.p), pfx=Math.sin(P.h)*cp, pfy=Math.sin(P.p), pfz=-Math.cos(P.h)*cp;
+  if(dist<550 && -(dx*pfx+dy*pfy+dz*pfz)/dist>0.7 && E.ai.firing) dflRadio("Break! He's on your six!","Achtung! Er sitzt dir im Nacken!");
+  if(P.dmg.fire) dflRadio("You're on fire! Get it down!","Du brennst! Runter damit!");
+  else if(P.hp<28) dflRadio("Mayday, you're losing it!","Du bist schwer getroffen!");
+  if(P.ammo<P.ammoMax*0.18 && P.ammo>0) dflRadio("Ammo low. Make it count.","Munition knapp. Jeder Schuss muss sitzen!");
+  if(dist>2300) dflRadio("Contact lost. Look to the sun and the cloud.","Kontakt verloren. Sonne und Wolken im Blick behalten.");
+  if(E.dead) dflRadio("Splash one! He's going down!","Abschuss! Er stuerzt ab!",1);
+}
 function dflFrame(dt){
   air.t+=dt; dfl.t+=dt; air.hitMsgT-=dt;
   if(state==='playing' && !dfl.res){ dflFrameWorldPlanes(dt); dflPlayerGuns(dt); dflEnemyGuns(dt); }
@@ -10957,7 +11006,7 @@ function dflFrame(dt){
   dflCamera(dt); if(air.sky) air.sky.position.copy(camera.position);
   if(air.clouds) for(const c of air.clouds){ c.mesh.position.x=camera.position.x; c.mesh.position.z=camera.position.z; c.m.uniforms.uT.value=air.t; }
   if(air.sea) air.sea.uniforms.uT.value=air.t;
-  dflHud(dt); airUpdateSounds(dt);
+  dflHud(dt); dflRadioTick(dt); airUpdateSounds(dt);
   if(air.endT>0){ air.endT-=dt; if(air.endT<=0) dflDebrief(); }
   air.musT=(air.musT||0)-dt; if(air.musT<=0){ air.musT=1; musicSetIntensity(0.75); }
 }
@@ -10987,12 +11036,13 @@ body.dogmode #ahWrap,body.dogmode #tReload,body.dogmode #tJump,body.dogmode #tCr
     (document.head||document.body).appendChild(st);
     const w=document.createElement('div'); w.id='dflHud';
     w.innerHTML='<div id="dflVig"></div><div id="dflPip"></div><div id="dflLead"></div><div id="dflEn"><span id="dflEnT"></span></div><div id="dflSpd"></div><div id="dflAlt"></div><div id="dflTop"></div><div id="dflWarn"></div>';
-    w.insertAdjacentHTML('beforeend','<div id="dflBO"></div><div id="dflHM"></div><div id="dflG"></div><div id="dflDam"></div>');
+    w.insertAdjacentHTML('beforeend','<div id="dflBO"></div><div id="dflHM"></div><div id="dflG"></div><div id="dflDam"></div><div id="dflRad"></div>');
     const st2=document.createElement('style'); st2.textContent=`
 #dflBO{position:absolute;inset:0;background:radial-gradient(circle,rgba(0,0,0,0) 18%,rgba(0,0,0,.96) 78%);opacity:0}
 #dflHM{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;opacity:0}
 #dflHM::before,#dflHM::after{content:'';position:absolute;left:50%;top:50%;width:3px;height:30px;margin:-15px 0 0 -1px;background:#ff5a3a;box-shadow:0 0 4px #000}
 #dflHM::before{transform:rotate(45deg)} #dflHM::after{transform:rotate(-45deg)}
+#dflRad{position:absolute;left:50%;bottom:172px;transform:translateX(-50%);font-size:15px;letter-spacing:1.5px;padding:3px 14px;background:rgba(0,0,0,.45);border-left:3px solid #cfd8b8;opacity:0;white-space:nowrap}
 #dflDam{position:absolute;left:26px;top:128px;font-size:13px;letter-spacing:1px;line-height:1.55}
 #dflG{position:absolute;left:26px;bottom:134px;font-size:18px;font-weight:bold;letter-spacing:1px;padding:2px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(240,243,230,.45)}`;
     (document.head||document.body).appendChild(st2);
@@ -11067,7 +11117,7 @@ function startDogfight(side){
   const pl=dflNewState(-700,860,-260,Math.PI/2), en=dflNewState(760,900,300,-Math.PI/2);
   pl.q=new THREE.Quaternion().setFromEuler(new THREE.Euler(pl.p,-pl.h,-pl.r,'YXZ')); en.hp=50; en.hpMax=50; pl.ammo=pl.ammoMax=DFL_SPEC[side].ammo; en.ammo=en.ammoMax=DFL_SPEC[eside].ammo;
   en.ai={mode:'engage',t:0,dir:1,brkCD:2,fireT:2,firing:false,burst:0,lead:0.85,err:0.022,style:['aggressive','cautious','tricky'][(Math.random()*3)|0]};
-  dfl={side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
+  dfl={sunDir:sun.position.clone().normalize(),side,eside,spec:DFL_SPEC[side],espec:DFL_SPEC[eside],pl,en,t:0,phase:'fly',res:null,shots:0,hits:0,hitsTaken:0,flash:0,outT:0,hitMsg:0};
   air.pl=pl;
   dfl.pm=dflMakePlane(side); dfl.em=dflMakePlane(eside); air.root.add(dfl.pm.g); air.root.add(dfl.em.g);
   dflMakeHud();

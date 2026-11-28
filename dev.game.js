@@ -2116,6 +2116,17 @@ const smokeTex2=canvasTex(128,(x,s)=>{ let sd=7; const r=()=>{ sd=(sd*16807)%214
   for(let i=0;i<24;i++){ const a=r()*6.283, d=r()*s*0.26, cx=s/2+Math.cos(a)*d, cy=s/2+Math.sin(a)*d*0.9, rad=s*(0.13+r()*0.17), al=0.2+r()*0.22, g=x.createRadialGradient(cx,cy,0,cx,cy,rad);
     g.addColorStop(0,'rgba(255,255,255,'+al+')'); g.addColorStop(0.55,'rgba(255,255,255,'+(al*0.5)+')'); g.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=g; x.fillRect(0,0,s,s); }
   const e=x.createRadialGradient(s/2,s/2,s*0.3,s/2,s/2,s/2); e.addColorStop(0,'rgba(0,0,0,0)'); e.addColorStop(1,'rgba(0,0,0,1)'); x.globalCompositeOperation='destination-out'; x.fillStyle=e; x.fillRect(0,0,s,s); x.globalCompositeOperation='source-over'; });
+// a flame: a tongue with a white-yellow core, orange body and a ragged red tip (drawn as many soft overlapping blobs that narrow as they climb)
+const flameTex=canvasTex(128,(x,s)=>{ let sd=11; const r=()=>{ sd=(sd*16807)%2147483647; return sd/2147483647; };
+  for(let i=0;i<64;i++){ const t=Math.pow(r(),0.9), cy=s*(0.9-t*0.82), cx=s/2+(r()-.5)*s*0.2*(0.25+t), rad=s*(0.17*(1-t*0.78)+0.025)*(0.7+r()*0.6), a=0.5*(1-t*0.5),
+      g=x.createRadialGradient(cx,cy,0,cx,cy,rad);
+    g.addColorStop(0,`rgba(255,${240-t*110|0},${190-t*160|0},${a})`); g.addColorStop(0.5,`rgba(255,${140-t*80|0},${30},${a*0.65})`); g.addColorStop(1,'rgba(190,40,0,0)');
+    x.fillStyle=g; x.fillRect(0,0,s,s); } });
+// a muzzle flash: a hot core with ragged spikes
+const starTex=canvasTex(128,(x,s)=>{ let sd=5; const r=()=>{ sd=(sd*16807)%2147483647; return sd/2147483647; };
+  for(let i=0;i<9;i++){ x.save(); x.translate(s/2,s/2); x.rotate(i/9*Math.PI*2+r()*0.3); const L=s*(0.28+r()*0.2), g=x.createLinearGradient(0,0,L,0); g.addColorStop(0,'rgba(255,235,170,0.95)'); g.addColorStop(0.5,'rgba(255,170,60,0.55)'); g.addColorStop(1,'rgba(255,110,0,0)');
+    x.fillStyle=g; x.beginPath(); x.moveTo(0,-s*0.035); x.lineTo(L,0); x.lineTo(0,s*0.035); x.closePath(); x.fill(); x.restore(); }
+  const g=x.createRadialGradient(s/2,s/2,0,s/2,s/2,s*0.26); g.addColorStop(0,'rgba(255,255,235,1)'); g.addColorStop(0.35,'rgba(255,205,110,.85)'); g.addColorStop(1,'rgba(255,120,0,0)'); x.fillStyle=g; x.fillRect(0,0,s,s); });
 const fires=[];
 function addFire(x,y,z,size,withLight){
   if(fires.length>=(IS_TOUCH?14:28)) return;
@@ -2125,9 +2136,9 @@ function addFire(x,y,z,size,withLight){
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex2,color:0x2c2a28,transparent:true,depthWrite:false,opacity:0}));
     sp.userData.t=Math.random()*1; mapRoot.add(sp); f.smoke.push(sp);
   }
-  for(let i=0;i<5;i++){
-    const fl=new THREE.Sprite(new THREE.SpriteMaterial({map:smokeTex,color:0xff7a20,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-    fl.userData.o=new V3((Math.random()-.5)*size*0.8,0,(Math.random()-.5)*size*0.8); mapRoot.add(fl); f.flames.push(fl);
+  for(let i=0;i<6;i++){      // flame tongues standing on the fire, plus one flat glow on the ground
+    const glow=i===5, fl=new THREE.Sprite(new THREE.SpriteMaterial({map:glow?smokeTex:flameTex,color:glow?0xff6a18:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
+    if(!glow) fl.center.set(0.5,0.06); fl.userData.glow=glow; fl.userData.ph=Math.random()*6.28; fl.userData.o=new V3(glow?0:(Math.random()-.5)*size*0.9,0,glow?0:(Math.random()-.5)*size*0.9); mapRoot.add(fl); f.flames.push(fl);
   }
   if(withLight){ f.light=new THREE.PointLight(0xff8a30,25,14*size/1.5); f.light.position.set(x,y+1,z); mapRoot.add(f.light); }
   fires.push(f);
@@ -2146,17 +2157,23 @@ function updateFires(dt,t){
       sp.position.set(f.pos.x+Math.sin(k*5+f.size)*k*2+(BREEZE.on?wk*BREEZE.x/0.8:k*4), f.pos.y+0.5+k*14*f.size/1.5, f.pos.z+Math.cos(k*4)*k*1.5+(BREEZE.on?wk*BREEZE.z/0.8*0.6:0));
       sp.scale.setScalar(f.size*(1.2+k*6));
       sp.material.opacity=Math.min(1,k*6)*(1-k)*0.55;
+      // lit orange by the flames at the foot, sooty black in the body, going grey as it thins
+      const lo=Math.max(0,1-k*7), hi=Math.max(0,(k-0.5)*1.6); _fc.setRGB(0.17+0.5*lo+0.2*hi,0.16+0.22*lo+0.2*hi,0.15+0.05*lo+0.2*hi); sp.material.color.copy(_fc);
     }
     f.flames.forEach((fl,i)=>{
-      const fk=0.6+0.4*Math.sin(t*12+i*2.1)+0.2*Math.sin(t*23+i);
-      const ln=BREEZE.on?(0.18+0.12*Math.sin(t*0.7+f.pos.x*0.05))*f.size*BREEZE.k:0;
-      fl.position.set(f.pos.x+fl.userData.o.x+BREEZE.x*ln,f.pos.y+0.4*f.size+fk*0.3*f.size,f.pos.z+fl.userData.o.z+BREEZE.z*ln);
-      fl.scale.set(f.size*0.9*fk,f.size*1.4*fk,1);
-      fl.material.opacity=0.55+0.3*fk;
+      const ph=fl.userData.ph, fk=0.65+0.3*Math.sin(t*11+ph*3)+0.15*Math.sin(t*23+ph)+0.1*Math.sin(t*37+ph*5);
+      const ln=BREEZE.on?(0.18+0.12*Math.sin(t*0.7+f.pos.x*0.05))*f.size*BREEZE.k:0, sway=Math.sin(t*3+ph)*0.12*f.size+BREEZE.x*ln;
+      if(fl.userData.glow){ fl.position.set(f.pos.x,f.pos.y+0.25,f.pos.z); fl.scale.setScalar(f.size*(3.2+0.7*fk)); fl.material.opacity=0.28+0.12*fk; return; }
+      fl.position.set(f.pos.x+fl.userData.o.x+sway,f.pos.y+0.05,f.pos.z+fl.userData.o.z+BREEZE.z*ln);
+      fl.scale.set(f.size*(0.85+0.35*fk),f.size*(1.5+1.5*fk),1);
+      fl.material.opacity=0.75+0.25*Math.min(1,fk);
     });
-    if(f.light) f.light.intensity=18+10*Math.sin(t*9+f.size)+6*Math.sin(t*21);
+    // embers lifting off a fire you are near
+    if(Math.hypot(f.pos.x-cx,f.pos.z-cz)<45 && Math.random()<dt*5*f.size){ _dv2.set(f.pos.x+(Math.random()-.5)*f.size,f.pos.y+0.5+Math.random()*f.size,f.pos.z+(Math.random()-.5)*f.size); spawnPuff(_dv2,Math.random()<.5?0xffb050:0xff7a20,0.22+Math.random()*0.2,1.1+Math.random()*0.9,true,2.2+Math.random()*2.5,(BREEZE.on?BREEZE.x*0.6:0.3)+(Math.random()-.5)*1.2,(BREEZE.on?BREEZE.z*0.6:0)+(Math.random()-.5)*1.2,0.9); }
+    if(f.light){ const fl2=0.5+0.5*Math.sin(t*9+f.size)*Math.sin(t*5.3+1.3); f.light.intensity=15+14*fl2+7*Math.sin(t*23+f.size*3); f.light.color.setRGB(1,0.5+0.12*fl2,0.16+0.08*fl2); }
   }
 }
+const _fc=new THREE.Color(), _dv2=new THREE.Vector3();
 
 function buildStalingrad(){
 // ---------- build the city ----------
@@ -6774,6 +6791,7 @@ function explode(p,owner,fxOnly){
   try{ for(let i=0;i<7;i++) spawnDust(p.x+(Math.random()-.5)*3,0.3+Math.random()*0.8,p.z+(Math.random()-.5)*3,6+Math.random()*4,6+Math.random()*3,0.45,0.5); }catch(e){}
   const up=new V3(0,1,0);
   // fireball, smoke, snow/dirt thrown up
+  fxFireball(p.clone().add(new V3(0,0.5,0)),0.55,false);
   spawnPuff(p.clone().add(new V3(0,0.6,0)),0xffb060,6.2,0.34,true,0);
   spawnPuff(p.clone().add(new V3(0,0.4,0)),0xfff0c0,3.8,0.16,true,0);
   for(let i=0;i<6;i++) spawnPuff(p.clone().add(new V3((Math.random()-.5)*2.4,0.4+Math.random()*1.8,(Math.random()-.5)*2.4)),0x3a3734,3.5+Math.random()*3,2+Math.random()*1.5,false,0.6);
@@ -8984,7 +9002,7 @@ function airFire(x,y,z,size,smokeOnly){
     s.userData.t=Math.random(); air.root.add(s); f.sp.push(s);
   }
   f.fl=[]; const nf=smokeOnly?0:2+Math.round(size*0.9);
-  for(let i=0;i<nf;i++){ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex,color:i%2?0xff8a2a:0xffb347,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.8,fog:true})); s.userData.ph=Math.random()*6.28; s.userData.ox=(Math.random()-.5)*size*2.2; s.userData.oz=(Math.random()-.5)*size*2.2; air.root.add(s); f.fl.push(s); }
+  for(let i=0;i<nf;i++){ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:flameTex,color:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.9,fog:true})); s.center.set(0.5,0.06); s.userData.ph=Math.random()*6.28; s.userData.ox=(Math.random()-.5)*size*2.2; s.userData.oz=(Math.random()-.5)*size*2.2; air.root.add(s); f.fl.push(s); }
   air.fires.push(f);
 }
 // the ring of a shockwave on the ground and flying debris from a blast
@@ -9010,7 +9028,7 @@ function airUpdateFires(dt){
     if(d.m.position.y<=0.4){ d.m.position.y=0.4; d.vy=0; d.vx*=0.6; d.vz*=0.6; d.sx=d.sz=0; }
     if(d.t>7){ air.root.remove(d.m); air.deb.splice(i,1); } }
   for(const f of air.fires) if(f.fl) for(const s of f.fl){ const ph=s.userData.ph, k=air.t*8+ph, fl=0.65+0.35*Math.sin(k*1.7)*Math.sin(k*0.9+1);
-    s.position.set(f.x+s.userData.ox,f.y+1.5+f.size*(1.4+Math.sin(k)*0.5),f.z+s.userData.oz); s.scale.setScalar(f.size*(4.2+2.2*fl)); s.material.opacity=0.55+0.4*fl; }
+    s.position.set(f.x+s.userData.ox+Math.sin(k*0.6)*f.size*0.5,f.y+0.8,f.z+s.userData.oz); s.scale.set(f.size*(2.8+1.4*fl),f.size*(5.5+3.8*fl),1); s.material.opacity=0.7+0.3*fl; }
   for(const f of air.fires) for(const s of f.sp){
     s.userData.t+=dt/11; if(s.userData.t>1) s.userData.t-=1; const k=s.userData.t;
     s.position.set(f.x+Math.sin(k*4+f.size)*k*18+k*30,f.y+4+k*(90+f.size*16),f.z+Math.cos(k*3)*k*12);
@@ -9840,16 +9858,17 @@ function airTracer(x,y,z,dx,dy,dz,speed,life,enemy){
     if(air.tracers.length>=90) t=air.tracers[air.traceI++%90];
     else { const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(6),3));
       const ln=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffe08a,transparent:true,opacity:0.9,fog:false})); ln.frustumCulled=false; air.root.add(ln);
-      t={ln,life:0}; air.tracers.push(t); }
+      const hd=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex,color:0xffe08a,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:0.9,fog:false})); hd.scale.setScalar(4.5); air.root.add(hd);
+      t={ln,hd,life:0}; air.tracers.push(t); }
   }
-  t.x=x;t.y=y;t.z=z;t.dx=dx;t.dy=dy;t.dz=dz;t.v=speed;t.life=life;t.en=!!enemy; t.ln.material.color.setHex(enemy?0xff6a40:0xffe08a); t.ln.visible=true;
+  t.x=x;t.y=y;t.z=z;t.dx=dx;t.dy=dy;t.dz=dz;t.v=speed;t.life=life;t.en=!!enemy; t.ln.material.color.setHex(enemy?0xff6a40:0xffe08a); t.ln.visible=true; if(t.hd){ t.hd.material.color.setHex(enemy?0xff5a30:0xffe08a); t.hd.visible=true; t.hd.position.set(x,y,z); }
 }
 function airUpdateTracers(dt){
   for(const t of air.tracers){
-    if(t.life<=0){ t.ln.visible=false; continue; }
+    if(t.life<=0){ t.ln.visible=false; if(t.hd) t.hd.visible=false; continue; }
     t.life-=dt; t.x+=t.dx*t.v*dt; t.y+=t.dy*t.v*dt; t.z+=t.dz*t.v*dt;
     const a=t.ln.geometry.attributes.position.array, L=34;
-    a[0]=t.x-t.dx*L;a[1]=t.y-t.dy*L;a[2]=t.z-t.dz*L;a[3]=t.x;a[4]=t.y;a[5]=t.z; t.ln.geometry.attributes.position.needsUpdate=true;
+    a[0]=t.x-t.dx*L;a[1]=t.y-t.dy*L;a[2]=t.z-t.dz*L;a[3]=t.x;a[4]=t.y;a[5]=t.z; t.ln.geometry.attributes.position.needsUpdate=true; if(t.hd) t.hd.position.set(t.x,t.y,t.z);
   }
 }
 const airDistSnd=(x,y,z)=>Math.min(1,500/(Math.hypot(x-air.pl.x,y-air.pl.y,z-air.pl.z)+120));
@@ -10761,6 +10780,7 @@ function dflEnemyGuns(dt){
     const cp=Math.cos(E.p), fx=Math.sin(E.h)*cp, fy=Math.sin(E.p), fz=-Math.cos(E.h)*cp, er=E.ai.err, side=(E.ammo&1)?2.2:-2.2;
     const ox=E.x+Math.cos(E.h)*side, oy=E.y-0.3, oz=E.z+Math.sin(E.h)*side, ax=E.x+fx*450, ay=E.y+fy*450, az=E.z+fz*450;
     airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*er*450,ay-oy+(Math.random()-.5)*er*450,az-oz+(Math.random()-.5)*er*450,760+E.s,0.9,true);
+    spawnPuff(new V3(ox+fx*2.4,oy+fy*2.4,oz+fz*2.4),0xffc890,1.9+Math.random()*0.8,0.06,true,0,0,0,1);
   }
 }
 
@@ -10787,6 +10807,7 @@ function dflPlayerGuns(dt){
     const cp=Math.cos(P.p), fx=Math.sin(P.h)*cp, fy=Math.sin(P.p), fz=-Math.cos(P.h)*cp, side=(P.ammo&1)?2.2:-2.2;
     const ox=P.x+Math.cos(P.h)*side, oy=P.y-0.3, oz=P.z+Math.sin(P.h)*side, ax=P.x+fx*450, ay=P.y+fy*450, az=P.z+fz*450;
     airTracer(ox,oy,oz,ax-ox+(Math.random()-.5)*3,ay-oy+(Math.random()-.5)*3,az-oz+(Math.random()-.5)*3,780+P.s,0.9,false);
+    spawnPuff(new V3(ox+fx*2.4,oy+fy*2.4,oz+fz*2.4),0xffe2a0,1.9+Math.random()*0.8,0.06,true,0,0,0,1);
     if(P.ammo%3===0) sndShot(false);
     air.shake=Math.max(air.shake,0.05);
   }
@@ -10818,7 +10839,7 @@ function dflDie(X){
 function dflExplode(X,onSea){
   const p=new V3(X.x,Math.max(2,dflGround(X.x,X.z)),X.z);
   if(onSea){ spawnPuff(p.clone().add(new V3(0,6,0)),0xdfeaef,30,1.4,false,2); spawnPuff(p.clone().add(new V3(0,3,0)),0xf4faff,18,1.0,false,1.5); }
-  spawnPuff(p.clone().add(new V3(0,5,0)),0xffb060,34,1.4,true,0); spawnPuff(p.clone().add(new V3(0,3,0)),0xfff0c0,20,0.8,true,0);
+  fxFireball(p.clone().add(new V3(0,4,0)),2.0,true); spawnPuff(p.clone().add(new V3(0,5,0)),0xffb060,34,1.4,true,0); spawnPuff(p.clone().add(new V3(0,3,0)),0xfff0c0,20,0.8,true,0);
   for(let i=0;i<8;i++) spawnPuff(p.clone().add(new V3((Math.random()-.5)*16,5+Math.random()*9,(Math.random()-.5)*16)),0x2c2a28,14+Math.random()*10,3.5,false,8);
   const d=Math.hypot(X.x-dfl.pl.x,X.y-dfl.pl.y,X.z-dfl.pl.z); noise(1.4,800,0.7*Math.min(1,600/(d+100)),'lowpass',60); tone(70,25,0.7,0.5*Math.min(1,600/(d+100)));
   if(X===dfl.pl) air.shake=1.2;
@@ -10832,6 +10853,21 @@ function dflEnd(kind,why){
 }
 
 // ---------- the frame ----------
+// a damaged plane: grey oil-smoke first, then black smoke, then flames streaming back from the engine with falling sparks
+function dflBurn(X,dt){
+  const frac=X.hp/(X.hpMax||100); X.trail-=dt; X.flameT=(X.flameT||0)-dt; X.sparkT=(X.sparkT||0)-dt;
+  if(!(X.dead||frac<0.7)) return;
+  const cp=Math.cos(X.p), fx=Math.sin(X.h)*cp, fy=Math.sin(X.p), fz=-Math.cos(X.h)*cp, bx=X.x+fx*0.8, by=X.y+fy*0.8+0.5, bz=X.z+fz*0.8, burning=X.dead||frac<0.3, heavy=X.dead||frac<0.45;
+  if(X.trail<=0){ X.trail=burning?0.035:heavy?0.05:0.07;
+    const sz=(burning?9:heavy?7:5)+Math.random()*3, col=burning?(Math.random()<.3?0x2a1d16:0x131211):heavy?0x2c2a28:0x8c8a86;
+    spawnPuff(new V3(bx-fx*2.5+(Math.random()-.5)*1.2,by-fy*2.5+(Math.random()-.5)*1.2,bz-fz*2.5+(Math.random()-.5)*1.2),col,sz,burning?4:3,false,burning?1.4:0.8,0,0,burning?0.9:0.65); }
+  if(burning && X.flameT<=0){ X.flameT=0.04;      // the fire: a white-hot root, an orange body and a red tail, each left behind where it was
+    const j=()=>(Math.random()-.5)*0.8;
+    spawnPuff(new V3(bx-fx*1.5+j(),by-fy*1.5+j(),bz-fz*1.5+j()),0xfff0b8,3.4,0.22,true,0.4);
+    spawnPuff(new V3(bx-fx*3.4+j(),by-fy*3.4+j(),bz-fz*3.4+j()),0xff9a30,5.2,0.38,true,0.8);
+    spawnPuff(new V3(bx-fx*6.2+j(),by-fy*6.2+j()+0.4,bz-fz*6.2+j()),0xd8401a,6.4,0.55,true,1.2,0,0,0.8); }
+  if(burning && X.sparkT<=0){ X.sparkT=0.09; spawnPuff(new V3(bx-fx*3+(Math.random()-.5)*2,by-fy*3,bz-fz*3+(Math.random()-.5)*2),0xffc060,0.55,1.0,true,-3.5,(Math.random()-.5)*5,(Math.random()-.5)*5,1); }
+}
 function dflFrameWorldPlanes(dt){
   const P=dfl.pl, E=dfl.en, S=dfl.spec, ES=dfl.espec;
   // player
@@ -10840,13 +10876,7 @@ function dflFrameWorldPlanes(dt){
   // enemy
   if(!E.dead){ dflAI(dt); dflFly(E,ES,dt); }
   else { dflFall(E,dt); }
-  // smoke from damaged planes
-  for(const X of [P,E]){
-    X.hitT-=dt; X.trail-=dt;
-    const frac=X.hp/(X.hpMax||100); if(X.dead||frac<0.7){ if(X.trail<=0){ X.trail=X.dead?0.04:(frac<0.25?0.07:0.14); const fx=Math.sin(X.h),fz=-Math.cos(X.h);
-      spawnPuff(new V3(X.x-fx*4,X.y,X.z-fz*4),X.dead||frac<0.25?0x1e1c1b:0x6a6866,6+Math.random()*4,2.0,false,0.6);
-      if(X.dead||frac<0.25) spawnPuff(new V3(X.x-fx*3,X.y,X.z-fz*3),0xff8a30,4,0.3,true,0); } }
-  }
+  for(const X of [P,E]){ X.hitT-=dt; dflBurn(X,dt); }
   // crashes
   for(const X of [P,E]){
     if(X.gone) continue; const gy=dflGround(X.x,X.z);
@@ -12084,13 +12114,13 @@ function buildViewmodel(side,type){
   vmClip=new THREE.Group(); vmClip.visible=false; vmWeapon.add(vmClip);
   { const brass=mat(0xb8913a,{roughness:.4,metalness:.7}); for(let i=0;i<5;i++){ const r=cyl(0.006,0.006,0.06,brass,6); r.position.set(0,0.03,-0.02+i*0.011); vmClip.add(r); }
     const strip=box(0.012,0.008,0.065,mat(0x6a6a62,{metalness:.6})); strip.position.y=0.002; vmClip.add(strip); }
-  const fm=new THREE.MeshBasicMaterial({map:flashTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  const fm=new THREE.MeshBasicMaterial({map:starTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
   vmFlash=new THREE.Group();
   const p1=new THREE.Mesh(new THREE.PlaneGeometry(0.22,0.22),fm);
   const p2=new THREE.Mesh(new THREE.PlaneGeometry(0.12,0.35),fm); p2.rotation.y=Math.PI/2; p2.position.z=-0.1;
   const p3=new THREE.Mesh(new THREE.PlaneGeometry(0.35,0.12),fm); p3.rotation.x=Math.PI/2; p3.position.z=-0.1;
   try{ vmWeapon.traverse(o=>{ const ms=Array.isArray(o.material)?o.material:[o.material]; for(const m of ms) if(m && m.isMeshStandardMaterial){ m.envMapIntensity=m.metalness>0.3?0.85:0.8; if(m.metalness>0.3) m.roughness=Math.max(m.roughness,0.3);  } }); }catch(e){}
-  const cm=new THREE.MeshBasicMaterial({map:flashTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,color:0xfff4d8});
+  const cm=new THREE.MeshBasicMaterial({map:starTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,color:0xfff4d8});
   const p4=new THREE.Mesh(new THREE.PlaneGeometry(0.09,0.09),cm); p4.position.z=-0.02;      // a small white-hot core
   vmFlash.add(p1,p2,p3,p4); vmFlash.scale.setScalar(0.7); fm.color.setHex(0xffb060); vmFlash.visible=false; vmWeapon.userData.muzzle.add(vmFlash);
 }
@@ -12116,6 +12146,16 @@ function mkPuffSys(n,add){
   return {n,pos,size,alpha,col,at,mt,next:0,live:0,life:new Float32Array(n).fill(1),max:new Float32Array(n).fill(1),base:new Float32Array(n),rise:new Float32Array(n),vx:new Float32Array(n),vz:new Float32Array(n),amp:new Float32Array(n).fill(0.9),add};
 }
 const PUF={nrm:mkPuffSys(IS_TOUCH?170:430,false),add:mkPuffSys(IS_TOUCH?50:110,true)}, _pc=new THREE.Color();
+// a proper blast: a white flash, an orange shell thrown outward, the dark column climbing behind it, then sparks
+function fxFireball(p,sc,heavy){
+  const lo=GFX[gfx].fx<1, sched=(t,fn)=>{ if(air.on) air.delayed.push({t,fn}); else later(t,fn); };
+  spawnPuff(p,0xfff4d0,6*sc,0.16,true,0,0,0,1);
+  const n=lo?5:9; for(let i=0;i<n;i++){ const a=i/n*6.283+Math.random()*0.6, sp=(3+Math.random()*4)*sc;
+    spawnPuff(new V3(p.x,p.y+0.3*sc,p.z),i%3?0xff9a30:0xe8501c,(3.4+Math.random()*2.4)*sc,0.5+Math.random()*0.45,true,(0.8+Math.random()*2.4)*sc,Math.cos(a)*sp,Math.sin(a)*sp,0.9); }
+  for(let i=0;i<(lo?4:8);i++) spawnPuff(new V3(p.x+(Math.random()-.5)*2*sc,p.y+0.5*sc,p.z+(Math.random()-.5)*2*sc),0x1c1a18,(3+Math.random()*3)*sc,(2.6+Math.random()*2)*(heavy?1.6:1),false,(1.2+Math.random()*2.4)*sc,(Math.random()-.5)*2,(Math.random()-.5)*2,0.85);
+  if(heavy) for(let k=1;k<=4;k++) sched(k*0.22,()=>{ for(let i=0;i<3;i++) spawnPuff(new V3(p.x+(Math.random()-.5)*3,p.y+k*5*sc+Math.random()*3,p.z+(Math.random()-.5)*3),i?0x2a2826:0x6a4a30,(5+k*1.6+Math.random()*3)*sc,4+Math.random()*3,false,(2+k*0.5)*sc,(Math.random()-.5)*3,(Math.random()-.5)*3,0.8); });
+  for(let i=0;i<(lo?4:8);i++){ const a=Math.random()*6.283, sp=(4+Math.random()*8)*sc; spawnPuff(new V3(p.x,p.y+0.5,p.z),0xffc060,0.5*Math.max(0.6,sc),0.9+Math.random()*0.7,true,(3+Math.random()*5)*sc,Math.cos(a)*sp*0.5,Math.sin(a)*sp*0.5,1); }
+}
 function spawnPuff(p,color,size,life=0.7,additive=false,rise=0.3,wx=0,wz=0,amp=0.9){
   if(GFX[gfx].fx<1 && Math.random()>GFX[gfx].fx+0.15) return;      // fewer smoke/dust puffs on lower graphics
   const S=additive?PUF.add:PUF.nrm, i=S.next; S.next=(S.next+1)%S.n;

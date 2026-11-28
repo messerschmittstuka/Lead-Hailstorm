@@ -8641,7 +8641,7 @@ function skirmFinish(win,why,draw){
   if(H){ try{ const key='lh_hold_best_'+currentMap; best=+localStorage.getItem(key)||0; if(score>best){ best=score; localStorage.setItem(key,String(score)); skirm.newBest=true; } else skirm.newBest=false; }catch(e){} }
   try{ progEvent('match',{win:!!win&&!draw,mode:skirm.mode,t:skirm.t,wave:H?H.wave:0,map:currentMap}); }catch(e){}
   skirm.res={win,draw:!!draw,why,gained,mode:skirm.mode,map:currentMap,score,best,wave:H?H.wave:0,captured:skirm.captured,dom:skirm.dom?[skirm.dom.ally,skirm.dom.enemy]:null,html:boardHTML(true)};
-  try{ const rec=record(selSide), r0=rankOf(rec.xp); rec.xp+=gained; rec.kills+=(mstats.kills+mstats.tanks)||0; saveRecord(selSide,rec); skirm.res.promo=cosPromo(selSide,r0,rankOf(rec.xp)); skirm.res.rankUp=rankOf(rec.xp)>r0; }catch(e){}
+  try{ const rec=record(selSide), r0=rankOf(rec.xp); rec.xp+=gained; rec.kills+=(mstats.kills+mstats.tanks)||0; saveRecord(selSide,rec); const bo=sortie(selSide,(win?60:draw?42:20)+Math.min(25,sp.k*1.5)-mstats.deaths*3); skirm.res.board=bo; skirm.res.promo=cosPromo(selSide,r0,rankOf(record(selSide).xp)); skirm.res.rankUp=rankOf(record(selSide).xp)>r0; }catch(e){}
   const el=$('mapdone');
   el.innerHTML=`<div style="font-size:min(44px,5.4vw);letter-spacing:5px;color:${draw?'#e0d8b8':'#f2c14e'};${draw?'':'text-shadow:0 0 14px rgba(242,193,78,.45),0 3px 6px #000'}">${draw?'STALEMATE':victorHTML(win)}</div><div style="margin-top:10px;font-size:18px;opacity:.85">${draw?'':win?'VICTORY · ':'DEFEAT · '}${why}${H?` · WAVE ${H.wave} · SCORE ${score}`:''}</div>
     <div style="margin-top:22px;font-size:16px;letter-spacing:3px;opacity:.8">Results incoming…</div>`;
@@ -8712,7 +8712,7 @@ function skirmGuestApply(sk){
 function skirmGuestEnd(m){
   skirm.over=true; battle.done=true;
   skirm.res={win:!!m.w,why:m.why,gained:m.g,mode:skirm.mode,map:currentMap,score:m.sc||0,best:m.b||0,wave:m.wv||0,captured:0,dom:m.dm||null,html:m.html};
-  try{ const rec=record(selSide); rec.xp+=m.g; rec.kills+=(mstats.kills+mstats.tanks)||0; saveRecord(selSide,rec); }catch(e){}
+  try{ const rec=record(selSide); rec.xp+=m.g; rec.kills+=(mstats.kills+mstats.tanks)||0; saveRecord(selSide,rec); skirm.res.board=sortie(selSide,(m.w?60:20)+Math.min(25,(mstats.kills||0)*1.5)-mstats.deaths*3); }catch(e){}
   const el=$('mapdone'); el.innerHTML=`<div style="font-size:min(44px,5.4vw);letter-spacing:5px;color:#f2c14e;text-shadow:0 0 14px rgba(242,193,78,.45),0 3px 6px #000">${victorHTML(!!m.w)}</div><div style="margin-top:10px;font-size:18px;opacity:.85">${m.w?'VICTORY':'DEFEAT'} · ${m.why}</div>
     <div style="margin-top:22px;font-size:16px;letter-spacing:3px;opacity:.8">Results incoming…</div>`; el.style.opacity=1; sting(m.w?'victory':'death'); mapDoneT=5;
 }
@@ -10487,7 +10487,7 @@ function airDebrief(){
   state='menu'; mouseDown=rmb=false; document.body.style.cursor='default'; if(document.pointerLockElement) document.exitPointerLock();
   hideMenus(); $('hud').style.display='none'; $('mapdone').style.opacity=0; $('dead').style.display='none';
   setSpawn(); spawnWorld(selSide,selWeapon,true);
-  try{ const rec=record('german'); rec.xp+=r.xp; rec.kills+=Object.values(r.stats.kills).reduce((a,b)=>a+b,0)||0; saveRecord('german',rec); if(r.success) markComplete('german','stuka'); }catch(e){}
+  try{ const rec=record('german'); rec.xp+=r.xp; rec.kills+=Object.values(r.stats.kills).reduce((a,b)=>a+b,0)||0; saveRecord('german',rec); if(r.success) markComplete('german','stuka'); { const AI=AIR; r.board=sortie('german',!r.landed?(r.kind==='crashed'?8:5):(r.score>=AI.ACE?95:r.score>=AI.EXC?82:r.score>=AI.GOOD?68:r.score>=AI.PASS?52:30)-(100-r.hull)*0.1); } }catch(e){}
   const S=r.stats, K=S.kills, tn=(k,n)=>K[k]?`<li>${n}: <b>${K[k]}</b></li>`:'';
   $('dTitle').textContent=`STUKA SORTIE · ${r.success?'SUCCESS':r.landed?'RETURNED TO BASE':r.kind==='crashed'?'AIRCRAFT LOST':'LOST'}`;
   const why = r.landed ? (r.success?`You brought the Stuka home with the job done.`:`You landed, but too little was destroyed. The command wants at least ${AIR.PASS} points.`)
@@ -10495,7 +10495,7 @@ function airDebrief(){
   $('dText').innerHTML=`<p><b>${r.rank}</b> · score <b>${r.score}</b></p><p>${why}</p>
     <ul style="margin:6px 0 0 18px">${tn('factory','Factories hit')}${tn('rail','Rail yard')}${tn('hq','Army headquarters')}${tn('fuel','Fuel tanks')}${tn('ferry','Ferries sunk')}${tn('tank','Tanks destroyed')}${tn('train','Supply train')}${tn('gun','Artillery guns')}${tn('flak','AA guns silenced')}${S.fighters?`<li>Soviet fighters shot down: <b>${S.fighters}</b></li>`:''}</ul>
     <p style="margin-top:8px">Bombs dropped: ${S.dropped} · Hits: ${S.hits} · Hull left: ${r.hull}% · Fuel left: ${r.fuel}%</p>`;
-  $('dStats').textContent=`${r.score} pts`; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
+  $('dStats').textContent=`${r.score} pts`; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=`<div class="recRank">${rankNoteHTML(r.board)}</div>`; $('dScore').innerHTML='';
   $('dBanner').innerHTML=''; $('dTiles').innerHTML='';
   $('dAgain').style.display=''; $('debrief').style.display='flex';
 }
@@ -10921,7 +10921,9 @@ function dflEnd(kind,why){
   else if(kind==='landed'){ xp=Math.round(70+hpL*60+dealt*80); rank='ESCAPED'; }
   else if(kind==='bailed'){ xp=Math.round(30+dealt*70); rank='BAILED OUT'; }
   else xp=Math.round(15+dealt*60);
-  dfl.res={kind,won,why,rank,time:dfl.t,shots:dfl.shots,hits:dfl.hits,taken:dfl.hitsTaken,hp:Math.max(0,Math.round(P.hp)),xp};
+  const acc=dfl.shots?dfl.hits/dfl.shots:0;
+  const perf=won?50+hpL*30+Math.min(15,acc*40)+(wear<0.6?5:0):kind==='landed'?38+hpL*10+dealt*15:kind==='bailed'?26+dealt*20:8+dealt*20+Math.min(8,acc*20);
+  dfl.res={perf,kind,won,why,rank,time:dfl.t,shots:dfl.shots,hits:dfl.hits,taken:dfl.hitsTaken,hp:Math.max(0,Math.round(P.hp)),xp};
   air.endT=3.4; dfl.phase=kind;
   if(won){ sting('victory'); showMsg('VICTORY · THE '+dfl.spec.en+' IS DOWN',3.2); }
   else if(kind==='landed'){ sting('victory'); showMsg(why||'YOU LANDED SAFELY',3.2); }
@@ -11211,13 +11213,13 @@ function dflDebrief(){
   state='menu'; mouseDown=rmb=false; document.body.style.cursor='default'; if(document.pointerLockElement) document.exitPointerLock();
   hideMenus(); $('hud').style.display='none'; $('mapdone').style.opacity=0; $('dead').style.display='none';
   setSpawn(); spawnWorld(selSide,selWeapon,true);
-  try{ const rec=record(side); rec.xp+=r.xp; if(r.won) rec.kills=(rec.kills||0)+1; saveRecord(side,rec); }catch(e){}
+  try{ const rec=record(side); rec.xp+=r.xp; if(r.won) rec.kills=(rec.kills||0)+1; saveRecord(side,rec); r.board=sortie(side,r.perf); }catch(e){}
   briefMission='dogfight';
   $('dTitle').textContent=`DOGFIGHT · ${r.won?'VICTORY':r.kind==='landed'?'ESCAPED':r.kind==='bailed'?'BAILED OUT':'SHOT DOWN'}`;
   const m=Math.floor(r.time/60), s=Math.floor(r.time%60), acc=r.shots?Math.round(r.hits/r.shots*100):0;
   $('dText').innerHTML=`<p><b>${r.won?'ENEMY AIRCRAFT DESTROYED':r.why||'AIRCRAFT LOST'}</b>${r.rank?` · ${r.rank}`:''}</p><p>${r.won?`The ${spec.en} went down. You came out of it with ${r.hp}% of your plane left.`:r.kind==='landed'?`You put the damaged plane down on the runway and walked away. The ${spec.en} is still up there.`:r.kind==='bailed'?`You got out and came down alive. The plane is lost and the ${spec.en} claims the fight.`:`The fight is over. Try a different approach: get on his tail and fire in short bursts.`}</p>
     <p style="margin-top:8px">Time: ${m}:${String(s).padStart(2,'0')} · Rounds fired: ${r.shots} · Hits: ${r.hits} (${acc}%) · Hits taken: ${r.taken}</p>`;
-  $('dStats').textContent=r.won?'1 kill':(r.kind==='landed'||r.kind==='bailed')?'survived':'0 kills'; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=''; $('dScore').innerHTML='';
+  $('dStats').textContent=r.won?'1 kill':(r.kind==='landed'||r.kind==='bailed')?'survived':'0 kills'; $('dUnlock').innerHTML=`+${r.xp} XP added to your service record.`; $('dRecord').innerHTML=`<div class="recRank">${rankNoteHTML(r.board)}</div>`; $('dScore').innerHTML='';
   $('dBanner').innerHTML=''; $('dTiles').innerHTML='';
   $('dAgain').style.display=''; $('debrief').style.display='flex';
 }
@@ -13887,7 +13889,7 @@ function showStats(){
       <div style="font-size:11px;opacity:.7;margin-top:6px">RANK ${rl.r+1} OF ${RANKS[sd].length}</div>
       <div style="font:900 22px Playfair Display,Georgia,serif;color:#5a1f15">${rl.name}</div><div style="font-size:12px;font-style:italic;opacity:.75">${rl.native}</div>
       <div class="xpbar"><div style="width:${Math.round(rl.frac*100)}%"></div></div>
-      <div style="font-size:12px">${rl.xp} XP${rl.next?` · next rank at ${rl.next}`:' · highest rank'}</div>
+      <div style="font-size:12px">${rl.xp} XP${rl.next?` · next rank at ${rl.next}`:' · highest rank'}</div><div style="font-size:11px;opacity:.85">${rl.status}</div>
       <div style="font-size:12px;margin-top:6px">Total kills: <b>${rec.kills}</b></div>
       <div style="font-size:12px;margin-top:2px">Weapons unlocked: <b>${unl}/${UNLOCKS[sd].length}</b>${msn===null?'':` · Missions won: <b>${msn}/${MISSION_IDS.length}</b>`}</div>
       ${med.length?`<div class="case"><div style="font-size:11px;letter-spacing:2px;opacity:.75;margin-bottom:4px">MEDALS · ${got.length}/${med.length}</div>${med.map(m=>`<span class="cm ${rec.medals&&rec.medals[m.id]?'':'no'}" title="${m.name}: ${m.why}">${medalSVG(m,26)}</span>`).join('')}</div>`:'<div style="font-size:12px;opacity:.6;margin-top:8px">No medals for this army yet.</div>'}`;
@@ -13932,7 +13934,7 @@ function showMissions(){
   menuFlow='missions'; skirm.sel='campaign';
   hideMenus(); state='menu'; $('missions').style.display='flex';
   const S=SIDES[selSide]; $('msTitle').textContent=S.title+' · CAMPAIGN'; $('msTitle').style.color=S.color;
-  const rl=rankLine(selSide); $('msRank').innerHTML=`RANK: <b>${rl.name.toUpperCase()}</b> · ${rl.xp} XP${rl.next?' · next rank at '+rl.next:''} · MEDALS ${Object.keys(record(selSide).medals).length}/${MEDALS[selSide].length}`;
+  const rl=rankLine(selSide); $('msRank').innerHTML=`RANK: <b>${rl.name.toUpperCase()}</b> · ${rl.xp} XP${rl.next?' · next rank at '+rl.next:''} · ${rl.status} · MEDALS ${Object.keys(record(selSide).medals).length}/${MEDALS[selSide].length}`;
   if(backPayNote[selSide]){ $('msRank').innerHTML+=`<br><span style="color:#9be38f">★ ${backPayNote[selSide]}</span>`; delete backPayNote[selSide]; }
   const box=$('missionList'); box.innerHTML='';
   if(selSide==='german'){ const c=document.createElement('div'); c.className='mcard';
@@ -14008,7 +14010,7 @@ function showDebrief(){
   const sk=!!skirm.res;
   $('dTitle').textContent= sk ? `${MAPS[id].short} · ${SK_MODES[skirm.res.mode].name} · ${skirm.res.win?'VICTORY':skirm.res.draw?'STALEMATE':'DEFEAT'}` : `${MAPS[id].short} · MISSION COMPLETE`;
   $('dText').innerHTML= sk ? '' : st.debrief.map(p=>`<p>${p}</p>`).join('');
-  $('dStats').textContent=`${mstats.kills+mstats.tanks} kills`; if(sk){ $('dRecord').innerHTML=''; $('dScore').innerHTML=skirmResultsHTML(); } else { $('dScore').innerHTML=''; renderRecord(); }
+  $('dStats').textContent=`${mstats.kills+mstats.tanks} kills`; if(sk){ $('dRecord').innerHTML=`<div class="recRank">${rankNoteHTML(skirm.res.board)}</div>`; $('dScore').innerHTML=skirmResultsHTML(); } else { $('dScore').innerHTML=''; renderRecord(); }
   try{ const promoted = sk ? !!(skirm.res&&skirm.res.rankUp) : !!(lastResult && lastResult.newRank>lastResult.oldRank); if(promoted) setTimeout(()=>sting('promote'),450); }catch(e){}
   $('dAgain').style.display='';
   debriefFlair(sk ? skirm.res.win : true, sk ? victorLine(true) : 'MISSION COMPLETE', sk ? (skirm.res.win?SK_MODES[skirm.res.mode].name:skirm.res.draw?'NEITHER SIDE BROKE THE OTHER':'DEFEAT · FALL BACK AND TRY AGAIN') : MAPS[id].short, sk&&skirm.res.draw);
@@ -14170,7 +14172,9 @@ function medalSVG(m,size=46){
 }
 const rankOf=xp=>{ let r=0; for(let i=0;i<RANK_XP.length;i++) if(xp>=RANK_XP[i]) r=i; return r; };
 const record=side=>{ const p=readProgress()[side]; return {xp:p.xp||0, medals:p.medals||{}, kills:p.kills||0, cos:p.cos||'std'}; };
-function saveRecord(side,rec){ const p=readProgress(); p[side].xp=rec.xp; p[side].medals=rec.medals; p[side].kills=rec.kills||0; p[side].cos=rec.cos||'std'; try{ localStorage.setItem(PROGRESS_KEY,JSON.stringify(p)); }catch(e){} }
+const BOARD_N=4;      // a promotion board sits every 4 sorties
+function saveRecord(side,rec){ const p=readProgress(); { const r0=rankOf(p[side].xp||0), hi=r0<RANK_XP.length-1?RANK_XP[r0+1]-1:Infinity; rec.xp=Math.max(RANK_XP[r0],Math.min(rec.xp,hi)); }      // merit piles up inside your rank; only the board moves you
+  p[side].xp=rec.xp; p[side].medals=rec.medals; p[side].kills=rec.kills||0; p[side].cos=rec.cos||'std'; try{ localStorage.setItem(PROGRESS_KEY,JSON.stringify(p)); }catch(e){} }
 const weaponUnlocked=(side,w)=>{ const u=UNLOCKS[side].find(x=>x[0]===w); return !u || rankOf(record(side).xp)>=u[1]; };
 // stats for the mission in progress (survive respawns, reset when a new mission starts)
 let mstats={kills:0,heads:0,tanks:0,deaths:0,longest:0};
@@ -14197,13 +14201,45 @@ function scoreMission(side,id){
   const newMedals=[];
   for(const m of MEDALS[side]) if(cond[m.id] && !rec.medals[m.id]){ rec.medals[m.id]=true; newMedals.push(m); }
   saveRecord(side,rec);
-  const newRank=rankOf(rec.xp);
+  const perf=55+(mstats.deaths===0?25:Math.max(0,12-mstats.deaths*4))+Math.min(15,mstats.kills/6)+Math.min(5,mstats.tanks*2), bo=sortie(side,perf);
+  rec.xp=record(side).xp; const newRank=rankOf(rec.xp);
   const unlocked=UNLOCKS[side].filter(([w,r])=>r>oldRank && r<=newRank).map(([w])=>WEAPONS[w].name);
-  lastResult={lines,gained,xp:rec.xp,oldRank,newRank,unlocked,newMedals,first};
+  lastResult={lines,gained,xp:rec.xp,oldRank,newRank,unlocked,newMedals,first,bo};
+}
+let lastBoard=null;
+// every finished sortie is rated 0-100; every BOARD_N sorties a board looks at the average and can promote, warn or demote
+function sortie(side,perf){
+  perf=Math.max(0,Math.min(100,Math.round(perf)));
+  const p=readProgress(), P=p[side]; P.xp=P.xp||0; P.log=(P.log||[]).concat([perf]).slice(-BOARD_N); P.n=(P.n||0)+1;
+  const out={side,perf,n:P.n,board:null,prob:!!P.prob};
+  if(P.n>=BOARD_N){
+    P.n=0; const avg=P.log.reduce((a,b)=>a+b,0)/P.log.length, worst=Math.min(...P.log), r=rankOf(P.xp), top=r>=RANK_XP.length-1;
+    const need=Math.min(90,72+r*2), atCap=!top && P.xp>=RANK_XP[r+1]-1; let res='hold';
+    if(!top && atCap && avg>=need && worst>=40){ P.xp=RANK_XP[r+1]; P.prob=false; res='promoted'; }
+    else if(avg<38){ if(P.prob && r>0){ P.xp=RANK_XP[r-1]+Math.round((RANK_XP[r]-RANK_XP[r-1])*0.5); P.prob=false; res='demoted'; } else if(!P.prob){ P.prob=true; res='warning'; } }
+    else if(P.prob && avg>=50){ P.prob=false; res='cleared'; }
+    out.board={res,avg:Math.round(avg),need,atCap,top,r0:r,r1:rankOf(P.xp)}; out.prob=!!P.prob; P.log=[];
+  }
+  try{ localStorage.setItem(PROGRESS_KEY,JSON.stringify(p)); }catch(e){}
+  lastBoard=out; return out;
+}
+function rankNoteHTML(o){
+  if(!o) return ''; const R=RANKS[o.side], b=o.board, st='font-size:13px;margin-top:6px;';
+  let h=`<div style="${st}opacity:.9">SORTIE RATING <b>${o.perf}</b>/100 · ${b?'promotion board held':`board in ${BOARD_N-o.n} sortie${BOARD_N-o.n>1?'s':''}`}</div>`;
+  if(b){ const a=`(average ${b.avg}, ${b.top?'top rank':`needs ${b.need}${b.atCap?'':' and enough merit'}`})`;
+    if(b.res==='promoted') h+=`<div class="promo">★ PROMOTION BOARD: promoted to ${R[b.r1][0]}! ${a}</div>`;
+    else if(b.res==='demoted') h+=`<div class="promo" style="color:#c0392b">▼ DEMOTED to ${R[b.r1][0]}. Weapons from your old rank are locked again. ${a}</div>`;
+    else if(b.res==='warning') h+=`<div class="promo" style="color:#c0792b">⚠ ON PROBATION: another poor board and you are demoted. ${a}</div>`;
+    else if(b.res==='cleared') h+=`<div class="promo" style="color:#4a8a4a">Probation lifted. ${a}</div>`;
+    else h+=`<div style="${st}opacity:.85">Board: no change ${a}</div>`; }
+  else if(o.prob) h+=`<div style="${st}color:#c0792b">⚠ On probation</div>`;
+  return h;
 }
 function rankLine(side){
   const xp=record(side).xp, r=rankOf(xp), R=RANKS[side][r], next=RANK_XP[r+1];
-  return {r,xp,name:R[0],native:R[1],next,frac: next ? (xp-RANK_XP[r])/(next-RANK_XP[r]) : 1};
+  const P=readProgress()[side], left=BOARD_N-(P.n||0), top=!next, atCap=!top && xp>=next-1;
+  const status=(P.prob?'⚠ ON PROBATION · ':'')+`board in ${left} sortie${left>1?'s':''}`+(top?'':atCap?' · merit full':' · earn more merit')+` · avg ${(P.log&&P.log.length)?Math.round(P.log.reduce((a,b)=>a+b,0)/P.log.length):'-'}`;
+  return {r,xp,name:R[0],native:R[1],next,status,frac: next ? (xp-RANK_XP[r])/(next-RANK_XP[r]) : 1};
 }
 function renderRecord(){
   const side=selSide, res=lastResult, rl=rankLine(side), el=$('dRecord');
@@ -14215,8 +14251,8 @@ function renderRecord(){
       <div style="font-size:12px;opacity:.75">YOUR RANK</div>
       <div style="font-size:20px;font-weight:bold">${rl.name}</div><div style="font-size:12px;font-style:italic;opacity:.75">${rl.native}</div>
       <div class="xpbar"><div style="width:${Math.round(rl.frac*100)}%"></div></div>
-      <div style="font-size:12px">${rl.xp} XP${rl.next?` · next rank at ${rl.next}`:' · highest rank'}</div>
-      ${res.newRank>res.oldRank?`<div class="promo">★ PROMOTED to ${RANKS[side][res.newRank][0]}!</div>`:''}
+      <div style="font-size:12px">${rl.xp} XP${rl.next?` · next rank at ${rl.next}`:' · highest rank'}</div><div style="font-size:11px;opacity:.85">${rl.status}</div>
+      ${rankNoteHTML(res.bo)}
       ${res.unlocked.length?`<div class="promo">🔓 New weapon${res.unlocked.length>1?'s':''}: ${res.unlocked.join(', ')}</div>`:''}
       ${(()=>{ const L=COSMETICS.filter(c=>c.r>res.oldRank&&c.r<=res.newRank).map(c=>c.name); return L.length?`<div class="promo">🎖 New look${L.length>1?'s':''}: ${L.join(', ')}</div>`:''; })()}
     </div></div>
@@ -14246,6 +14282,9 @@ let backPayNote={};
   }
   if(changed) try{ localStorage.setItem(PROGRESS_KEY,JSON.stringify(p)); }catch(e){}
 })();
+
+// the old XP-only ranks are retired: everybody starts again at the bottom under the promotion boards
+(function rankReset(){ const p=readProgress(); let ch=false; for(const sd in p){ const P=p[sd]; if(P.sys!==2){ P.sys=2; P.xp=0; P.n=0; P.log=[]; P.prob=false; P.cos='std'; ch=true; } } if(ch) try{ localStorage.setItem(PROGRESS_KEY,JSON.stringify(p)); }catch(e){} })();
 
 /* ================= 1v1 ONLINE DUEL (peer-to-peer through the free PeerJS service) ================= */
 const DUEL_PREFIX='eastern-front-duel-v1-', DUEL_WIN=5;
